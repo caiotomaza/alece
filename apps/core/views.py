@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from django.db import connection
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.http import require_GET
+
+
+@require_GET
+def index(request):
+    return render(request, "index.html", {"version": "0.1.0 (base técnica)"})
+
+
+@require_GET
+def live(request):
+    return JsonResponse({"status": "alive"})
+
+
+@require_GET
+def ready(request):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+    except Exception:
+        return JsonResponse({"status": "unavailable"}, status=503)
+    return JsonResponse({"status": "ready"})
