@@ -1,1 +1,14 @@
--r development.in
+asgiref==3.12.1
+django==5.2.18
+gunicorn==23.0.0
+iniconfig==2.3.1
+packaging==26.3
+pluggy==1.7.0
+psycopg[binary]==3.3.6
+psycopg-binary==3.3.6
+pygments==2.21.0
+pytest==9.1.1
+pytest-django==4.14.0
+ruff==0.17.1
+sqlparse==0.6.0
+whitenoise==6.12.0
