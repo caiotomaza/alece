@@ -14,6 +14,17 @@ class HealthViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['status'], 'ready')
 
-    def test_landing_is_not_a_fake_production_dashboard(self):
+    def test_landing_requires_login(self):
+        """Home page should redirect to login when not authenticated."""
         response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_landing_shows_dev_base_when_logged_in(self):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.create_user(username='testuser', password='testpass123')
+        self.client.force_login(user)
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Base de desenvolvimento')

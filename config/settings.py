@@ -19,7 +19,7 @@ if not SECRET_KEY or SECRET_KEY.startswith("CHANGE_ME"):
     raise RuntimeError("ALECE_SECRET_KEY ausente. Use um segredo aleatório em .env.")
 
 DEBUG = env_bool("ALECE_DEBUG")
-ALLOWED_HOSTS = env_list("ALECE_ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = env_list("ALECE_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
 CSRF_TRUSTED_ORIGINS = env_list("ALECE_CSRF_TRUSTED_ORIGINS")
 
 INSTALLED_APPS = [
@@ -96,6 +96,9 @@ CSRF_COOKIE_SECURE = env_bool("ALECE_SECURE_COOKIES", False)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
