@@ -1,5 +1,5 @@
 # LTS: intervalos limitados. Em release de produção, usar lock com hashes/artefato imutável.
 Django>=5.2.8,<5.3
 psycopg[binary]>=3.2,<3.4
-gunicorn>=23,<24
+gunicorn>=26.2.0,<27
 whitenoise>=6.8,<7
