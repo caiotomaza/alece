@@ -1,0 +1,106 @@
+{% load static %}
+<!-- Modal de detalhe de linha de importação -->
+<div class="dialog-fallback" data-dialog-content>
+  <dialog class="unified-dialog" data-edit-dialog id="import-row-detail-dialog">
+    <div class="dialog-in">
+      <div class="dialog-title">
+        <h2>Detalhe da linha #{{ row.row_number }}</h2>
+        <button class="close-x" aria-label="Fechar">&times;</button>
+      </div>
+      
+      <div class="dialog-form">
+        <div class="form-field">
+          <label>Data da transação</label>
+          <input type="text" value="{{ row.occurred_on|date:'d/m/Y' }}" class="form-input" readonly>
+        </div>
+        
+        {% if row.posted_on and row.posted_on != row.occurred_on %}
+        <div class="form-field">
+          <label>Data de compensação</label>
+          <input type="text" value="{{ row.posted_on|date:'d/m/Y' }}" class="form-input" readonly>
+        </div>
+        {% endif %}
+        
+        <div class="form-field">
+          <label>Descrição</label>
+          <input type="text" value="{{ row.description }}" class="form-input" readonly>
+        </div>
+        
+        {% if row.memo %}
+        <div class="form-field">
+          <label>Memo</label>
+          <textarea class="form-input" readonly rows="2">{{ row.memo }}</textarea>
+        </div>
+        {% endif %}
+        
+        <div class="form-inline">
+          <div class="form-field">
+            <label>Valor (R$)</label>
+            <input type="text" value="{% if row.is_credit %}+{% else %}-{% endif %} {{ row.amount|floatformat:2 }}" class="form-input" readonly>
+          </div>
+          <div class="form-field">
+            <label>Tipo</label>
+            <input type="text" value="{{ row.get_suggested_kind_display|default:row.suggested_kind }}" class="form-input" readonly>
+          </div>
+        </div>
+        
+        <div class="form-inline">
+          <div class="form-field">
+            <label>Confiança</label>
+            <input type="text" value="{{ row.confidence|floatformat:0 }}%" class="form-input" readonly>
+          </div>
+          <div class="form-field">
+            <label>Status</label>
+            <input type="text" value="{{ row.get_status_display }}" class="form-input" readonly>
+          </div>
+        </div>
+        
+        {% if row.fitid %}
+        <div class="form-field">
+          <label>FITID</label>
+          <input type="text" value="{{ row.fitid }}" class="form-input" readonly style="font-family: monospace; font-size: 12px;">
+        </div>
+        {% endif %}
+        
+        {% if suggestion %}
+        <div class="dialog-info" style="margin-top: 1rem;">
+          <strong>Sugestão de reconciliação:</strong> {{ suggestion.action|capfirst }}
+          <br><strong>Justificativa:</strong> {{ suggestion.justification }}
+          {% if suggestion.warnings %}
+          <br><strong style="color: var(--warning);">Avisos:</strong>
+          <ul style="margin: 0.5rem 0 0;">
+            {% for w in suggestion.warnings %}<li>{{ w }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if row.linked_batch %}
+        <div class="dialog-info" style="margin-top: 1rem; border-color: var(--positive);">
+          <strong style="color: var(--positive);">✓ Já vinculada à movimentação #{{ row.linked_batch.pk }}</strong>
+          <br>{{ row.linked_batch.get_kind_display }} · R$ {{ row.linked_batch.amount|floatformat:2 }} · {{ row.linked_batch.occurred_on|date:"d/m/Y" }}
+        </div>
+        {% endif %}
+        
+        <div class="dialog-row">
+          <button type="button" class="btn" onclick="closeDialog()">Fechar</button>
+          {% if can_edit %}
+          <a href="{% url 'finance:import-row-edit' profile.pk batch.pk row.pk %}#edit" class="btn secondary">Editar</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </dialog>
+</div>
+
+<script>
+function closeDialog() {
+  const dialog = document.getElementById('import-row-detail-dialog');
+  if (dialog) dialog.close();
+}
+
+if (window.location.hash === '#detail') {
+  const dialog = document.getElementById('import-row-detail-dialog');
+  if (dialog) dialog.showModal();
+}
+</script>

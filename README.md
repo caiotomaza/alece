@@ -1,11 +1,11 @@
-# ALECE — Base de desenvolvimento (Sprint 03 concluído)
+# ALECE — Base de desenvolvimento (Sprint 04 concluído)
 
 **Gestão financeira pessoal e familiar, gratuita, self-hosted e código aberto.**
 
-![status](https://img.shields.io/badge/estado-sprint%2003%20conclu%C3%ADdo-215d40)
+![status](https://img.shields.io/badge/estado-sprint%2004%20conclu%C3%ADdo-215d40)
 ![license](https://img.shields.io/badge/licen%C3%A7a-GPL--3.0--only-215d40)
 
-**Estado real:** fluxos Django persistentes e auditados para autenticação, perfis, cadastros, pagamentos parciais e divididos entre múltiplas contas, competências mensais, transferências, aplicações, resgates, estornos simétricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao protótipo v1.32.1 (temas Claro/Escuro, modais com ações no rodapé e lápis por linha). Importações OFX/CSV e reconciliação bancária planejadas para o Sprint 04. **Não usar com finanças reais antes da revisão final de segurança, restore e implantação oficial.**
+**Estado real:** fluxos Django persistentes e auditados para autenticação, perfis, cadastros, pagamentos parciais e divididos entre múltiplas contas, competências mensais, transferências, aplicações, resgates, estornos simétricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao protótipo v1.32.1 (temas Claro/Escuro, modais com ações no rodapé e lápis por linha). **Importações OFX/CSV com adaptadores modulares, detecção conservadora de duplicidades (FITID + contextual), reconciliação assistida com vínculo a lançamentos existentes, categorização por regras De-Para, prévia editável com confirmação humana obrigatória e relatório detalhado.** **Não usar com finanças reais antes da revisão final de segurança, restore e implantação oficial.**
 
 ## Objetivos
 
@@ -19,9 +19,9 @@
 
 | Camada | Implementado | Planejado |
 |---|---|---|
-| App Django | Login/recuperação auditados, saúde, visão geral, despesas, investimentos, movimentações, perfis e grants granulares | Importações OFX/CSV, categorização e reconciliação |
-| Domínio | Workspaces, perfis, contas, despesas, investimentos, reserva, ledger contábil, partidas dobradas, competências | REST e isolamento autorizado por endpoint |
-| Finanças | Pagamentos parciais e multi-conta, quitação, estornos, transferências, aplicações, resgates, reserva 6–12 meses, distinção NULL vs 0 | Importações de extrato e conciliação assistida |
+| App Django | Login/recuperação auditados, saúde, visão geral, despesas, investimentos, movimentações, perfis, grants granulares, **importação OFX/CSV** | Categorização inteligente, REST e isolamento autorizado por endpoint |
+| Domínio | Workspaces, perfis, contas, despesas, investimentos, reserva, ledger contábil, partidas dobradas, competências, **ImportBatch/ImportRow** |  |
+| Finanças | Pagamentos parciais e multi-conta, quitação, estornos, transferências, aplicações, resgates, reserva 6–12 meses, distinção NULL vs 0, **reconciliação assistida, categorização De-Para** |  |
 | Auth/Permissões | **Login/logout, recuperação offline protegida, roles admin/common, grants modulares por perfil, limites de tentativas** | MFA, convites e gestão de múltiplos usuários |
 | Infra | Dockerfile não-root com hash-pinning, Compose com healthcheck, Postgres sem porta externa, bootstrap/deploy/backup | Observabilidade e retenção institucional |
 | Entrega | GitHub Actions CI, publicação manual e explícita por tag, auditoria de dependências pip-audit | CD para ZimaOS após validação |

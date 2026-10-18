@@ -1,0 +1,169 @@
+{% extends "finance/base.html" %}
+{% block title %}Relatório de Importação · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Relatório de Importação</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar à lista</a>
+</div>
+
+<!-- Resumo -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h2 style="margin-top: 0;">{{ report.summary }}</h2>
+  
+  <div class="metrics">
+    <article class="card metric">
+      <h3>Total processado</h3>
+      <strong>{{ report.total_rows }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Confirmadas</h3>
+      <strong style="color: var(--positive);">{{ report.committed }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Vinculadas a existentes</h3>
+      <strong>{{ report.linked_existing }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Ignoradas</h3>
+      <strong>{{ report.ignored }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Duplicatas</h3>
+      <strong style="color: var(--warning);">{{ report.duplicates }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Erros</h3>
+      <strong style="color: var(--negative);">{{ report.errors }}</strong>
+    </article>
+  </div>
+  
+  {% if report.warnings %}
+  <div style="margin-top: 1rem; padding: 1rem; background: var(--gold-soft); border-radius: 8px; border: 1px solid var(--warning);">
+    <strong>Avisos:</strong>
+    <ul style="margin: 0.5rem 0 0;">
+      {% for w in report.warnings %}
+      <li>{{ w }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Detalhes das movimentações criadas -->
+{% if report.created_batches %}
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Movimentações criadas/vinculadas ({{ report.created_batches|length }})</h3>
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Descrição</th>
+          <th class="align-right">Valor</th>
+          <th>Conta(s)</th>
+          <th>Competência</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in report.created_batches %}
+        <tr>
+          <td>{{ b.occurred_on|date:"d/m/Y" }}</td>
+          <td>{{ b.get_kind_display }}</td>
+          <td>{{ b.note }}</td>
+          <td class="align-right">R$ {{ b.amount|floatformat:2 }}</td>
+          <td>
+            {% for leg in b.legs.all %}
+            {{ leg.account.name }} ({{ leg.delta|floatformat:2 }})<br>
+            {% endfor %}
+          </td>
+          <td>{% if b.competence_month %}{{ b.competence_month|date:"m/Y" }}{% else %}—{% endif %}</td>
+          <td>
+            <span class="status-chip confirmed">Confirmado</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Detalhes das linhas -->
+<div class="card">
+  <h3 style="margin-top: 0;">Detalhes por linha</h3>
+  <div class="table-wrap">
+    <table class="source-table" data-table-sort>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th class="align-right">Valor</th>
+          <th>Ação realizada</th>
+          <th>Movimentação vinculada</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in batch.rows.all %}
+        <tr>
+          <td>{{ row.row_number }}</td>
+          <td>{{ row.occurred_on|date:"d/m/Y" }}</td>
+          <td>{{ row.description }}</td>
+          <td class="align-right">
+            {% if row.is_credit %}+{% else %}-{% endif %} R$ {{ row.amount|floatformat:2 }}
+          </td>
+          <td>
+            <span class="status-chip
+              {% if row.status == 'committed' %}confirmed{% endif %}
+              {% if row.status == 'ignored' %}partial{% endif %}
+              {% if row.status == 'duplicate' %}{% endif %}
+            ">
+              {{ row.get_status_display }}
+            </span>
+          </td>
+          <td>
+            {% if row.linked_batch %}
+            <a href="{% url 'finance:movement-detail' profile.pk row.linked_batch.pk %}">
+              #{{ row.linked_batch.pk }} · {{ row.linked_batch.get_kind_display }} · R$ {{ row.linked_batch.amount|floatformat:2 }}
+            </a>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="source-empty">Nenhuma linha.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Auditoria -->
+<div class="card" style="margin-top: 1.5rem;">
+  <h3 style="margin-top: 0;">Trilha de Auditoria</h3>
+  <dl style="font-size: 13px; line-height: 2;">
+    <dt>Arquivo original:</dt>
+    <dd>{{ batch.filename }}</dd>
+    <dt>Hash SHA-256:</dt>
+    <dd><code style="font-size: 12px;">{{ batch.file_hash }}</code></dd>
+    <dt>Formato:</dt>
+    <dd>{{ batch.get_format_display }} (parser {{ batch.parser_version }})</dd>
+    <dt>Perfil:</dt>
+    <dd>{{ batch.profile.emoji }} {{ batch.profile.name }}</dd>
+    <dt>Conta:</dt>
+    <dd>{{ batch.account.name|default:"Não identificada" }}</dd>
+    <dt>Importado por:</dt>
+    <dd>{{ batch.created_by.username }} em {{ batch.created_at|date:"d/m/Y H:i:s" }}</dd>
+    {% if batch.committed_at %}
+    <dt>Confirmado por:</dt>
+    <dd>{{ batch.rows.first.decided_by.username|default:"—" }} em {{ batch.committed_at|date:"d/m/Y H:i:s" }}</dd>
+    <dt>Chave idempotente:</dt>
+    <dd><code style="font-size: 12px;">{{ batch.idempotency_key }}</code></dd>
+    {% endif %}
+  </dl>
+</div>
+{% endblock %}

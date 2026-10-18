@@ -2,7 +2,7 @@
 from django.urls import path
 
 from apps.finance import views
-from apps.finance import grant_views, transaction_views
+from apps.finance import grant_views, transaction_views, import_views
 
 app_name = "finance"
 urlpatterns = [
@@ -28,6 +28,16 @@ urlpatterns = [
     path("profiles/<int:profile_id>/investments/<int:investment_id>/withdraw/", transaction_views.withdrawal, name="withdrawal"),
     path("profiles/<int:profile_id>/movements/<int:batch_id>/", transaction_views.movement_detail, name="movement-detail"),
     path("profiles/<int:profile_id>/movements/<int:batch_id>/reverse/", transaction_views.reverse_movement, name="reverse-movement"),
+    
+    # Importação bancária
+    path("workspaces/<int:workspace_id>/imports/", import_views.import_list, name="import-list"),
+    path("profiles/<int:profile_id>/imports/new/", import_views.import_upload, name="import-upload"),
+    path("profiles/<int:profile_id>/imports/<int:batch_id>/", import_views.import_preview, name="import-preview"),
+    path("profiles/<int:profile_id>/imports/<int:batch_id>/dry-run/", import_views.import_dry_run, name="import-dry-run"),
+    path("profiles/<int:profile_id>/imports/<int:batch_id>/commit/", import_views.import_commit, name="import-commit"),
+    path("profiles/<int:profile_id>/imports/<int:batch_id>/report/", import_views.import_report, name="import-report"),
+    path("profiles/<int:profile_id>/imports/<int:batch_id>/rows/<int:row_id>/edit/", import_views.import_row_edit, name="import-row-edit"),
+    path("profiles/<int:profile_id>/imports/<int:batch_id>/rows/<int:row_id>/", import_views.import_row_detail, name="import-row-detail"),
 ]
 
 for kind in ("account", "recurring", "unexpected", "investment"):

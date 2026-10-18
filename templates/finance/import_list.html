@@ -1,0 +1,115 @@
+{% extends "finance/base.html" %}
+{% block title %}Importações · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Importações Bancárias</h1>
+  </div>
+</div>
+
+<!-- Filtros -->
+<form method="get" class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+    <div class="filter-field" style="flex: 1; min-width: 200px;">
+      <label for="id_profile">Perfil financeiro</label>
+      <select name="profile" id="id_profile" class="form-input">
+        <option value="">Todos os perfis</option>
+        {% for p in profiles %}
+        <option value="{{ p.pk }}" {% if selected_profile == p.pk %}selected{% endif %}>
+          {{ p.emoji }} {{ p.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn">Filtrar</button>
+      <a href="{% url 'finance:import-list' workspace.pk %}" class="btn secondary">Limpar</a>
+    </div>
+  </div>
+</form>
+
+<!-- Botão de nova importação -->
+{% if can_import %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="{% url 'finance:import-upload' profile.pk %}" class="btn" id="quick-add">
+    <span>+</span> Nova importação
+  </a>
+</div>
+{% endif %}
+
+<!-- Lista de importações -->
+{% if batches %}
+<div class="table-wrap">
+  <table class="source-table" data-table-sort>
+    <thead>
+      <tr>
+        <th>Arquivo</th>
+        <th>Perfil</th>
+        <th>Conta</th>
+        <th>Formato</th>
+        <th class="align-right">Linhas</th>
+        <th>Status</th>
+        <th class="align-right">Data</th>
+        <th><span class="sr-only">Ações</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for batch in batches %}
+      <tr>
+        <td>
+          <strong>{{ batch.filename }}</strong>
+          {% if batch.file_hash %}
+          <div class="subline muted" style="font-family: monospace; font-size: 10px;">
+            SHA-256: {{ batch.file_hash|truncatechars:16 }}
+          </div>
+          {% endif %}
+        </td>
+        <td>{{ batch.profile.emoji }} {{ batch.profile.name }}</td>
+        <td>{{ batch.account.name|default:"—" }}</td>
+        <td>
+          <span class="demo-pill">{{ batch.get_format_display }}</span>
+          {% if batch.parser_version %}
+          <div class="subline muted">Parser: {{ batch.parser_version }}</div>
+          {% endif %}
+        </td>
+        <td class="align-right">
+          {{ batch.valid_rows }} válidas
+          {% if batch.duplicate_rows %} · {{ batch.duplicate_rows }} duplicadas{% endif %}
+          {% if batch.error_rows %} · {{ batch.error_rows }} erros{% endif %}
+        </td>
+        <td>
+          <span class="status-chip
+            {% if batch.status == 'committed' %}confirmed{% endif %}
+            {% if batch.status == 'validated' or batch.status == 'reviewed' %}partial{% endif %}
+            {% if batch.status == 'failed' %}{% endif %}
+          ">
+            {{ batch.get_status_display }}
+          </span>
+          {% if batch.committed_at %}
+          <div class="subline muted">Confirmado em {{ batch.committed_at|date:"d/m/Y H:i" }}</div>
+          {% endif %}
+        </td>
+        <td class="align-right">{{ batch.created_at|date:"d/m/Y H:i" }}</td>
+        <td>
+          <div style="display: flex; gap: 0.5rem;">
+            {% if batch.status in 'validated,reviewed' and can_import %}
+            <a href="{% url 'finance:import-preview' profile.pk batch.pk %}" class="row-action" title="Revisar e confirmar">Revisar</a>
+            {% elif batch.status == 'committed' %}
+            <a href="{% url 'finance:import-report' profile.pk batch.pk %}" class="row-action" title="Ver relatório">Relatório</a>
+            {% endif %}
+            <a href="{% url 'finance:import-detail' profile.pk batch.pk %}" class="row-action" title="Ver detalhes">Ver</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="card contextual-empty">
+  <h2>Nenhuma importação encontrada</h2>
+  <p>Importe arquivos CSV ou OFX de extratos bancários para começar a conciliação.</p>
+</p>
+{% endif %}
+{% endblock %}

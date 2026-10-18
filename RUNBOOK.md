@@ -105,6 +105,39 @@ As movimentações financeiras gravadas (`TransactionBatch`, `LedgerLeg` e `Jour
 - Migração falhada: **não** insistir executando migrations aleatórias; restaurar ambiente de homologação e analisar `showmigrations`.
 - Bug após release: retornar à imagem anterior e avaliar se o banco demanda restauração. Recuo apenas do código não desfaz mudanças irreversíveis de schema.
 
-## 9. Encerramento de intervenção
+## 9. Operações de Importação Bancária (Sprint 04)
+
+### 9.1 Fluxo de Importação
+1. **Upload** via interface web (`/finance/workspaces/<id>/imports/new/`) — aceita CSV e OFX.
+2. **Staging** — arquivo validado, parseado, hash SHA-256 computado, transações normalizadas e gravadas em `ImportBatch` + `ImportRow`.
+3. **Detecção de duplicidades** — por FITID (OFX), hash de arquivo (reimportação), comparação contextual (data ±1 dia, valor exato, descrição similar).
+4. **Reconciliação assistida** — sugestões automáticas: vincular a despesa existente, pagamento parcial, nova despesa imprevisível, aplicação/resgate em investimento, transferência, recebimento.
+5. **Prévia editável** — usuário revisa cada linha, ajusta valor/descrição/tipo/conta/competência, define splits multi-conta.
+6. **Commit atômico** — confirmação humana obrigatória, idempotência por chave, criação/vinculação de `TransactionBatch` com ledger balanceado.
+
+### 9.2 Formatos Suportados
+- **CSV**: UTF-8, ISO-8859-1, Windows-1252; delimitadores `;`, `,`, tab, `|`; cabeçalho opcional; colunas crédito/débito separadas ou valor único com sinal.
+- **OFX 1.x**: Formato SGML (ex: bancos brasileiros legados).
+- **OFX 2.x**: Formato XML com proteção contra XXE e expansão de entidades.
+
+### 9.3 Segurança
+- Processamento 100% local (self-hosted), zero transmissão externa.
+- Limites: 5 MiB por arquivo, 5.000 transações.
+- Sanitização de textos (remoção de caracteres de controle, XSS, formula injection).
+- Hash SHA-256 do arquivo original para auditoria e deduplicação.
+- Validação de codificação, estrutura, limites antes de processar.
+
+### 9.4 Permissões
+- Requer `accounts:edit` e `movements:edit` no perfil alvo.
+- Administrador do workspace tem acesso irrestrito.
+- Usuário comum depende de `ProfileGrant` explícito.
+- Revogação de grant vale na próxima requisição (invalida cache/sessão).
+
+### 9.5 Monitoramento de Importações
+- Lista em `/finance/workspaces/<id>/imports/` mostra status: `staged`, `validated`, `reviewed`, `committed`, `failed`.
+- Relatório pós-commit (`/imports/<id>/report/`) detalha: confirmadas, vinculadas, ignoradas, duplicatas, erros, trilha de auditoria (hash, idempotency key, autor, timestamp).
+- Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` registram upload, parse, commit.
+
+## 10. Encerramento de intervenção
 
 Anote versão da imagem, commit, resultado de CI, backup/hash, testes de leitura e escrita, horários, erros e caminho do rollback. Mantenha arquivos de log e backup; jamais delete automaticamente.

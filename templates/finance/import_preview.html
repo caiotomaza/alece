@@ -1,0 +1,383 @@
+{% extends "finance/base.html" %}
+{% block title %}Revisar Importação · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Revisar Importação</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<!-- Info do lote -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+    <div>
+      <strong>{{ batch.filename }}</strong>
+      <div class="muted" style="font-size: 12px;">
+        {{ batch.profile.emoji }} {{ batch.profile.name }} · 
+        {% if batch.account %}{{ batch.account.name }}{% else %}Conta não identificada{% endif %} · 
+        {{ batch.get_format_display }} · {{ batch.parser_version }}
+      </div>
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      Hash: <code style="font-size: 11px;">{{ batch.file_hash }}</code>
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      {{ batch.created_at|date:"d/m/Y H:i" }} por {{ batch.created_by.username|default:"Sistema" }}
+    </div>
+    <span class="status-chip
+      {% if batch.status == 'committed' %}confirmed{% endif %}
+      {% if batch.status in 'validated,reviewed' %}partial{% endif %}
+    ">{{ batch.get_status_display }}</span>
+  </div>
+</div>
+
+<!-- Estatísticas -->
+<div class="metrics" style="margin-bottom: 1.5rem;">
+  <article class="card metric">
+    <h3>Total</h3>
+    <strong>{{ stats.total }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Válidas</h3>
+    <strong style="color: var(--positive);">{{ stats.valid }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Duplicatas</h3>
+    <strong style="color: var(--warning);">{{ stats.duplicates }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Erros</h3>
+    <strong style="color: var(--negative);">{{ stats.errors }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Vincular existentes</h3>
+    <strong>{{ stats.suggested_link }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Novas</h3>
+    <strong>{{ stats.suggested_new }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Pag. parciais</h3>
+    <strong>{{ stats.suggested_partial }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Ignorar</h3>
+    <strong>{{ stats.ignored }}</strong>
+  </article>
+</div>
+
+<!-- Avisos globais -->
+{% if batch.duplicate_rows > 0 %}
+<div class="card" style="border-color: var(--warning); background: var(--gold-soft); margin-bottom: 1rem;">
+  <p class="muted" style="margin: 0;">
+    <strong>⚠ {{ batch.duplicate_rows }} duplicata(s) detectada(s).</strong> 
+    Linhas marcadas como duplicata serão ignoradas por padrão. Revise se deseja confirmar alguma.
+  </p>
+</div>
+{% endif %}
+{% if batch.error_rows > 0 %}
+<div class="card" style="border-color: var(--negative); background: color-mix(in srgb, var(--negative) 8%, var(--surface)); margin-bottom: 1rem;">
+  <p class="muted" style="margin: 0;">
+    <strong>⚠ {{ batch.error_rows }} linha(s) com erro.</strong> 
+    Verifique dados obrigatórios (data, descrição, valor) antes de confirmar.
+  </p>
+</div>
+{% endif %}
+
+<!-- Formulário de revisão -->
+<form method="post" action="{{ commit_url }}" id="import-commit-form">
+  {% csrf_token %}
+  <input type="hidden" name="idempotency_key" value="{{ batch.idempotency_key|default:uuid4.hex }}">
+  
+  <div class="table-wrap">
+    <table class="source-table" data-table-sort>
+      <thead>
+        <tr>
+          <th style="width: 40px;">#</th>
+          <th>Data</th>
+          <th>Descrição / Memo</th>
+          <th class="align-right" style="width: 130px;">Valor</th>
+          <th>Tipo sugerido</th>
+          <th>Confiança</th>
+          <th style="width: 180px;">Ação</th>
+          <th style="width: 50px;">
+            <input type="checkbox" id="select-all" title="Selecionar todas">
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in rows_data %}
+        {% with row=item.row suggestion=item.suggestion %}
+        <tr class="
+          {% if suggestion.action == 'ignore' %}row-ignored{% endif %}
+          {% if suggestion.action == 'link_existing' %}row-link{% endif %}
+          {% if suggestion.action == 'partial_payment' %}row-partial{% endif %}
+          {% if row.status == 'ERROR' %}row-error{% endif %}
+        ">
+          <td>{{ row.row_number }}</td>
+          <td>
+            {{ row.occurred_on|date:"d/m/Y" }}
+            {% if row.posted_on and row.posted_on != row.occurred_on %}
+            <div class="subline muted">Compens.: {{ row.posted_on|date:"d/m/Y" }}</div>
+            {% endif %}
+          </td>
+          <td>
+            <strong>{{ row.description }}</strong>
+            {% if row.memo %}
+            <div class="subline muted">{{ row.memo }}</div>
+            {% endif %}
+            {% if row.fitid %}
+            <div class="subline muted" style="font-family: monospace; font-size: 10px;">
+              FITID: {{ row.fitid|truncatechars:24 }}
+            </div>
+            {% endif %}
+            {% if row.status == 'ERROR' %}
+            <div class="subline" style="color: var(--negative); font-size: 11px;">
+              ⚠ Dados incompletos ou inválidos
+            </div>
+            {% endif %}
+          </td>
+          <td class="align-right" style="font-variant-numeric: tabular-nums;">
+            {% if row.is_credit %}
+            <span style="color: var(--positive);">+ R$ {{ row.amount|floatformat:2 }}</span>
+            {% else %}
+            <span style="color: var(--negative);">- R$ {{ row.amount|floatformat:2 }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="demo-pill">{{ row.get_suggested_kind_display|default:row.suggested_kind }}</span>
+            {% if row.confidence > 0 %}
+            <div class="subline muted">Confiança: {{ row.confidence|floatformat:0 }}%</div>
+            {% endif %}
+          </td>
+          <td>
+            <div class="subline muted" style="font-size: 10px; max-width: 200px;">{{ suggestion.justification|truncatechars:80 }}</div>
+            {% if suggestion.warnings %}
+            <div class="subline" style="color: var(--warning); font-size: 10px;">
+              {% for w in suggestion.warnings %}⚠ {{ w }}{% if not forloop.last %} | {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+          </td>
+          <td>
+            <select name="row_{{ row.pk }}_action" class="form-input action-select" 
+                    {% if not can_edit_rows %}disabled{% endif %}
+                    data-row-id="{{ row.pk }}"
+                    data-default-action="{{ suggestion.action }}">
+              <option value="create_new" {% if suggestion.action == 'create_new' %}selected{% endif %}>Criar nova</option>
+              <option value="link_existing" {% if suggestion.action == 'link_existing' %}selected{% endif %}>Vincular existente</option>
+              <option value="partial_payment" {% if suggestion.action == 'partial_payment' %}selected{% endif %}>Pagamento parcial</option>
+              <option value="ignore" {% if suggestion.action == 'ignore' %}selected{% endif %}>Ignorar</option>
+            </select>
+            
+            <!-- Campos condicionais (mostrados via JS) -->
+            <div class="action-fields" id="fields-{{ row.pk }}" style="display: none; margin-top: 0.5rem;">
+              <!-- Vincular existente -->
+              <div class="action-field link-field">
+                <label class="muted" style="font-size: 11px;">Movimentação alvo</label>
+                <select name="row_{{ row.pk }}_target_batch_id" class="form-input">
+                  <option value="">Selecione...</option>
+                  {% for m in suggestion.target_batch|default_if_none:"" %}
+                  {% empty %}
+                  {% endfor %}
+                </select>
+              </div>
+              
+              <!-- Pagamento parcial -->
+              <div class="action-field partial-field">
+                <label class="muted" style="font-size: 11px;">Despesa alvo</label>
+                <select name="row_{{ row.pk }}_target_expense_id" class="form-input">
+                  <option value="">Selecione...</option>
+                </select>
+                <label class="muted" style="font-size: 11px; margin-top: 0.5rem;">Valor ajustado</label>
+                <input type="number" step="0.01" min="0.01" 
+                       name="row_{{ row.pk }}_adjusted_amount" 
+                       value="{{ row.amount|floatformat:2 }}" class="form-input" style="width: 120px;">
+              </div>
+              
+              <!-- Comum: valor, descrição, tipo, competência, splits -->
+              <div class="action-field common-field">
+                <label class="muted" style="font-size: 11px;">Valor (R$)</label>
+                <input type="number" step="0.01" min="0.01" 
+                       name="row_{{ row.pk }}_adjusted_amount" 
+                       value="{{ row.amount|floatformat:2 }}" class="form-input" style="width: 120px;">
+              </div>
+              <div class="action-field common-field">
+                <label class="muted" style="font-size: 11px;">Descrição</label>
+                <input type="text" name="row_{{ row.pk }}_adjusted_description" 
+                       value="{{ row.description }}" class="form-input">
+              </div>
+              <div class="action-field common-field">
+                <label class="muted" style="font-size: 11px;">Tipo</label>
+                <select name="row_{{ row.pk }}_adjusted_kind" class="form-input">
+                  <option value="recurring" {% if row.suggested_kind == 'recurring' %}selected{% endif %}>Pagamento previsível</option>
+                  <option value="unexpected" {% if row.suggested_kind == 'unexpected' %}selected{% endif %}>Despesa imprevisível</option>
+                  <option value="application" {% if row.suggested_kind == 'application' %}selected{% endif %}>Aplicação</option>
+                  <option value="withdrawal" {% if row.suggested_kind == 'withdrawal' %}selected{% endif %}>Resgate</option>
+                  <option value="transfer" {% if row.suggested_kind == 'transfer' %}selected{% endif %}>Transferência</option>
+                  <option value="income" {% if row.suggested_kind == 'income' %}selected{% endif %}>Recebimento</option>
+                </select>
+              </div>
+              <div class="action-field common-field">
+                <label class="muted" style="font-size: 11px;">Competência (AAAA-MM)</label>
+                <input type="month" name="row_{{ row.pk }}_competence_month" 
+                       value="{{ row.occurred_on|date:'Y-m' }}" class="form-input" style="width: 160px;">
+              </div>
+              
+              <!-- Split multi-conta -->
+              <div class="action-field split-field" style="margin-top: 0.5rem;">
+                <label class="muted" style="font-size: 11px;">Dividir entre contas (soma deve igualar valor)</label>
+                <div id="splits-{{ row.pk }}" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                  {% for acc in accounts %}
+                  <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--surface); padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border);">
+                    <input type="checkbox" name="row_{{ row.pk }}_split_{{ acc.pk }}" value="{{ acc.pk }}" 
+                           data-amount="{{ acc.balance|floatformat:2 }}">
+                    <span>{{ acc.name }}</span>
+                    <input type="number" step="0.01" min="0" 
+                           name="row_{{ row.pk }}_split_amt_{{ acc.pk }}" 
+                           value="0" class="form-input" style="width: 100px;" disabled>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <input type="checkbox" name="row_{{ row.pk }}_selected" class="row-checkbox" 
+                   data-row-id="{{ row.pk }}" {% if suggestion.action == 'ignore' %}checked{% endif %}>
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr>
+          <td colspan="9" class="source-empty">Nenhuma transação neste lote.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Ações em massa -->
+  <div class="card" style="margin-top: 1rem; padding: 1rem;">
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+      <strong>Ações em massa:</strong>
+      <button type="button" class="btn secondary" id="action-create-new">Marcar como "Criar nova"</button>
+      <button type="button" class="btn secondary" id="action-ignore">Marcar como "Ignorar"</button>
+      <button type="button" class="btn secondary" id="action-link">Marcar como "Vincular"</button>
+      <span style="flex: 1;"></span>
+      <button type="button" class="btn secondary" id="dry-run-btn">Dry-run (validar)</button>
+      {% if can_commit %}
+      <button type="submit" class="btn" id="commit-btn">
+        <span>✓</span> Confirmar importação
+      </button>
+      {% endif %}
+      <a href="{{ cancel_url }}" class="btn secondary">Cancelar</a>
+    </div>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Lógica para mostrar/esconder campos baseados na ação selecionada
+document.addEventListener('DOMContentLoaded', function() {
+  const selects = document.querySelectorAll('.action-select');
+  
+  function updateFields(rowId) {
+    const select = document.querySelector(`[data-row-id="${rowId}"]`);
+    const fields = document.getElementById(`fields-${rowId}`);
+    const action = select.value;
+    
+    if (!fields) return;
+    
+    // Esconder todos
+    fields.querySelectorAll('.action-field').forEach(f => f.style.display = 'none');
+    
+    if (action === 'link_existing') {
+      fields.querySelector('.link-field').style.display = 'block';
+      fields.querySelector('.common-field').style.display = 'block';
+    } else if (action === 'partial_payment') {
+      fields.querySelector('.partial-field').style.display = 'block';
+      fields.querySelector('.common-field').style.display = 'block';
+    } else if (action === 'create_new') {
+      fields.querySelector('.common-field').style.display = 'block';
+      fields.querySelector('.split-field').style.display = 'block';
+    } else if (action === 'ignore') {
+      // Nenhum campo
+    }
+    
+    fields.style.display = 'block';
+  }
+  
+  // Inicializar
+  selects.forEach(select => {
+    updateFields(select.dataset.rowId);
+    select.addEventListener('change', function() {
+      updateFields(this.dataset.rowId);
+    });
+  });
+  
+  // Checkbox "selecionar todas"
+  document.getElementById('select-all').addEventListener('change', function() {
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+      cb.checked = this.checked;
+    });
+  });
+  
+  // Ações em massa
+  document.getElementById('action-create-new').addEventListener('click', function() {
+    document.querySelectorAll('.action-select').forEach(s => {
+      s.value = 'create_new';
+      s.dispatchEvent(new Event('change'));
+    });
+  });
+  
+  document.getElementById('action-ignore').addEventListener('click', function() {
+    document.querySelectorAll('.action-select').forEach(s => {
+      s.value = 'ignore';
+      s.dispatchEvent(new Event('change'));
+    });
+  });
+  
+  document.getElementById('action-link').addEventListener('click', function() {
+    document.querySelectorAll('.action-select').forEach(s => {
+      s.value = 'link_existing';
+      s.dispatchEvent(new Event('change'));
+    });
+  });
+  
+  // Dry-run via AJAX
+  document.getElementById('dry-run-btn').addEventListener('click', async function() {
+    const form = document.getElementById('import-commit-form');
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('{% url "finance:import-dry-run" profile.pk batch.pk %}', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+      });
+      const data = await response.json();
+      if (data.valid) {
+        alert(`Dry-run válido!\n${data.would_create} novas\n${data.would_link} vinculadas\n${data.would_ignore} ignoradas`);
+      } else {
+        alert('Erros de validação:\n' + data.errors.join('\n'));
+      }
+    } catch (e) {
+      alert('Erro no dry-run: ' + e.message);
+    }
+  });
+  
+  // Split: habilitar input de valor quando checkbox marcado
+  document.querySelectorAll('[name^="row_"][name$="_split_"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const amtInput = document.querySelector(`[name="row_${this.name.split('_')[1]}_split_amt_${this.value}"]`);
+      if (amtInput) amtInput.disabled = !this.checked;
+    });
+  });
+});
+</script>
+{% endblock %}

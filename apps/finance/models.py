@@ -258,3 +258,72 @@ class JournalEntry(models.Model):
             condition=(Q(debit__gt=0, credit=0) | Q(credit__gt=0, debit=0)),
             name="ck_journal_one_positive_side",
         )]
+
+
+class ImportBatch(models.Model):
+    """Staging batch for bank statement imports (CSV/OFX)."""
+    class Format(models.TextChoices):
+        CSV = "csv", "CSV"
+        OFX = "ofx", "OFX"
+        OFX2 = "ofx2", "OFX 2.x (XML)"
+
+    class Status(models.TextChoices):
+        STAGED = "staged", "Em staging"
+        VALIDATED = "validated", "Validado"
+        REVIEWED = "reviewed", "Revisado"
+        COMMITTED = "committed", "Confirmado"
+        FAILED = "failed", "Falhou"
+
+    profile = models.ForeignKey(FinancialProfile, on_delete=models.PROTECT, related_name="import_batches")
+    account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, related_name="import_batches", null=True, blank=True)
+    filename = models.CharField(max_length=255)
+    file_hash = models.CharField(max_length=64)  # SHA-256
+    format = models.CharField(max_length=8, choices=Format.choices)
+    parser_version = models.CharField(max_length=32)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.STAGED)
+    total_rows = models.PositiveIntegerField(default=0)
+    valid_rows = models.PositiveIntegerField(default=0)
+    duplicate_rows = models.PositiveIntegerField(default=0)
+    error_rows = models.PositiveIntegerField(default=0)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    committed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class ImportRow(models.Model):
+    """Individual row from an import batch, awaiting review and commit."""
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pendente"
+        SUGGESTED = "suggested", "Sugerido"
+        DUPLICATE = "duplicate", "Duplicado"
+        IGNORED = "ignored", "Ignorado"
+        COMMITTED = "committed", "Confirmado"
+        ERROR = "error", "Erro"
+
+    batch = models.ForeignKey(ImportBatch, on_delete=models.CASCADE, related_name="rows")
+    row_number = models.PositiveIntegerField()
+    fitid = models.CharField(max_length=120, blank=True)  # OFX unique transaction ID
+    occurred_on = models.DateField()
+    posted_on = models.DateField(null=True, blank=True)  # Data de compensação (opcional)
+    description = models.CharField(max_length=255)
+    memo = models.TextField(blank=True)  # Memo/detalhes adicionais
+    amount = models.DecimalField(max_digits=15, decimal_places=2)  # Valor com sinal
+    is_credit = models.BooleanField(default=False)  # True = crédito, False = débito
+    raw_data = models.JSONField(default=dict)  # Dados originais normalizados
+    suggested_kind = models.CharField(max_length=12, blank=True)  # recurring, unexpected, application, withdrawal, transfer, income, reversal
+    suggested_link = models.JSONField(default=dict)  # Vínculo sugerido (expense_id, investment_id, etc.)
+    confidence = models.DecimalField(max_digits=3, decimal_places=2, default=Decimal("0.00"))  # 0.00 a 1.00
+    justification = models.TextField(blank=True)  # Justificativa da sugestão
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    linked_batch = models.ForeignKey(TransactionBatch, on_delete=models.PROTECT, null=True, blank=True, related_name="import_rows")
+    decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["batch", "row_number"]
+        constraints = [
+            models.UniqueConstraint(fields=["batch", "row_number"], name="uq_import_row_number"),
+        ]

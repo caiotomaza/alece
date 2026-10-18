@@ -1,0 +1,109 @@
+{% extends "finance/base.html" %}
+{% block title %}Nova Importação · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Nova Importação Bancária</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<div class="card" style="max-width: 700px;">
+  <form method="post" enctype="multipart/form-data" class="dialog-form">
+    {% csrf_token %}
+    
+    <div class="dialog-info">
+      <strong>Formatos suportados:</strong> CSV (UTF-8, ISO-8859-1, delimitadores ; , tab) e OFX 1.x/2.x.
+      <br>Limite: 5 MiB, 5.000 transações.
+      <br>O arquivo é processado <strong>localmente</strong> — nenhum dado sai do seu servidor.
+    </div>
+    
+    <div class="form-field">
+      <label for="id_file">Arquivo do extrato <span class="required">*</span></label>
+      <input type="file" name="file" id="id_file" accept=".csv,.ofx" required class="form-input">
+      <p class="helptext">Selecione o arquivo CSV ou OFX exportado do seu banco.</p>
+    </div>
+    
+    <div class="form-field">
+      <label for="id_account">Conta bancária (opcional)</label>
+      <select name="account_id" id="id_account" class="form-input">
+        <option value="">— Detectar automaticamente —</option>
+        {% for account in accounts %}
+        <option value="{{ account.pk }}">{{ account.name }} ({{ account.get_kind_display }})</option>
+        {% endfor %}
+      </select>
+      <p class="helptext">Se não informado, tentaremos identificar pela instituição/agência/conta no arquivo.</p>
+    </div>
+    
+    <div class="form-inline">
+      <div class="form-field">
+        <label for="id_format">Formato</label>
+        <select name="format" id="id_format" class="form-input">
+          <option value="">Auto-detectar</option>
+          <option value="csv">CSV</option>
+          <option value="ofx">OFX 1.x (SGML)</option>
+          <option value="ofx2">OFX 2.x (XML)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="id_encoding">Codificação (CSV)</label>
+        <select name="encoding" id="id_encoding" class="form-input">
+          <option value="">Auto-detectar</option>
+          <option value="utf-8">UTF-8</option>
+          <option value="utf-8-sig">UTF-8 com BOM</option>
+          <option value="iso-8859-1">ISO-8859-1 (Latin-1)</option>
+          <option value="cp1252">Windows-1252</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-inline">
+      <div class="form-field">
+        <label for="id_delimiter">Delimitador (CSV)</label>
+        <select name="delimiter" id="id_delimiter" class="form-input">
+          <option value="">Auto-detectar</option>
+          <option value=";">Ponto e vírgula (;)</option>
+          <option value=",">Vírgula (,)</option>
+          <option value="	">Tabulação</option>
+          <option value="|">Pipe (|)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-checkbox">
+          <input type="checkbox" name="has_header" value="true" checked>
+          <span>Arquivo tem cabeçalho</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="form-field">
+      <label class="form-checkbox">
+        <input type="checkbox" name="credit_debit_columns" value="true">
+        <span>Colunas separadas de Crédito e Débito (CSV)</span>
+      </label>
+      <p class="helptext">Marque se o CSV tem colunas 'Crédito' e 'Débito' separadas em vez de uma coluna 'Valor' com sinal.</p>
+    </div>
+    
+    <div class="dialog-submit">
+      <button type="submit" class="btn" id="quick-add">
+        <span>+</span> Importar e revisar
+      </button>
+      <a href="{{ cancel_url }}" class="btn secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<!-- Informações de segurança -->
+<div class="card" style="margin-top: 1.5rem; max-width: 700px;">
+  <h3 style="margin-top: 0;">Segurança e Privacidade</h3>
+  <ul class="muted" style="line-height: 1.8; font-size: 13px;">
+    <li>Arquivos são processados <strong>exclusivamente no seu servidor</strong> — zero transmissão a terceiros.</li>
+    <li>Validação rigorosa: tamanho, tipo, codificação, estrutura, limites de linhas e colunas.</li>
+    <li>Proteção contra XXE, expansão de entidades, path traversal, XSS e formula injection.</li>
+    <li>Hash SHA-256 do arquivo original armazenado para auditoria e deduplicação.</li>
+    <li>Prévia editável com confirmação humana obrigatória — nada é confirmado automaticamente.</li>
+  </ul>
+</div>
+{% endblock %}
+{% endblock %}
