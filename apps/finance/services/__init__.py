@@ -5,6 +5,7 @@ from apps.finance.services.categorization import (
     create_categorization_rule, update_categorization_rule, delete_categorization_rule,
     get_categorization_rules, apply_categorization_rules, apply_rules_to_transactions,
     get_rules_for_import, validate_regex_safety, compile_safe_regex,
+    rollback_categorization_rule,
     CategorizationError, RegexSecurityError,
 )
 from apps.finance.services.grants import save_grant, GRANT_FIELDS
@@ -39,10 +40,11 @@ from apps.finance.services.importers import (
 __all__ = [
     # Accounts
     "create_bank_account",
-    # Categorization (Sprint 05)
+    # Categorization (Sprint 05/06)
     "create_categorization_rule", "update_categorization_rule", "delete_categorization_rule",
     "get_categorization_rules", "apply_categorization_rules", "apply_rules_to_transactions",
     "get_rules_for_import", "validate_regex_safety", "compile_safe_regex",
+    "rollback_categorization_rule",
     "CategorizationError", "RegexSecurityError",
     # Grants
     "save_grant", "GRANT_FIELDS",

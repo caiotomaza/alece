@@ -15,7 +15,7 @@ from apps.finance.models import (
 )
 from apps.finance.services.categorization import (
     create_categorization_rule, update_categorization_rule, delete_categorization_rule,
-    get_categorization_rules,
+    get_categorization_rules, rollback_categorization_rule,
     RegexSecurityError,
 )
 
@@ -268,3 +268,42 @@ def _parse_json_field(value: str) -> dict:
         return json.loads(value) if value else {}
     except json.JSONDecodeError:
         return {}
+
+
+# =============================================================================
+# Histórico e Rollback de Regras
+# =============================================================================
+
+@login_required
+@require_http_methods(["GET"])
+def categorization_history(request, workspace_id, rule_id):
+    """Exibe histórico de versões de uma regra."""
+    workspace = require_workspace_admin(request.user, workspace_id)
+    rule = get_object_or_404(CategorizationRule, pk=rule_id, workspace=workspace)
+    versions = rule.versions.select_related("changed_by").order_by("-version_number")
+    return render(request, "finance/categorization_history.html", {
+        "workspace": workspace,
+        "rule": rule,
+        "versions": versions,
+        "cancel_url": reverse("finance:categorization-list", args=[workspace_id]) + (f"?profile={rule.profile.pk}" if rule.profile else ""),
+    })
+
+
+@login_required
+@require_POST
+def categorization_rollback(request, workspace_id, rule_id, version_number):
+    """Restaura regra para uma versão anterior."""
+    workspace = require_workspace_admin(request.user, workspace_id)
+    rule = get_object_or_404(CategorizationRule, pk=rule_id, workspace=workspace)
+    try:
+        rollback_categorization_rule(
+            actor=request.user,
+            rule_id=rule.pk,
+            workspace_id=workspace.pk,
+            target_version=version_number,
+        )
+        messages.success(request, f"Regra restaurada para versão {version_number}.")
+    except Exception as e:
+        messages.error(request, f"Erro no rollback: {e}")
+    
+    return redirect("finance:categorization-history", workspace_id=workspace_id, rule_id=rule_id)

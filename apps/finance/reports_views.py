@@ -1,15 +1,23 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Views para relatórios financeiros consolidados."""
+import dataclasses
+import hashlib
 from datetime import date, timedelta
+from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.core.permissions import require_module, user_can_module
+from apps.finance.models import ReportExport
 from apps.finance.services.reports import (
     generate_dashboard_report, generate_dre_report, generate_equity_evolution_report,
     generate_investment_report, generate_goals_report,
+    export_dre_csv, export_equity_csv, export_investment_json, export_goals_json,
 )
 
 
@@ -174,3 +182,95 @@ def goals_report(request, workspace_id, profile_id):
         "goals": goals,
         "cancel_url": _reports_return_url(workspace_id),
     })
+
+
+# =============================================================================
+# Exportação de Relatórios
+# =============================================================================
+
+@login_required
+def export_report(request, workspace_id, profile_id, report_type):
+    """Exporta relatório em CSV ou JSON."""
+    profile = require_module(request.user, profile_id, "overview", "view")
+    require_module(request.user, profile_id, "expenses", "view")
+    require_module(request.user, profile_id, "investments", "view")
+    
+    period_start = date.fromisoformat(request.GET.get("period_start"))
+    period_end = date.fromisoformat(request.GET.get("period_end"))
+    fmt = request.GET.get("format", "csv")  # csv | json
+    
+    # Gerar relatório
+    if report_type == "dre":
+        report = generate_dre_report(profile, period_start, period_end)
+        if fmt == "csv":
+            content = export_dre_csv(report)
+            filename = f"dre_{profile.name}_{period_start}_{period_end}.csv"
+        else:
+            import json
+            class DecimalEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, Decimal):
+                        return str(obj)
+                    return super().default(obj)
+            content = json.dumps(dataclasses.asdict(report), cls=DecimalEncoder, ensure_ascii=False).encode("utf-8")
+            filename = f"dre_{profile.name}_{period_start}_{period_end}.json"
+    elif report_type == "equity":
+        report = generate_equity_evolution_report(profile, period_start, period_end)
+        if fmt == "csv":
+            content = export_equity_csv(report)
+            filename = f"equity_{profile.name}_{period_start}_{period_end}.csv"
+        else:
+            import json
+            class DecimalEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, Decimal):
+                        return str(obj)
+                    return super().default(obj)
+            content = json.dumps(dataclasses.asdict(report), cls=DecimalEncoder, ensure_ascii=False).encode("utf-8")
+            filename = f"equity_{profile.name}_{period_start}_{period_end}.json"
+    elif report_type == "investments":
+        report = generate_investment_report(profile, period_start, period_end)
+        if fmt == "csv":
+            content = export_investment_json(report)
+            filename = f"investments_{profile.name}_{period_start}_{period_end}.csv"
+        else:
+            import json
+            class DecimalEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, Decimal):
+                        return str(obj)
+                    return super().default(obj)
+            content = json.dumps(dataclasses.asdict(report), cls=DecimalEncoder, ensure_ascii=False).encode("utf-8")
+            filename = f"investments_{profile.name}_{period_start}_{period_end}.json"
+    elif report_type == "goals":
+        report = generate_goals_report(profile)
+        if fmt == "csv":
+            content = export_goals_json(report)
+            filename = f"goals_{profile.name}_{period_start}_{period_end}.csv"
+        else:
+            import json
+            class DecimalEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, Decimal):
+                        return str(obj)
+                    return super().default(obj)
+            content = json.dumps(dataclasses.asdict(report), cls=DecimalEncoder, ensure_ascii=False).encode("utf-8")
+            filename = f"goals_{profile.name}_{period_start}_{period_end}.json"
+    else:
+        raise Http404("Tipo de relatório não suportado.")
+    
+    # Salvar export para auditoria
+    export = ReportExport.objects.create(
+        profile=profile, report_type=report_type, format=fmt.upper(),
+        period_start=period_start, period_end=period_end,
+        requested_by=request.user, status=ReportExport.Status.GENERATING
+    )
+    export.file.save(filename, ContentFile(content))
+    export.status = ReportExport.Status.READY
+    export.completed_at = timezone.now()
+    export.file_hash = hashlib.sha256(content).hexdigest()
+    export.save()
+    
+    response = HttpResponse(content, content_type="text/csv; charset=utf-8" if fmt == "csv" else "application/json")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

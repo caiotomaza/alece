@@ -3,9 +3,12 @@
 from datetime import date
 from decimal import Decimal as D
 from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.db import connection
+from django.test import TestCase, TransactionTestCase
 
 from apps.finance.models import (
     BankAccount, FinancialProfile, ImportBatch, InvestmentPosition, MonthlyExpense,
@@ -20,6 +23,7 @@ from apps.finance.services.categorization import (
 )
 from apps.finance.services.importers import (
     CSVParser, OFX1Parser, PDFParser, detect_format, ImportParseError, ImportSecurityError, ImportFormatError,
+    ParsedTransaction,
 )
 from apps.finance.services.imports import (
     stage_import, commit_import, dry_run_import, check_duplicates, _suggest_link, _descriptions_match,
@@ -28,7 +32,6 @@ from apps.finance.services.reports import (
     generate_dre_report, generate_equity_evolution_report,
     generate_investment_report, generate_goals_report, generate_dashboard_report,
 )
-from apps.finance.services.importers import ParsedTransaction
 
 
 class CategorizationRuleTests(TestCase):
@@ -950,3 +953,64 @@ class PermissionTests(TestCase):
                 account_id=self.account.pk, file_content=content,
                 filename="extrato2.csv",
             )
+
+
+class CommitImportConcurrencyTests(TransactionTestCase):
+    """Testes de concorrência para commit_import."""
+    
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username="concurrent-test")
+        self.ws = Workspace.objects.create(name="Teste", created_by=self.user)
+        WorkspaceMembership.objects.create(workspace=self.ws, user=self.user, role="admin")
+        self.profile = FinancialProfile.objects.create(workspace=self.ws, name="Teste")
+        self.account = BankAccount.objects.create(
+            profile=self.profile, name="Banco", balance=D("5000.00"),
+            opening_balance=D("5000.00"),
+        )
+    
+    def test_concurrent_commit_same_idempotency_key(self):
+        """Duas threads commitando mesmo batch com mesma chave -> apenas uma succeeds."""
+        if connection.vendor != "postgresql":
+            self.skipTest("Exige PostgreSQL")
+        
+        from apps.finance.services.imports import stage_import, commit_import
+        
+        content = b"Data,Descricao,Valor\n25/01/2024,Cinema,-50.00"
+        
+        batch = stage_import(
+            actor=self.user, profile_id=self.profile.pk,
+            account_id=self.account.pk, file_content=content,
+            filename="extrato.csv",
+        )
+        
+        row = batch.rows.first()
+        row_decisions = [{
+            "row_id": row.pk,
+            "action": "create_new",
+            "adjusted_amount": "50.00",
+            "splits": {self.account.pk: D("50.00")},
+        }]
+        
+        barrier = Barrier(2)
+        
+        def commit_thread(idx):
+            barrier.wait()
+            try:
+                commit_import(
+                    actor=self.user, batch_id=batch.pk,
+                    row_decisions=row_decisions,
+                    idempotency_key="idem-concurrent",
+                )
+                return "success"
+            except Exception:
+                return "conflict"
+        
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(commit_thread, [1, 2]))
+        
+        self.assertEqual(results.count("success"), 1)
+        self.assertEqual(results.count("conflict"), 1)
+        
+        # Verificar que apenas 1 TransactionBatch foi criado
+        self.assertEqual(TransactionBatch.objects.filter(idempotency_key="idem-concurrent").count(), 1)

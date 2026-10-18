@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.8.0 (Sprint 06 — Versionamento De-Para, OCR PDF, Exportação Relatórios, Gráficos) — 2026-10-18
+
+- **Versionamento De-Para**: Modelo `CategorizationRuleVersion` com snapshot imutável dos campos, `version_number` sequencial por regra (`UniqueConstraint`), `changed_by`, `changed_at` e `change_reason`. UI para CRUD de regras (exato/regex, campo alvo, prioridade, ativação), teste de regra via AJAX, escopo (workspace/perfil), prioridade explícita, histórico e autoria. Rollback via `rollback_categorization_rule()` protegido por `@transaction.atomic` e `require_workspace_admin`.
+- **OCR PDF Isolado**: `_safe_ocr_page()` via `subprocess.run` chamando `tesseract` com `timeout=30s`, captura de saída segura e limpeza garantida de arquivo temporário (`try/finally` em diretório temporário restrito). Se `tesseract` não instalado, warning amigável no staging e prossegue sem quebrar a aplicação.
+- **Exportação de Relatórios**: Modelo `ReportExport` (CSV/JSON) com SHA-256, status, filtros, auditoria. Endpoints `/export/` para DRE, Equity, Investments, Goals com `DecimalEncoder` JSON e sanitização CSV Formula Injection (prefixa `'` em valores iniciados com `=`, `+`, `-`, `@`, `\t`, `\r`). Permissões granulares: `overview`+`expenses`+`investments` para relatórios; admin full; comum via `ProfileGrant`.
+- **Gráficos no Dashboard**: Chart.js via vendor local em `static/` (sem CDN), tokens Claro/Escuro, DRE barras, Equity linha, Investimentos pizza. Preserva identidade visual v1.32.1 (sidebar 4 itens, tokens Claro/Escuro, lápis `✎`, modal rodapé).
+- **Hardening Sprint 05**:
+  - ReDoS fix: `validate_regex_safety()` agora no `CategorizationRule.clean()` impedindo bypass via mudança `exact`→`regex`. Log warning em `apply_categorization_rules()` quando regra falha.
+  - PDFParser: validação tamanho/assinatura **antes** de `fitz.open()`, `_parse_free_text` com timeout portável (sem `SIGALRM`).
+  - DRE: removeu "Aplicação (não-DRE)" de despesas; aplicações ficam fora do DRE.
+  - Idempotência por linha: `ImportRow.idempotency_key` (unique) validado no `commit_import` antes de criar batch. Teste concorrência `commit_import` com `ThreadPoolExecutor` + `Barrier`.
+- **Testes Sprint 06**: 20+ testes (versioning, rollback, PDF security, export sanitization, permissões, concorrência `commit_import`).
+- **Verificações**: Django check, Ruff, migrações, pip-audit, Docker build — todos aprovados.
+- **Docs**: README, RUNBOOK (Sec 10-11), CHANGELOG v0.8.0, PANORAMA v0.8.0.
+
 ## 0.7.0 (Sprint 05 — Categorização De-Para, Importação PDF, Relatórios Financeiros) — 2026-10-18
 
 - **Regras de Categorização De-Para Persistidas**: Modelo `CategorizationRule` com escopo por núcleo/perfil, correspondência exata ou regex (protegida contra ReDoS via timeout 100ms e validação de complexidade), prioridade explícita, ativação/desativação, autoria e trilha de auditoria. Prevenção de ReDoS via limite de grupos de captura, detecção de padrões perigosos e timeout de execução.

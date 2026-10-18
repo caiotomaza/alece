@@ -321,6 +321,8 @@ class ImportRow(models.Model):
     linked_batch = models.ForeignKey(TransactionBatch, on_delete=models.PROTECT, null=True, blank=True, related_name="import_rows")
     decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True)
     decided_at = models.DateTimeField(null=True, blank=True)
+    # Chave de idempotência por linha para evitar duplicação em commits concorrentes/reenvio
+    idempotency_key = models.CharField(max_length=120, unique=True, null=True, blank=True)
 
     class Meta:
         ordering = ["batch", "row_number"]
@@ -398,9 +400,91 @@ class CategorizationRule(models.Model):
                 re.compile(self.pattern)
             except re.error as e:
                 raise ValidationError({"pattern": f"Regex inválida: {e}"})
+            # Proteção ReDoS: validação de segurança adicional
+            from apps.finance.services.categorization import validate_regex_safety, RegexSecurityError
+            try:
+                validate_regex_safety(self.pattern)
+            except RegexSecurityError as e:
+                raise ValidationError({"pattern": f"Regex insegura (ReDoS): {e}"})
         # Validar suggested_link JSON
         if self.suggested_link and not isinstance(self.suggested_link, dict):
             raise ValidationError({"suggested_link": "Deve ser um objeto JSON válido"})
         # Perfil deve pertencer ao workspace
         if self.profile_id and self.profile.workspace_id != self.workspace_id:
             raise ValidationError("Perfil deve pertencer ao mesmo núcleo da regra")
+
+
+class CategorizationRuleVersion(models.Model):
+    """Versionamento imutável de regras De-Para para auditoria e rollback."""
+    
+    rule = models.ForeignKey(CategorizationRule, on_delete=models.CASCADE, related_name="versions")
+    version_number = models.PositiveIntegerField()  # 1, 2, 3... sequencial por regra
+    
+    # Snapshot dos campos mutáveis da regra
+    pattern = models.CharField(max_length=500)
+    match_type = models.CharField(max_length=8, choices=CategorizationRule.MatchType.choices)
+    match_field = models.CharField(max_length=12, choices=CategorizationRule.MatchField.choices)
+    case_sensitive = models.BooleanField(default=False)
+    suggested_kind = models.CharField(max_length=12, choices=CategorizationRule.Kind.choices)
+    suggested_link = models.JSONField(default=dict)
+    priority = models.PositiveIntegerField()
+    is_active = models.BooleanField()
+    
+    # Auditoria
+    changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="changed_categorization_rule_versions")
+    changed_at = models.DateTimeField(auto_now_add=True)
+    change_reason = models.CharField(max_length=255, blank=True, help_text="Motivo da alteração: ex: 'Fix regex', 'Ajuste prioridade'")
+    
+    class Meta:
+        ordering = ["-version_number"]
+        constraints = [
+            models.UniqueConstraint(fields=["rule", "version_number"], name="uq_categorization_rule_version"),
+        ]
+    
+    def __str__(self):
+        return f"{self.rule.name} v{self.version_number}"
+
+
+class ReportExport(models.Model):
+    """Exportação de relatórios financeiros para download/auditoria."""
+    
+    class Format(models.TextChoices):
+        CSV = "csv", "CSV"
+        JSON = "json", "JSON"
+        XLSX = "xlsx", "Excel"
+    
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pendente"
+        GENERATING = "generating", "Gerando"
+        READY = "ready", "Pronto"
+        FAILED = "failed", "Falhou"
+    
+    profile = models.ForeignKey(FinancialProfile, on_delete=models.CASCADE, related_name="report_exports")
+    report_type = models.CharField(max_length=20, choices=[
+        ("dre", "DRE"),
+        ("equity", "Evolução Patrimonial"),
+        ("investments", "Investimentos"),
+        ("goals", "Metas e Reserva"),
+        ("dashboard", "Dashboard Completo"),
+    ])
+    format = models.CharField(max_length=8, choices=Format.choices)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    
+    # Filtros aplicados
+    period_start = models.DateField()
+    period_end = models.DateField()
+    interval = models.CharField(max_length=10, blank=True)  # day/week/month
+    
+    file = models.FileField(upload_to="exports/", null=True, blank=True)
+    file_hash = models.CharField(max_length=64, blank=True)  # SHA-256
+    error_message = models.TextField(blank=True)
+    
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ["-requested_at"]
+    
+    def __str__(self):
+        return f"{self.profile} - {self.get_report_type_display()} ({self.get_format_display()})"

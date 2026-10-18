@@ -1,0 +1,110 @@
+{% extends "finance/base.html" %}
+{% block title %}Histórico da Regra · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Histórico: {{ rule.name }}</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<div class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+    <div>
+      <strong>{{ rule.name }}</strong>
+      {% if rule.profile %}
+      <div class="muted" style="font-size: 12px;">
+        Perfil: {{ rule.profile.emoji }} {{ rule.profile.name }}
+      </div>
+      {% else %}
+      <div class="muted" style="font-size: 12px;">
+        Escopo: Núcleo
+      </div>
+      {% endif %}
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      Tipo: {{ rule.get_match_type_display }}
+      {% if rule.match_type == 'regex' %}
+      <span class="demo-pill" style="margin-left: 0.5rem;">Regex</span>
+      {% else %}
+      <span class="demo-pill" style="margin-left: 0.5rem;">Exato</span>
+      {% endif %}
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      Campo: {{ rule.get_match_field_display }}
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      Padrão: <code>{{ rule.pattern }}</code>
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      Ação: {{ rule.get_suggested_kind_display }}
+      {% if rule.suggested_link %}
+      <div class="subline muted">Vínculo: {{ rule.suggested_link }}</div>
+      {% endif %}
+    </div>
+    <div class="muted" style="font-size: 12px;">
+      Prioridade: {{ rule.priority }} | {% if rule.is_active %}Ativa{% else %}Inativa{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if versions %}
+<div class="card">
+  <h3 style="margin-top: 0;">Histórico de Versões ({{ versions|length }})</h3>
+  <div class="table-wrap">
+    <table class="source-table" data-table-sort>
+      <thead>
+        <tr>
+          <th>Versão</th>
+          <th>Data</th>
+          <th>Autor</th>
+          <th>Motivo</th>
+          <th>Padrão</th>
+          <th>Tipo</th>
+          <th>Campo</th>
+          <th>Prioridade</th>
+          <th>Ativa</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in versions %}
+        <tr>
+          <td>{{ v.version_number }}</td>
+          <td>{{ v.changed_at|date:"d/m/Y H:i" }}</td>
+          <td>{{ v.changed_by.username }}</td>
+          <td>{{ v.change_reason|default:"—" }}</td>
+          <td style="font-family: monospace; font-size: 12px;">{{ v.pattern }}</td>
+          <td>{{ v.get_match_type_display }}</td>
+          <td>{{ v.get_match_field_display }}</td>
+          <td>{{ v.priority }}</td>
+          <td>
+            <span class="status-chip {% if v.is_active %}confirmed{% else %}{% endif %}">
+              {% if v.is_active %}Sim{% else %}Não{% endif %}
+            </span>
+          </td>
+          <td>
+            {% if v.version_number != rule.versions.first.version_number %}
+            <form method="post" action="{% url 'finance:categorization-rollback' workspace.pk rule.pk v.version_number %}" 
+                  onsubmit="return confirm('Tem certeza que deseja restaurar esta versão?');">
+              {% csrf_token %}
+              <button type="submit" class="row-action" title="Restaurar esta versão">Restaurar</button>
+            </form>
+            {% else %}
+            <span class="muted">Atual</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<p class="card contextual-empty">
+  <h2>Nenhuma versão encontrada</h2>
+  <p>Esta regra não possui histórico de versões.</p>
+</p>
+{% endif %}
+{% endblock %}

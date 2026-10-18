@@ -9,6 +9,7 @@
 """
 from __future__ import annotations
 
+import logging
 import re
 import time
 from dataclasses import dataclass
@@ -21,9 +22,12 @@ from django.db.models import Q
 
 from apps.core.permissions import require_workspace_admin
 from apps.finance.models import (
-    CategorizationRule, FinancialProfile,
+    CategorizationRule, CategorizationRuleVersion, FinancialProfile,
 )
 from apps.finance.services.importers import ParsedTransaction
+
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -177,6 +181,21 @@ def create_categorization_rule(
         is_active=True,
         created_by=actor,
     )
+    # Criar versão inicial
+    CategorizationRuleVersion.objects.create(
+        rule=rule,
+        version_number=1,
+        pattern=rule.pattern,
+        match_type=rule.match_type,
+        match_field=rule.match_field,
+        case_sensitive=rule.case_sensitive,
+        suggested_kind=rule.suggested_kind,
+        suggested_link=rule.suggested_link,
+        priority=rule.priority,
+        is_active=rule.is_active,
+        changed_by=actor,
+        change_reason="Criação da regra",
+    )
     return rule
 
 
@@ -222,6 +241,23 @@ def update_categorization_rule(
     rule.updated_by = actor
     rule.full_clean()
     rule.save()
+    # Criar nova versão
+    last_version = rule.versions.order_by("-version_number").first()
+    version_num = (last_version.version_number + 1) if last_version else 1
+    CategorizationRuleVersion.objects.create(
+        rule=rule,
+        version_number=version_num,
+        pattern=rule.pattern,
+        match_type=rule.match_type,
+        match_field=rule.match_field,
+        case_sensitive=rule.case_sensitive,
+        suggested_kind=rule.suggested_kind,
+        suggested_link=rule.suggested_link,
+        priority=rule.priority,
+        is_active=rule.is_active,
+        changed_by=actor,
+        change_reason="Atualização da regra",
+    )
     return rule
 
 
@@ -236,6 +272,52 @@ def delete_categorization_rule(
     workspace = require_workspace_admin(actor, workspace_id)
     rule = CategorizationRule.objects.select_for_update().get(pk=rule_id, workspace=workspace)
     rule.delete()
+
+
+@transaction.atomic
+def rollback_categorization_rule(
+    *,
+    actor,
+    rule_id: int,
+    workspace_id: int,
+    target_version: int,
+) -> CategorizationRule:
+    """Restaura regra para uma versão anterior (apenas admin do núcleo)."""
+    workspace = require_workspace_admin(actor, workspace_id)
+    rule = CategorizationRule.objects.select_for_update().get(pk=rule_id, workspace=workspace)
+    version = rule.versions.get(version_number=target_version)
+    
+    # Criar versão "rollback" para auditoria
+    last_version = rule.versions.order_by("-version_number").first()
+    version_num = (last_version.version_number + 1) if last_version else 1
+    CategorizationRuleVersion.objects.create(
+        rule=rule,
+        version_number=version_num,
+        pattern=rule.pattern,
+        match_type=rule.match_type,
+        match_field=rule.match_field,
+        case_sensitive=rule.case_sensitive,
+        suggested_kind=rule.suggested_kind,
+        suggested_link=rule.suggested_link,
+        priority=rule.priority,
+        is_active=rule.is_active,
+        changed_by=actor,
+        change_reason=f"Rollback para v{target_version}",
+    )
+    
+    # Aplicar snapshot
+    rule.pattern = version.pattern
+    rule.match_type = version.match_type
+    rule.match_field = version.match_field
+    rule.case_sensitive = version.case_sensitive
+    rule.suggested_kind = version.suggested_kind
+    rule.suggested_link = version.suggested_link
+    rule.priority = version.priority
+    rule.is_active = version.is_active
+    rule.updated_by = actor
+    rule.full_clean()
+    rule.save()
+    return rule
 
 
 def get_categorization_rules(
@@ -303,8 +385,12 @@ def apply_categorization_rules(
                 if match:
                     matched = True
                     match.group(0)
-            except (RegexSecurityError, re.error):
-                # Regra inválida, pular
+            except (RegexSecurityError, re.error) as e:
+                # Regra inválida, logar e pular
+                logger.warning(
+                    "Regra de categorização inválida ignorada: rule_id=%s, name=%s, error=%s",
+                    rule.pk, rule.name, str(e)
+                )
                 continue
 
         if matched:

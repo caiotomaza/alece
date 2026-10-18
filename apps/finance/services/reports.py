@@ -14,6 +14,7 @@ ou saldo desconhecido com zero.
 """
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
@@ -158,10 +159,8 @@ def generate_dre_report(
                 report.expenses_by_category[cat] = \
                     report.expenses_by_category.get(cat, Decimal("0.00")) + batch.amount
         
-        elif batch.kind == "application":
-            # Aplicação NÃO é despesa no DRE
-            report.expenses_by_type["Aplicação (não-DRE)"] = \
-                report.expenses_by_type.get("Aplicação (não-DRE)", Decimal("0.00")) + batch.amount
+        # Aplicações, resgates e transferências NÃO entram no DRE
+        # (movimentações patrimoniais, não resultado do exercício)
     
     # Pendências (não confirmadas no ledger)
     # Despesas previsíveis pendentes
@@ -434,3 +433,82 @@ def generate_dashboard_report(
         investments=generate_investment_report(profile, period_start, period_end),
         goals=generate_goals_report(profile),
     )
+
+
+# =============================================================================
+# Exportadores
+# =============================================================================
+
+def export_dre_csv(report: DREReport) -> bytes:
+    """Exporta DRE para CSV."""
+    import csv
+    from io import StringIO
+    output = StringIO()
+    writer = csv.writer(output, delimiter=';')
+    writer.writerow(["DRE - Demonstração do Resultado do Exercício"])
+    writer.writerow(["Período", f"{report.period_start} a {report.period_end}"])
+    writer.writerow(["Perfil", report.profile])
+    writer.writerow([])
+    writer.writerow(["Receitas Recebidas", f"R$ {report.income_received:.2f}"])
+    writer.writerow(["Despesas Confirmadas", f"R$ {report.expenses_confirmed:.2f}"])
+    writer.writerow(["Resultado Líquido", f"R$ {report.net_result:.2f}"])
+    writer.writerow([])
+    writer.writerow(["Receitas por Tipo"])
+    writer.writerow(["Tipo", "Valor"])
+    for k, v in report.income_by_type.items():
+        writer.writerow([k, f"R$ {v:.2f}"])
+    writer.writerow([])
+    writer.writerow(["Despesas por Tipo"])
+    writer.writerow(["Tipo", "Valor"])
+    for k, v in report.expenses_by_type.items():
+        writer.writerow([k, f"R$ {v:.2f}"])
+    writer.writerow([])
+    writer.writerow(["Despesas por Categoria"])
+    writer.writerow(["Categoria", "Valor"])
+    for k, v in report.expenses_by_category.items():
+        writer.writerow([k, f"R$ {v:.2f}"])
+    return output.getvalue().encode("utf-8-sig")
+
+
+def export_equity_csv(report: EquityEvolutionReport) -> bytes:
+    """Exporta evolução patrimonial para CSV."""
+    import csv
+    from io import StringIO
+    output = StringIO()
+    writer = csv.writer(output, delimiter=';')
+    writer.writerow(["Evolução Patrimonial"])
+    writer.writerow(["Perfil", report.profile])
+    writer.writerow(["Período", f"{report.period_start} a {report.period_end}"])
+    writer.writerow([])
+    writer.writerow(["Data", "Bancos (R$)", "Investimentos (R$)", "Patrimônio (R$)", "Saldos Desconhecidos"])
+    for p in report.points:
+        writer.writerow([
+            p.date.strftime("%d/%m/%Y"),
+            f"{p.bank_balance:.2f}",
+            f"{p.investment_value:.2f}",
+            f"{p.net_equity:.2f}",
+            p.unknown_balance_count
+        ])
+    return output.getvalue().encode("utf-8-sig")
+
+
+def export_investment_json(report: InvestmentReport) -> bytes:
+    """Exporta investimentos para JSON."""
+    import json
+    class DecimalEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, Decimal):
+                return str(obj)
+            return super().default(obj)
+    return json.dumps(dataclasses.asdict(report), cls=DecimalEncoder, ensure_ascii=False).encode("utf-8")
+
+
+def export_goals_json(report: GoalsReport) -> bytes:
+    """Exporta metas/reserva para JSON."""
+    import json
+    class DecimalEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, Decimal):
+                return str(obj)
+            return super().default(obj)
+    return json.dumps(dataclasses.asdict(report), cls=DecimalEncoder, ensure_ascii=False).encode("utf-8")

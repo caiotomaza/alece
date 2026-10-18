@@ -367,6 +367,7 @@ def stage_import(
                 confidence=confidence,
                 justification=justification,
                 status=status,
+                idempotency_key=f"{batch.idempotency_key or ''}:{i+1}",
             )
         
         # Atualizar contadores
@@ -689,12 +690,25 @@ def commit_import(
     
     with transaction.atomic():
         for decision in row_decisions:
-            row = ImportRow.objects.select_related("batch").get(
+            row = ImportRow.objects.select_for_update().select_related("batch").get(
                 pk=decision["row_id"], batch=batch
             )
             
             if row.status == ImportRow.Status.COMMITTED:
                 continue  # Já processado
+            
+            # Validar idempotência por linha
+            if row.idempotency_key and TransactionBatch.objects.filter(
+                idempotency_key=row.idempotency_key
+            ).exists():
+                # Já existe um batch com essa chave, vincular
+                existing_batch = TransactionBatch.objects.get(idempotency_key=row.idempotency_key)
+                row.linked_batch = existing_batch
+                row.status = ImportRow.Status.COMMITTED
+                row.decided_by = actor
+                row.decided_at = timezone.now()
+                row.save(update_fields=["linked_batch", "status", "decided_by", "decided_at"])
+                continue
             
             if decision["action"] == "ignore":
                 row.status = ImportRow.Status.IGNORED
@@ -1066,6 +1080,7 @@ def dry_run_import(
             confidence=confidence,
             justification=justification,
             status=status,
+            idempotency_key=f"dryrun:{file_hash[:16]}:{i+1}",
         )
         mock_rows.append(mock_row)
     

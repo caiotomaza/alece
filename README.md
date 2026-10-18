@@ -1,11 +1,11 @@
-# ALECE — Base de desenvolvimento (Sprint 05 concluído)
+# ALECE — Base de desenvolvimento (Sprint 06 concluído)
 
 **Gestão financeira pessoal e familiar, gratuita, self-hosted e código aberto.**
 
-![status](https://img.shields.io/badge/estado-sprint%2005%20conclu%C3%ADdo-215d40)
+![status](https://img.shields.io/badge/estado-sprint%2006%20conclu%C3%ADdo-215d40)
 ![license](https://img.shields.io/badge/licen%C3%A7a-GPL--3.0--only-215d40)
 
-**Estado real:** fluxos Django persistentes e auditados para autenticação, perfis, cadastros, pagamentos parciais e divididos entre múltiplas contas, competências mensais, transferências, aplicações, resgates, estornos simétricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao protótipo v1.32.1 (temas Claro/Escuro, modais com ações no rodapé e lápis por linha). **Importações OFX/CSV/PDF com adaptadores modulares, detecção conservadora de duplicidades (FITID + contextual), reconciliação assistida com vínculo a lançamentos existentes, categorização De-Para persistida com prioridade e regex segura, relatórios financeiros consolidados (DRE, evolução patrimonial, investimentos, metas/Reserva), prévia editável com confirmação humana obrigatória e relatório detalhado.** **Não usar com finanças reais antes da revisão final de segurança, restore e implantação oficial.**
+**Estado real:** fluxos Django persistentes e auditados para autenticação, perfis, cadastros, pagamentos parciais e divididos entre múltiplas contas, competências mensais, transferências, aplicações, resgates, estornos simétricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao protótipo v1.32.1 (temas Claro/Escuro, modais com ações no rodapé e lápis por linha). **Importações OFX/CSV/PDF com adaptadores modulares, detecção conservadora de duplicidades (FITID + contextual), reconciliação assistida com vínculo a lançamentos existentes, categorização De-Para persistida com prioridade e regex segura, relatórios financeiros consolidados (DRE, evolução patrimonial, investimentos, metas/Reserva), exportação CSV/JSON, gráficos Chart.js self-hosted, prévia editável com confirmação humana obrigatória e relatório detalhado.** **Não usar com finanças reais antes da revisão final de segurança, restore e implantação oficial.**
 
 ## Objetivos
 

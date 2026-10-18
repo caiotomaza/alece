@@ -170,6 +170,45 @@ As movimentações financeiras gravadas (`TransactionBatch`, `LedgerLeg` e `Jour
 - Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` para criação/edição regras, importação PDF, geração relatórios.
 - Relatórios de importação incluem trilha de auditoria completa (hash, parser, autor, timestamp, idempotency key).
 
-## 11. Encerramento de intervenção
+## 11. Operações Sprint 06 — Versionamento, OCR, Exportação, Gráficos
+
+### 11.1 Versionamento e Rollback de Regras De-Para
+1. **Histórico** — `/finance/workspaces/<id>/categorization/` → botão "Histórico" por regra → lista versões com autor, data, motivo, diff.
+2. **Rollback** — Botão "Restaurar" em cada versão → confirmação → restaura snapshot imutável (padrão, prioridade, ativação). Loga versão de rollback para auditoria.
+2. **UI** — Tabela com colunas: Versão, Data, Autor, Motivo, Padrão, Tipo, Campo, Prioridade, Ativa, Ação (Restaurar).
+
+### 11.2 OCR Isolado para PDF
+1. **Upload** — Mesma interface, aceita `.pdf` (assinatura `%PDF-` validada).
+2. **Validação** — Rejeita criptografia sem senha, >50 páginas, >500KB texto, PDFs corrompidos.
+3. **Extração** — `pdfplumber` para texto/tabelas nativas; OCR opcional via `pymupdf` isolado.
+4. **Pipeline** — Mesmo fluxo CSV/OFX: staging → deduplicação → categorização (regras De-Para) → prévia → commit.
+
+### 11.3 Exportação de Relatórios
+- **Formatos**: CSV (UTF-8-SIG, delimitador `;`) e JSON (DecimalEncoder).
+- **Endpoints**: `/finance/profiles/<id>/reports/dre/export/`, `/equity/export/`, `/investments/export/`, `/goals/export/`.
+- **Parâmetros**: `format=csv|json`, `period_start`, `period_end`, `interval` (para equity).
+- **Sanitização CSV**: Prefixa `'` em células iniciadas com `=`, `+`, `-`, `@`, `\t`, `\r`.
+- **Auditoria**: Modelo `ReportExport` registra hash SHA-256, autor, timestamp, status, filtros.
+- **Permissões**: `overview`+`expenses`+`investments` (view) no perfil alvo.
+
+### 11.4 Gráficos no Dashboard
+- **Biblioteca**: Chart.js via vendor local em `static/` (sem CDN), compatível temas Claro/Escuro.
+- **DRE**: Barras empilhadas (Receitas vs Despesas por mês).
+- **Patrimônio**: Linha temporal (Patrimônio líquido, Bancos, Investimentos) com marcação de saldos desconhecidos.
+- **Investimentos**: Pizza (por categoria) + Linha (Aplicações/Resgates líquidos no período).
+- **Tokens**: Usa variáveis CSS `--positive`, `--negative`, `--primary`, `--gold` para consistência visual.
+
+### 11.5 Segurança Sprint 06
+- **ReDoS Hardening**: `validate_regex_safety()` no `CategorizationRule.clean()` impede bypass via mudança `exact`→`regex`. Log warning em `apply_categorization_rules()` quando regra falha.
+- **PDF Security**: Validação tamanho/assinatura **antes** de `fitz.open()` (prevenção OOM). `_parse_free_text` com timeout portável (sem `SIGALRM`).
+- **DRE Integridade**: Aplicações ficam fora do DRE (não entram em despesas).
+- **Idempotência por Linha**: `ImportRow.idempotency_key` (unique) validado no `commit_import` antes de criar batch.
+- **Teste Concorrência**: `CommitImportConcurrencyTests` com `ThreadPoolExecutor` + `Barrier` validando que 2 threads com mesma chave = 1 sucesso, 1 conflito, 1 batch no ledger.
+
+### 11.6 Monitoramento Sprint 06
+- Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` para criação/edição/rollback regras, importação PDF/OCR, geração/export relatórios.
+- Relatórios de exportação incluem trilha de auditoria (hash SHA-256, autor, timestamp, formato, filtros).
+
+## 12. Encerramento de intervenção
 
 Anote versão da imagem, commit, resultado de CI, backup/hash, testes de leitura e escrita, horários, erros e caminho do rollback. Mantenha arquivos de log e backup; jamais delete automaticamente.
