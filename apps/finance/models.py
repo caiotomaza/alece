@@ -50,10 +50,20 @@ class FinancialProfile(models.Model):
 
 
 class ProfileGrant(models.Model):
+    class Level(models.TextChoices):
+        NONE = "none", "Sem acesso"
+        VIEW = "view", "Visualizar"
+        EDIT = "edit", "Editar"
+
     membership = models.ForeignKey(WorkspaceMembership, on_delete=models.CASCADE)
     profile = models.ForeignKey(FinancialProfile, on_delete=models.CASCADE)
     can_view = models.BooleanField(default=True)
     can_edit = models.BooleanField(default=False)
+    overview_level = models.CharField(max_length=4, choices=Level.choices, default=Level.NONE)
+    accounts_level = models.CharField(max_length=4, choices=Level.choices, default=Level.NONE)
+    expenses_level = models.CharField(max_length=4, choices=Level.choices, default=Level.NONE)
+    investments_level = models.CharField(max_length=4, choices=Level.choices, default=Level.NONE)
+    movements_level = models.CharField(max_length=4, choices=Level.choices, default=Level.NONE)
 
     def clean(self):
         if self.membership_id and self.profile_id:
@@ -73,6 +83,8 @@ class BankAccount(models.Model):
     name = models.CharField(max_length=100)
     kind = models.CharField(max_length=8, choices=Kind.choices, default=Kind.BANK)
     balance = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    # NULL on legacy rows deliberately means that their opening balance has not been reconciled.
+    opening_balance = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -172,9 +184,16 @@ class TransactionBatch(models.Model):
     kind = models.CharField(max_length=12, choices=Kind.choices)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     occurred_on = models.DateField()
+    competence_month = models.DateField(null=True, blank=True)
     note = models.CharField(max_length=255, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True)
+    investment_applied_delta = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal("0.00"))
     idempotency_key = models.CharField(max_length=120, unique=True, null=True, blank=True)
     recurring_expense = models.ForeignKey(RecurringExpense, on_delete=models.PROTECT, null=True, blank=True)
+    monthly_expense = models.ForeignKey("MonthlyExpense", on_delete=models.PROTECT, null=True, blank=True)
+    monthly_investment_plan = models.ForeignKey(
+        "MonthlyInvestmentPlan", on_delete=models.PROTECT, null=True, blank=True,
+    )
     unexpected_expense = models.ForeignKey(UnexpectedExpense, on_delete=models.PROTECT, null=True, blank=True)
     investment = models.ForeignKey(InvestmentPosition, on_delete=models.PROTECT, null=True, blank=True)
     reversal_of = models.OneToOneField("self", on_delete=models.PROTECT, null=True, blank=True, related_name="reversal")
@@ -191,3 +210,51 @@ class LedgerLeg(models.Model):
 
     class Meta:
         constraints = [models.CheckConstraint(condition=~Q(delta=0), name="ck_leg_nonzero")]
+
+
+class MonthlyExpense(models.Model):
+    """Frozen amount for one recurring expense and competence month."""
+
+    profile = models.ForeignKey(FinancialProfile, on_delete=models.PROTECT)
+    recurring_expense = models.ForeignKey(RecurringExpense, on_delete=models.PROTECT)
+    competence_month = models.DateField()
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["recurring_expense", "competence_month"], name="uq_monthly_expense"),
+            models.CheckConstraint(condition=Q(amount__gt=0), name="ck_monthly_expense_positive"),
+        ]
+
+
+class MonthlyInvestmentPlan(models.Model):
+    """Monthly suggestion frozen on first confirmed application."""
+
+    profile = models.ForeignKey(FinancialProfile, on_delete=models.PROTECT)
+    investment = models.ForeignKey(InvestmentPosition, on_delete=models.PROTECT)
+    competence_month = models.DateField()
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["investment", "competence_month"], name="uq_monthly_investment_plan"),
+            models.CheckConstraint(condition=Q(amount__gt=0), name="ck_monthly_investment_positive"),
+        ]
+
+
+class JournalEntry(models.Model):
+    """One side of an immutable double-entry batch; debits equal credits per batch."""
+
+    batch = models.ForeignKey(TransactionBatch, on_delete=models.PROTECT, related_name="journal_entries")
+    account_code = models.CharField(max_length=80)
+    debit = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal("0.00"))
+    credit = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal("0.00"))
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.PROTECT, null=True, blank=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(
+            condition=(Q(debit__gt=0, credit=0) | Q(credit__gt=0, debit=0)),
+            name="ck_journal_one_positive_side",
+        )]

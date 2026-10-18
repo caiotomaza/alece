@@ -1,4 +1,4 @@
-# LTS: intervalos limitados. Em release de produção, usar lock com hashes/artefato imutável.
+# LTS: intervalos para atualizar o lock; instalação usa production.lock com hashes.
 Django>=5.2.8,<5.3
 psycopg[binary]>=3.2,<3.4
 gunicorn>=23,<24

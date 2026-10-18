@@ -30,7 +30,9 @@ class FinanceWorkflowTests(TestCase):
         cls.hidden = FinancialProfile.objects.create(workspace=cls.workspace, name="Privado")
         cls.foreign = FinancialProfile.objects.create(workspace=cls.other_workspace, name="Externo")
         ProfileGrant.objects.create(membership=cls.admin, profile=cls.profile, can_edit=True)
-        cls.reader_grant = ProfileGrant.objects.create(membership=cls.member, profile=cls.profile)
+        cls.reader_grant = ProfileGrant.objects.create(
+            membership=cls.member, profile=cls.profile, accounts_level="view",
+        )
         BankAccount.objects.create(profile=cls.hidden, name="Conta privada", balance=999)
         BankAccount.objects.create(profile=cls.foreign, name="Conta externa", balance=123)
 
@@ -132,6 +134,7 @@ class FinanceWorkflowTests(TestCase):
 
     def test_common_editor_can_create_account(self):
         self.reader_grant.can_edit = True
+        self.reader_grant.accounts_level = "edit"
         self.reader_grant.save()
         self.client.force_login(self.reader)
         response = self.client.post(self.url("account-create"), {"name": "Carteira", "kind": "cash"})

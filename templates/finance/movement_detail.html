@@ -1,0 +1,33 @@
+{% extends "finance/base.html" %}
+{% block title %}Editar movimentação · ALECE{% endblock %}
+{% block content %}
+<div class="dialog-fallback" data-dialog-content>
+  <div class="account-dialog-heading">
+    <div>
+      <h2 id="movement-edit-title" tabindex="-1">Editar movimentação</h2>
+      <p>Revise o registro antes de confirmar.</p>
+    </div>
+    <a class="icon-button" href="{{ cancel_url }}" aria-label="Fechar" data-dialog-cancel>✕</a>
+  </div>
+  <div class="account-form object-form">
+    <label class="account-field">Tipo<input id="movement-edit-kind" type="text" readonly value="{{ batch.get_kind_display }}"></label>
+    <label class="account-field">Descrição<input id="movement-edit-description" type="text" readonly value="{{ batch.note|default:'—' }}"></label>
+    <label class="account-field">Data<input id="movement-edit-date" type="text" readonly value="{{ batch.occurred_on|date:'d/m/Y' }}"></label>
+    <label class="account-field">Valor (R$)<input id="movement-edit-amount" type="text" readonly value="R$ {{ batch.amount|floatformat:2 }}"></label>
+    <label class="account-field">Situação<input id="movement-edit-state" type="text" readonly value="{{ status_display }}"></label>
+    <label class="account-field">Conta(s)<input id="movement-edit-account" type="text" readonly value="{{ accounts_display }}"></label>
+    <p class="account-helper" id="movement-edit-help">Movimentações vinculadas continuam associadas ao registro original. Para removê-las, use Estornar.</p>
+  </div>
+  <div class="account-dialog-actions actions">
+    {% if can_reverse %}
+      <form method="post" action="{% url 'finance:reverse-movement' profile.pk batch.pk %}" data-confirm-reversal>
+        {% csrf_token %}
+        <input type="hidden" name="idempotency_key" value="{{ reversal_key }}">
+        <button type="submit" class="button danger account-delete" id="movement-edit-reverse">Estornar</button>
+      </form>
+    {% endif %}
+    <a class="button secondary" href="{{ cancel_url }}" data-dialog-cancel id="movement-edit-cancel">Cancelar</a>
+  </div>
+</div>
+<dialog class="unified-dialog" data-edit-dialog aria-labelledby="movement-edit-title"></dialog>
+{% endblock %}

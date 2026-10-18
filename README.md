@@ -1,30 +1,30 @@
-# ALECE — Base de desenvolvimento (Sprint 02 em validação)
+# ALECE — Base de desenvolvimento (Sprint 03 concluído)
 
 **Gestão financeira pessoal e familiar, gratuita, self-hosted e código aberto.**
 
-![status](https://img.shields.io/badge/estado-base%20t%C3%A9cnica-215d40)
+![status](https://img.shields.io/badge/estado-sprint%2003%20conclu%C3%ADdo-215d40)
 ![license](https://img.shields.io/badge/licen%C3%A7a-GPL--3.0--only-215d40)
 
-**Estado real:** há fluxos Django persistentes para autenticação, seleção de núcleo, perfis, renda, contas, despesas, investimentos e Reserva. A migração do Sprint 02 precisa ser aplicada apenas após backup e pré-verificação de dados existentes. A interface do protótipo foi portada parcialmente; movimentações e importações completas seguem pendentes. **Não usar com finanças reais antes da revisão de segurança, restore e implantação.**
+**Estado real:** fluxos Django persistentes e auditados para autenticação, perfis, cadastros, pagamentos parciais e divididos entre múltiplas contas, competências mensais, transferências, aplicações, resgates, estornos simétricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao protótipo v1.32.1 (temas Claro/Escuro, modais com ações no rodapé e lápis por linha). Importações OFX/CSV e reconciliação bancária planejadas para o Sprint 04. **Não usar com finanças reais antes da revisão final de segurança, restore e implantação oficial.**
 
 ## Objetivos
 
-- Python + **Django 5.2 LTS**, PostgreSQL e Docker Compose; compatível com hospedagem em servidor Linux e implantação planejada no ZimaOS.
+- Python + **Django 5.2 LTS**, PostgreSQL 16 e Docker Compose; compatível com hospedagem em servidor Linux e implantação planejada no ZimaOS.
 - Código em módulos, modelos de domínio, serviços de transação, testes, CI e releases de imagens.
-- Finanças isoladas por perfil: permissões explicitamente concedidas em views/services; o código não assume que todo usuário vê todas as finanças.
+- Finanças isoladas por perfil: permissões granulares por módulo explicitamente concedidas em views/services; o código não assume que todo usuário vê todas as finanças.
 - Interface consistente com o protótipo: duas aparências (Claro/Escuro), sidebar e ações localizadas por seção (`+` para criar, lápis para editar), sem botões redundantes.
 - **GPL versão 3** aplicada como `GPL-3.0-only`. O texto em `LICENSE` foi copiado **integralmente** do anexo do projeto.
 
 ## Visão rápida dos recursos
 
-| Camada | Implementado no starter | Planejado |
+| Camada | Implementado | Planejado |
 |---|---|---|
-| App Django | Login/recuperação auditados, saúde, visão geral e cadastros financeiros por perfil | Importações, reconciliação e API pública |
-| Domínio | Modelos de workspace, perfis, contas, despesas, investimentos, reserva, movimentações | REST e isolamento autorizado por endpoint |
-| Finanças | Perfis, renda, contas, despesas, investimentos e Reserva 6–12 meses; cálculos Decimal; serviço de débito interno | Pagamentos via UI, estorno, conciliação, importações |
-| Auth/Permissões | **Login/logout, recuperação offline protegida, roles admin/common, grants por perfil, limites de tentativas** | MFA, convites, trilha de auditoria |
-| Infra | Dockerfile não-root, Compose com healthcheck, Postgres sem porta externa, bootstrap/deploy/backup | Observabilidade e retenção institucional |
-| Entrega | GitHub Actions CI, publicação manual e explícita por tag, Dependabot | CD para ZimaOS após validação |
+| App Django | Login/recuperação auditados, saúde, visão geral, despesas, investimentos, movimentações, perfis e grants granulares | Importações OFX/CSV, categorização e reconciliação |
+| Domínio | Workspaces, perfis, contas, despesas, investimentos, reserva, ledger contábil, partidas dobradas, competências | REST e isolamento autorizado por endpoint |
+| Finanças | Pagamentos parciais e multi-conta, quitação, estornos, transferências, aplicações, resgates, reserva 6–12 meses, distinção NULL vs 0 | Importações de extrato e conciliação assistida |
+| Auth/Permissões | **Login/logout, recuperação offline protegida, roles admin/common, grants modulares por perfil, limites de tentativas** | MFA, convites e gestão de múltiplos usuários |
+| Infra | Dockerfile não-root com hash-pinning, Compose com healthcheck, Postgres sem porta externa, bootstrap/deploy/backup | Observabilidade e retenção institucional |
+| Entrega | GitHub Actions CI, publicação manual e explícita por tag, auditoria de dependências pip-audit | CD para ZimaOS após validação |
 
 ## Organização do repositório
 

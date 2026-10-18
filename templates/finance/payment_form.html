@@ -1,0 +1,26 @@
+{% extends "finance/base.html" %}
+{% block title %}Confirmar {{ object.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading"><h1>Confirmar {% if kind == 'application' %}aplicação{% else %}pagamento{% endif %}</h1></div>
+<div class="dialog-fallback" data-dialog-content>
+  <form method="post" class="object-form" data-payment-form data-full-due="{% if remaining is not None %}{{ remaining }}{% endif %}">
+    {% csrf_token %}
+    <h2 id="dialog-title">{{ object.name }}</h2>
+    {% if remaining is not None %}<p>Falta quitar: <strong class="money-private">R$ {{ remaining|floatformat:2 }}</strong></p>{% endif %}
+    {{ form.non_field_errors }}{{ form.idempotency_key }}{{ form.idempotency_key.errors }}
+    <input type="hidden" name="month" value="{{ month|date:'Y-m' }}">
+    {% if monthly_mode %}<input type="hidden" name="plan" value="1">{% endif %}
+    <div class="field-group">{{ form.amount.label_tag }}{{ form.amount }}{{ form.amount.errors }}
+      <p class="helptext">Informe um valor menor para pagamento parcial.</p>
+    </div>
+    <details open class="account-picker"><summary>Saldos disponíveis do perfil</summary>
+      {{ form.accounts }}{{ form.accounts.errors }}
+    </details>
+    <p>Selecionado: <strong id="selected-total">R$ 0,00</strong> · Ainda falta: <strong id="payment-gap">—</strong></p>
+    <ul id="account-allocations" aria-live="polite"></ul>
+    <button type="button" class="button secondary" data-privacy-toggle aria-pressed="false">Ocultar valores</button>
+    <footer class="actions"><a class="button secondary" href="{{ cancel_url }}" data-dialog-cancel>Cancelar</a><button type="submit">Confirmar {% if kind == 'application' %}aplicação{% else %}pagamento{% endif %}</button></footer>
+  </form>
+</div>
+<dialog class="unified-dialog" data-edit-dialog aria-labelledby="dialog-title"></dialog>
+{% endblock %}

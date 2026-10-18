@@ -41,4 +41,55 @@
       originalParent.insertBefore(content, originalNext);
     }
   }
+  document.querySelectorAll('[data-confirm-reversal]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      if (!window.confirm('Estornar a movimentação e preservar o histórico?')) event.preventDefault();
+    });
+  });
+  const payment = document.querySelector('[data-payment-form]');
+  if (payment) {
+    const amount = payment.querySelector('[name="amount"]');
+    const choices = [...payment.querySelectorAll('[name="accounts"]')];
+    const selected = payment.querySelector('#selected-total');
+    const gap = payment.querySelector('#payment-gap');
+    const allocations = payment.querySelector('#account-allocations');
+    const button = payment.querySelector('[type="submit"]');
+    const toCents = (value) => {
+      const clean = String(value || '').replace(',', '.');
+      if (!/^\d+(\.\d{0,2})?$/.test(clean)) return NaN;
+      const [whole, fraction = ''] = clean.split('.');
+      return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
+    };
+    const display = (cents) => `R$ ${(cents / 100).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    const fullDue = toCents(payment.dataset.fullDue);
+    const update = (auto) => {
+      const requested = toCents(amount.value);
+      let remaining = Number.isFinite(requested) ? requested : 0;
+      let total = 0;
+      allocations.replaceChildren();
+      choices.filter((choice) => choice.checked).forEach((choice) => {
+        const available = toCents(choice.dataset.balance);
+        const used = Math.min(remaining, available);
+        if (used > 0) {
+          remaining -= used;
+          total += used;
+          const row = document.createElement('li');
+          row.textContent = `${choice.parentElement.textContent.trim().split(' — ')[0]}: ${display(used)}`;
+          allocations.append(row);
+        }
+      });
+      selected.textContent = display(total);
+      gap.textContent = Number.isFinite(requested) ? display(remaining) : '—';
+      button.disabled = !Number.isFinite(requested) || requested <= 0 || remaining > 0;
+      if (auto && !button.disabled && requested === fullDue) payment.requestSubmit();
+    };
+    amount.addEventListener('input', () => update(false));
+    choices.forEach((choice) => choice.addEventListener('change', () => update(true)));
+    update(false);
+    payment.querySelector('[data-privacy-toggle]')?.addEventListener('click', (event) => {
+      const hidden = payment.classList.toggle('is-private');
+      event.currentTarget.setAttribute('aria-pressed', String(hidden));
+      event.currentTarget.textContent = hidden ? 'Mostrar valores' : 'Ocultar valores';
+    });
+  }
 })();

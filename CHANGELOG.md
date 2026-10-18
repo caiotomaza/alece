@@ -1,6 +1,19 @@
 # Changelog
 
-## 0.4.0 (em desenvolvimento) — 2026-10-18
+## 0.5.0 (Sprint 03 — Transações, Movimentações, Pagamentos e Permissões Granulares) — 2026-10-18
+
+- **Ledger e Trilha de Auditoria**: Implementação de partidas dobradas (`JournalEntry`), lotes de transação (`TransactionBatch`) e pernas bancárias (`LedgerLeg`). Invariantes de balanço e imutabilidade auditável estrita assegurados por triggers e constraints no PostgreSQL (`finance_assert_journal_balance`, `finance_guard_posted_history`).
+- **Pagamentos e Saídas**: Pagamento parcial e dividido entre múltiplas contas (`confirm_outflow`), validação de saldo disponível, idempotência via chave única e prevenção rigorosa de saldo negativo e dupla contabilização.
+- **Competências Mensais**: Criação de `MonthlyExpense` e `MonthlyInvestmentPlan` com controle de quitação parcial, total e histórico por competência.
+- **Estornos e Reversões**: Estorno atômico e simétrico (`reverse_batch`), preservando o histórico integral do ledger, revertendo lançamentos contábeis e ajustando saldos e posições financeiras sem perda de dados.
+- **Transferências e Resgates**: Transferência entre contas com contas de partida e contrapartida sem classificação indevida de receita/despesa (`transfer`), e resgate de investimentos com baixa proporcional do custo de aquisição e atualização do saldo líquido (`withdraw_investment`).
+- **Permissões Granulares por Módulo**: `ProfileGrant` estendido com níveis `none`, `view`, `edit` independentes para cada um dos 5 módulos (`overview`, `accounts`, `expenses`, `investments`, `movements`), validadas sob demanda e com revogação imediata no próximo request. Administradores acessam todos os perfis do núcleo.
+- **Ajustes de Integridade Financeira e UI**:
+  - Distinção rigorosa entre saldo bancário totalmente desconhecido (`NULL`), saldo conhecido igual a zero (`0.00`) e projeção parcial em Visão Geral e Resumos.
+  - Substituição do botão direto de estorno pelo lápis de ação por linha no histórico de movimentações, integrando o estorno ao modal de edição de movimentação (`movement-detail`) do protótipo v1.32.1.
+- **Qualidade, Regressão e Verificações**: Suíte ampliada para 109 testes aprovados no PostgreSQL efêmero com concorrência e multithreading; auditoria `pip-audit` limpa para produção e desenvolvimento; build de imagem Docker com hash-pinning; e captura de evidências visuais E2E em 320, 390, 768 e 1440 pixels para ambos os temas Claro e Escuro.
+
+## 0.4.0 — 2026-10-18
 
 - Auditoria do Sprint 01 em PostgreSQL isolado, com correção da emissão anônima de recuperação, proteção contra replay e força bruta, validação de senha e redirecionamento de login.
 - Admin de workspace acessa todos os perfis do próprio núcleo; grants para usuários comuns são verificados por workspace. Escrita financeira direta pelo Django Admin bloqueada.

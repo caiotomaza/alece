@@ -25,7 +25,10 @@ class RegistrationServicesTests(TestCase):
         WorkspaceMembership.objects.create(workspace=self.workspace, user=self.admin, role="admin")
         self.membership = WorkspaceMembership.objects.create(workspace=self.workspace, user=self.common)
         self.profile = create_financial_profile(workspace_id=self.workspace.pk, name="Principal")
-        self.grant = ProfileGrant.objects.create(membership=self.membership, profile=self.profile, can_edit=True)
+        self.grant = ProfileGrant.objects.create(
+            membership=self.membership, profile=self.profile, can_edit=True,
+            overview_level="edit", accounts_level="edit", expenses_level="edit",
+        )
 
     def test_active_limit_counts_only_active_and_reactivation_checks_capacity(self):
         update_financial_profile(self.admin, self.profile.pk, {"is_archived": True})

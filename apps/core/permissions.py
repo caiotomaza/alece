@@ -7,6 +7,7 @@ from django.db.models import F, Q
 from apps.finance.models import FinancialProfile, ProfileGrant, WorkspaceMembership
 
 User = get_user_model()
+MODULES = frozenset({"overview", "accounts", "expenses", "investments", "movements"})
 
 
 class PermissionError(PermissionDenied):
@@ -92,6 +93,50 @@ def get_editable_profiles(user):
     ).values_list("profile_id", flat=True)
     admin_workspaces = WorkspaceMembership.objects.filter(user=user, role="admin").values("workspace_id")
     return FinancialProfile.objects.filter(Q(pk__in=granted_profile_ids) | Q(workspace_id__in=admin_workspaces))
+
+
+def user_can_module(user, profile_id, module: str, level: str = "view") -> bool:
+    """Evaluate current grants on every request; an edit grant also permits reading."""
+    if module not in MODULES or level not in {"view", "edit"}:
+        raise ValueError("Módulo ou nível inválido.")
+    if FinancialProfile.objects.filter(
+        pk=profile_id, workspace__memberships__user=user,
+        workspace__memberships__role=WorkspaceMembership.Role.ADMIN,
+    ).exists():
+        return True
+    grant = get_user_profile_grants(user, profile_id)
+    if grant is None or not (grant.can_view or grant.can_edit):
+        return False
+    actual = getattr(grant, f"{module}_level")
+    return actual == ProfileGrant.Level.EDIT if level == "edit" else actual != ProfileGrant.Level.NONE
+
+
+def require_module(user, profile_id, module: str, level: str = "view"):
+    profile = require_profile_view(user, profile_id)
+    if not user_can_module(user, profile_id, module, level):
+        raise PermissionError("Acesso negado a este módulo do perfil financeiro.")
+    return profile
+
+
+def get_module_profiles(user, module: str, level: str = "view"):
+    if module not in MODULES or level not in {"view", "edit"}:
+        raise ValueError("Módulo ou nível inválido.")
+    field = f"{module}_level"
+    allowed = [ProfileGrant.Level.EDIT]
+    if level == "view":
+        allowed.append(ProfileGrant.Level.VIEW)
+    memberships = WorkspaceMembership.objects.filter(user=user).values("pk")
+    granted = ProfileGrant.objects.filter(
+        membership_id__in=memberships,
+        membership__workspace_id=F("profile__workspace_id"),
+        **{f"{field}__in": allowed},
+    ).filter(Q(can_view=True) | Q(can_edit=True)).values("profile_id")
+    admins = WorkspaceMembership.objects.filter(
+        user=user, role=WorkspaceMembership.Role.ADMIN,
+    ).values("workspace_id")
+    return FinancialProfile.objects.filter(
+        Q(pk__in=granted) | Q(workspace_id__in=admins)
+    )
 
 
 def require_workspace_access(user, workspace_id):

@@ -22,6 +22,13 @@
 - https://docs.djangoproject.com/en/5.2/ref/models/querysets/ — select_for_update e diferenças de testes SQLite/PostgreSQL.
 - https://docs.djangoproject.com/en/5.2/topics/testing/tools/ — TransactionTestCase para concorrência.
 
-- Checkpoint posterior: `C:/Users/Caio Tomaz/backups/2026-10-18_13-26-54__alece-sprint02-checkpoint.zip`, SHA-256 `0c6a6e19d4b9cec39d0cee529ea0f883e9616bcd515354b261797a747b290557`, verificado.
-- Auditoria de `requirements/production.txt` e de `pip==26.2.1` sem vulnerabilidades conhecidas nas versões consultadas; a imagem foi reconstruída com o instalador corrigido. A primeira tentativa em rede Docker interna falhou por DNS isolado e não foi tratada como resultado de auditoria.
-- QA visual sintético gerado pelo Django e inspecionado no Edge em 320/390/768/1440 px para quatro páginas, além de tema claro em 390 px. Não substitui navegador autenticado sobre servidor real.
+- Checkpoint posterior Sprint 02: `C:/Users/Caio Tomaz/backups/2026-10-18_13-26-54__alece-sprint02-checkpoint.zip`, SHA-256 `0c6a6e19d4b9cec39d0cee529ea0f883e9616bcd515354b261797a747b290557`, verificado.
+- Checkpoint início Sprint 03: `C:/Users/Caio Tomaz/backups/2026-10-18_14-14-44__alece-sprint03-source.zip`, SHA-256 `B349558C58076C3A651646AFCB52335F5192CB745A506EE6687D805543EC7CCF`.
+- Checkpoint retomada Sprint 03: `C:/Users/Caio Tomaz/backups/2026-10-18_14-55-57__alece-sprint03-resume.zip`, SHA-256 `DE549D1378053EFFE1A33934C042981F2DC42F6ED27B416B16E01749E82DEC53`.
+- Resolução dos dois apontamentos do teste em navegador:
+  1. Distinção de saldo totalmente desconhecido (`NULL`) de saldo conhecido igual a zero (`0.00`) no modelo de leitura `profile_summary`, no template da Visão Geral e nos resumos por perfil.
+  2. Integração do estorno de movimentações ao modal de edição previsto no protótipo v1.32.1 (`Editar movimentação`), com substituição do botão inline na tabela pelo lápis de linha e confirmação nativa.
+- Auditoria contábil e de concorrência: 109/109 testes aprovados no PostgreSQL 16 efêmero, abrangendo partidas dobradas, bloqueios pessimistas `select_for_update`, integridade contra saldo negativo e imutabilidade auditável via triggers PL/pgSQL.
+- E2E autenticado executado com servidor real e dados sintéticos em 320, 390, 768 e 1440 pixels, nos temas Claro e Escuro, gerando 48 capturas de tela integrais em `docs/reviews/screenshots/`.
+- Verificações finais: Ruff 100% limpo, Compileall 100% limpo, Django check 0 erros, makemigrations drift 0 alterações, preflight_finance strict aprovado, pip-audit (produção e dev) sem vulnerabilidades e build Docker com hash-pinning verificado.
+- Nenhuma publicação, push, release ou deploy executado. Base pronta para revisão independente e preparação do Sprint 04.

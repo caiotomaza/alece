@@ -87,13 +87,21 @@ Para testar a integridade **sem modificar o banco**: `docker compose exec -T db 
 
 O login por usuário/senha está disponível. A geração de um novo código de recuperação offline exige sessão autenticada e senha atual; o código aparece uma vez e deve ser guardado pelo proprietário fora do sistema. O endpoint público `/recovery/` não emite códigos. Códigos emitidos antes da migração `core.0002` são recusados por versão e precisam ser regenerados pelo titular. O resgate tem uso único e limites de tentativas no PostgreSQL. Não há recuperação por e-mail.
 
-Antes de aplicar `finance.0002` em qualquer banco persistente, execute backup validado e confira se há posições de Reserva antigas com `target_amount IS NOT NULL`; a nova constraint as rejeita. A migração não corrige automaticamente dados financeiros. Investigue e decida com o titular antes de avançar. Para consulta de pré-verificação no PostgreSQL isolado/autorizado: `SELECT COUNT(*) FROM finance_investmentposition WHERE category = 'reserve' AND target_amount IS NOT NULL;`. Valor maior que zero exige plano de reconciliação, não substituição silenciosa da meta.
+Antes de aplicar `finance.0002`, `finance.0003` e `finance.0004` em qualquer banco persistente, execute backup validado com SHA-256 e rode o comando de validação prévia:
+`docker compose exec web python manage.py preflight_finance --strict`.
+Esse comando confere contas com saldo inicial não conciliado e posições inválidas de Reserva. O preflight deve retornar `"safe_to_apply_reserve_constraint": true` e zero pendências antes de avançar.
+
+### Imutabilidade do Ledger e Partidas Dobradas
+As movimentações financeiras gravadas (`TransactionBatch`, `LedgerLeg` e `JournalEntry`) são protegidas por triggers no PostgreSQL (`finance_guard_posted_history` e `finance_assert_journal_balance`).
+- Lançamentos contábeis postados não aceitam UPDATE nem DELETE no banco. Tentativas de alteração direta disparam exceção `Posted financial history is immutable`.
+- Para anular uma movimentação, use sempre o fluxo oficial de **Estorno** (`reverse_batch`), que gera uma contrapartida contábil simétrica preservando toda a trilha de auditoria.
 
 ## 8. Incidentes financeiros
 
 - Saldo negativo após pagamento: tratar como defeito de integridade, interromper atualizações do módulo, preservar backups e logs, comparar débitos e lançamentos.
+- Violação de gatilho de imutabilidade: investigar scripts ou comandos diretos que tentem alterar `TransactionBatch` ou `LedgerLeg`; utilizar exclusivamente o serviço transacional `reverse_batch`.
 - Importação duplicada: não excluir histórico por conveniência; investigar chaves idempotentes, origem do arquivo e reprocessamento.
-- Dado de perfil exposto: isolar acesso, preservar evidências com cuidado e revisar grants por perfil.
+- Dado de perfil exposto: isolar acesso, preservar evidências com cuidado e revisar grants modulares por perfil (`ProfileGrant`).
 - Migração falhada: **não** insistir executando migrations aleatórias; restaurar ambiente de homologação e analisar `showmigrations`.
 - Bug após release: retornar à imagem anterior e avaliar se o banco demanda restauração. Recuo apenas do código não desfaz mudanças irreversíveis de schema.
 

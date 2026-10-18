@@ -37,13 +37,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: requirements/development.in
+          cache-dependency-path: requirements/development.lock
       - name: Install test dependencies
-        run: python -m pip install -r requirements/development.txt
+        run: python -m pip install --require-hashes -r requirements/development.lock
       - name: Audit production dependencies
-        run: |
-          python -m pip install pip-audit
-          python -m pip_audit -r requirements/production.txt
+        run: python -m pip_audit -r requirements/production.lock
       - name: Static and style checks
         run: |
           python -m compileall -q apps config tests manage.py
@@ -55,6 +53,7 @@ jobs:
       - name: Apply migrations and test
         run: |
           python manage.py migrate --noinput
+          python manage.py preflight_finance --strict
           pytest -q
 
   image:

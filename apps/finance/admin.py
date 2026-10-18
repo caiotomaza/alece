@@ -5,7 +5,10 @@ from .models import (
     BankAccount,
     FinancialProfile,
     InvestmentPosition,
+    JournalEntry,
     LedgerLeg,
+    MonthlyExpense,
+    MonthlyInvestmentPlan,
     ProfileGrant,
     RecurringExpense,
     ReservePolicy,
@@ -54,6 +57,7 @@ for model in (Workspace, WorkspaceMembership, ProfileGrant):
 for model in (
     FinancialProfile,
     BankAccount, RecurringExpense, UnexpectedExpense, InvestmentPosition,
-    ReservePolicy, TransactionBatch, LedgerLeg,
+    ReservePolicy, TransactionBatch, LedgerLeg, JournalEntry, MonthlyExpense,
+    MonthlyInvestmentPlan,
 ):
     admin.site.register(model, FinancialReadOnlyAdmin)

@@ -1,0 +1,10 @@
+{% extends "finance/base.html" %}
+{% block title %}Permissões · {{ profile.name }} · ALECE{% endblock %}
+{% block content %}
+<p><a href="{% url 'finance:profile-detail' profile.pk %}">{{ profile.name }}</a></p>
+<h1>Permissões do perfil</h1>
+<p class="muted">Cada módulo começa sem acesso para um membro Comum. Editar também permite visualizar. Administradores acessam todos os perfis do próprio núcleo.</p>
+{% for row in rows %}<section class="card"><div class="section-heading"><h2>{{ row.member.user.username }}</h2><a class="icon-button" aria-label="Editar permissões de {{ row.member.user.username }}" href="{% url 'finance:grant-edit' profile.pk row.member.pk %}">✎</a></div>
+  {% if row.grant %}<p>Visão geral: {{ row.grant.get_overview_level_display }} · Contas: {{ row.grant.get_accounts_level_display }} · Despesas: {{ row.grant.get_expenses_level_display }} · Investimentos: {{ row.grant.get_investments_level_display }} · Movimentações: {{ row.grant.get_movements_level_display }}</p>{% else %}<p>Sem acesso.</p>{% endif %}
+</section>{% empty %}<p class="card">Nenhum membro Comum neste núcleo.</p>{% endfor %}
+{% endblock %}

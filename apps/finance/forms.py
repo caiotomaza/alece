@@ -2,7 +2,7 @@
 from django import forms
 
 from apps.finance.models import (
-    BankAccount, FinancialProfile, InvestmentPosition, RecurringExpense, ReservePolicy,
+    BankAccount, FinancialProfile, InvestmentPosition, ProfileGrant, RecurringExpense, ReservePolicy,
     UnexpectedExpense,
 )
 
@@ -61,3 +61,19 @@ class ReservePolicyForm(forms.ModelForm):
         fields = ["coverage_months"]
         labels = {"coverage_months": "Meses de proteção"}
         help_texts = {"coverage_months": "De 6 a 12 meses de despesas essenciais. Padrão: 9 meses."}
+
+
+class ProfileGrantForm(forms.ModelForm):
+    class Meta:
+        model = ProfileGrant
+        fields = [
+            "overview_level", "accounts_level", "expenses_level",
+            "investments_level", "movements_level",
+        ]
+        labels = {
+            "overview_level": "Visão geral e renda",
+            "accounts_level": "Contas e saldos",
+            "expenses_level": "Despesas",
+            "investments_level": "Investimentos",
+            "movements_level": "Movimentações",
+        }

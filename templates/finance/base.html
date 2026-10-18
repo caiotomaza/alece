@@ -20,6 +20,7 @@
       <a class="nav-button{% if active_nav == 'overview' %} is-active{% endif %}" {% if active_nav == 'overview' %}aria-current="page"{% endif %} href="{% url 'finance:overview' workspace.pk %}">Visão geral</a>
       <a class="nav-button{% if active_nav == 'expenses' %} is-active{% endif %}" {% if active_nav == 'expenses' %}aria-current="page"{% endif %} href="{% url 'finance:expenses' workspace.pk %}">Despesas</a>
       <a class="nav-button{% if active_nav == 'investments' %} is-active{% endif %}" {% if active_nav == 'investments' %}aria-current="page"{% endif %} href="{% url 'finance:investments' workspace.pk %}">Investimentos</a>
+      <a class="nav-button{% if active_nav == 'movements' %} is-active{% endif %}" {% if active_nav == 'movements' %}aria-current="page"{% endif %} href="{% url 'finance:movements' workspace.pk %}">Movimentações</a>
       <a class="nav-button{% if active_nav == 'profiles' %} is-active{% endif %}" {% if active_nav == 'profiles' %}aria-current="page"{% endif %} href="{% url 'finance:profile-list' workspace.pk %}">Perfis financeiros</a>
       {% endif %}
     </nav>

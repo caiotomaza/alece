@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
-from apps.core.permissions import require_profile_edit, require_workspace_admin
+from apps.core.permissions import require_module, require_workspace_admin
 from apps.finance.models import (
     BankAccount, FinancialProfile, InvestmentPosition, RecurringExpense, ReservePolicy,
     UnexpectedExpense,
@@ -17,10 +17,17 @@ FIELDS = {
     InvestmentPosition: {"name", "institution", "category", "applied_amount", "current_value", "target_amount", "is_active", "recorded_on"},
     ReservePolicy: {"coverage_months"},
 }
+MODULE_BY_MODEL = {
+    BankAccount: "accounts",
+    RecurringExpense: "expenses",
+    UnexpectedExpense: "expenses",
+    InvestmentPosition: "investments",
+    ReservePolicy: "investments",
+}
 
 
-def locked_profile(user, profile_id):
-    require_profile_edit(user, profile_id)
+def locked_profile(user, profile_id, module):
+    require_module(user, profile_id, module, "edit")
     profile = FinancialProfile.objects.select_for_update().get(pk=profile_id)
     if profile.is_archived:
         raise ValidationError("Reative o perfil antes de alterar seus cadastros.")
@@ -39,7 +46,7 @@ def has_history(obj):
 def save_record(user, profile_id, model, data, object_id=None):
     if model not in FIELDS or set(data) - FIELDS[model]:
         raise ValidationError("Cadastro ou campo não permitido.")
-    profile = locked_profile(user, profile_id)
+    profile = locked_profile(user, profile_id, MODULE_BY_MODEL[model])
     if model is ReservePolicy:
         require_workspace_admin(user, profile.workspace_id)
     if object_id is not None:
@@ -54,12 +61,17 @@ def save_record(user, profile_id, model, data, object_id=None):
         if isinstance(obj, RecurringExpense):
             safe_fields |= {"amount", "due_day"}  # changes apply to future monthly planning
         if isinstance(obj, UnexpectedExpense):
-            safe_fields = set()
+            active_payments = obj.transactionbatch_set.filter(
+                kind="unexpected", reversal__isnull=True,
+            ).exists()
+            safe_fields = set() if active_payments else {"name", "amount"}
         changed = {key for key, value in data.items() if getattr(obj, key) != value}
         if changed - safe_fields:
             raise ValidationError("Registro com movimentações: alteração financeira exige conciliação.")
     for key, value in data.items():
         setattr(obj, key, value.strip() if isinstance(value, str) else value)
+    if model is BankAccount and (not obj.pk or not has_history(obj)):
+        obj.opening_balance = obj.balance
     if model is UnexpectedExpense and not obj.pk:
         obj.recorded_on = timezone.localdate()
     obj.full_clean()
@@ -71,7 +83,7 @@ def save_record(user, profile_id, model, data, object_id=None):
 def delete_record(user, profile_id, model, object_id):
     if model not in FIELDS or model is ReservePolicy:
         raise ValidationError("Exclusão não permitida.")
-    profile = locked_profile(user, profile_id)
+    profile = locked_profile(user, profile_id, MODULE_BY_MODEL[model])
     obj = model.objects.select_for_update().get(pk=object_id, profile=profile)
     if has_history(obj):
         raise ValidationError("O histórico deve ser preservado. Arquive o cadastro quando disponível.")
@@ -80,7 +92,7 @@ def delete_record(user, profile_id, model, object_id):
 
 @transaction.atomic
 def update_income(user, profile_id, monthly_income):
-    profile = locked_profile(user, profile_id)
+    profile = locked_profile(user, profile_id, "overview")
     profile.monthly_income = monthly_income
     profile.full_clean()
     profile.save(update_fields=["monthly_income"])
