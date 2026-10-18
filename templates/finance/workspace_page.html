@@ -2,7 +2,21 @@
 {% block title %}{{ title }} · {{ workspace.name }} · ALECE{% endblock %}
 {% block content %}
 <div class="section-heading"><div><p class="muted">{{ workspace.name }}</p><h1>{{ title }}</h1></div><a href="{% url 'finance:profile-list' workspace.pk %}">Gerenciar perfis e contas</a></div>
-<form method="get" class="card profile-selector"><h2>Selecionar perfis e mês</h2>{{ filter_form.as_p }}<div class="actions"><button type="submit">Consultar</button></div></form>
+<form method="get" class="card profile-selector">
+  <h2>Selecionar perfis e mês</h2>
+  <div class="filter-field">
+    {{ filter_form.profiles.label_tag }}
+    {{ filter_form.profiles }}
+    {% if filter_form.profiles.help_text %}<p class="helptext">{{ filter_form.profiles.help_text }}</p>{% endif %}
+    {{ filter_form.profiles.errors }}
+  </div>
+  <div class="filter-field">
+    {{ filter_form.month.label_tag }}
+    {{ filter_form.month }}
+    {{ filter_form.month.errors }}
+  </div>
+  <div class="actions"><button type="submit">Consultar</button></div>
+</form>
 {% if sections %}
 {% if active_nav == 'overview' %}
 <div class="metrics"><article class="card metric"><h2>Renda mensal conhecida</h2><strong>R$ {{ known_income|floatformat:2 }}</strong><p class="muted">{{ unknown_income_count }} perfil(is) com renda desconhecida</p></article><article class="card metric"><h2>Saldos conhecidos</h2><strong>R$ {{ bank_balance|floatformat:2 }}</strong><p class="muted">{{ bank_unknown_count }} conta(s) com saldo desconhecido. Saldos não são renda.</p></article></div>
