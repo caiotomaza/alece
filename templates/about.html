@@ -1,0 +1,105 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block title %}Sobre o projeto · ALECE{% endblock %}
+
+{% block content %}
+<main class="page-about" role="main">
+  <header class="page-header">
+    <h1>Sobre o projeto</h1>
+    <p class="subtitle">ALECE — Finanças Pessoais</p>
+  </header>
+
+  <section class="about-section" aria-labelledby="apresentacao">
+    <h2 id="apresentacao">Apresentação</h2>
+    <p><strong>ALECE</strong> é uma ferramenta gratuita, <strong>self-hosted</strong> e de código aberto sob licença <strong>GPL-3.0-only</strong>.</p>
+    <p>Desenvolvida para que você tenha controle total sobre seus dados financeiros, sem depender de serviços de nuvem de terceiros, sem rastreamento e sem custos ocultos. Você hospeda, você controla.</p>
+    <p>O código-fonte está disponível em <a href="https://github.com/caiotomaza/alece" target="_blank" rel="noopener">github.com/caiotomaza/alece</a>.</p>
+  </section>
+
+  <section class="about-section" aria-labelledby="homenagem">
+    <h2 id="homenagem">Homenagem</h2>
+    <p>Esta ferramenta é dedicada a <strong>Alice</strong>, mãe do criador, descrita como <strong>exímia profissional da área de economia</strong>. Sua dedicação, rigor analítico e paixão pelo conhecimento inspiraram cada linha deste projeto.</p>
+  </section>
+
+  <section class="about-section" aria-labelledby="logica">
+    <h2 id="logica">Lógica da ferramenta</h2>
+    <p>O ALECE organiza sua vida financeira em cinco estágios sequenciais:</p>
+    <ol class="logic-flow">
+      <li><strong>Renda e perfis</strong> — Defina sua renda mensal e crie perfis financeiros (pessoal, familiar, empresarial).</li>
+      <li><strong>Planejamento</strong> — Cadastre despesas recorrentes, imprevistas e posições de investimento.</li>
+      <li><strong>Execução</strong> — Registre pagamentos, recebimentos, transferências e aportes.</li>
+      <li><strong>Reserva e metas</strong> — Acompanhe a Reserva de Emergência e metas de patrimônio.</li>
+      <li><strong>Leitura final</strong> — Dashboards, DRE, evolução patrimonial e relatórios de metas.</li>
+    </ol>
+
+    <details class="logic-detail" open>
+      <summary>Entenda o fluxo: Renda → Planejamento → Execução</summary>
+      <div class="detail-content">
+        <p>A <strong>renda mensal</strong> alimenta o planejamento. Cada <strong>perfil financeiro</strong> tem suas próprias contas, despesas e investimentos, mas compartilha a mesma renda configurada.</p>
+        <p>No <strong>planejamento</strong>, você cadastra despesas que se repetem (aluguel, contas fixas), despesas que surgem eventualmente (consertos, presentes) e posições de investimento (reserva, ações, fundos).</p>
+        <p>Na <strong>execução</strong>, cada pagamento ou recebimento gera um lançamento contábil balanceado (partida dobrada), mantendo a integridade do ledger. Transferências entre contas próprias não alteram o patrimônio líquido.</p>
+      </div>
+    </details>
+
+    <details class="logic-detail">
+      <summary>Reserva, Metas e Leitura Final</summary>
+      <div class="detail-content">
+        <p>A <strong>Reserva de Emergência</strong> tem regra de cobertura configurável (ex.: 6× despesas essenciais). O ALECE calcula automaticamente se você está coberto.</p>
+        <p>As <strong>metas de investimento</strong> mostram progresso em tempo real: valor aplicado vs. valor atual vs. meta.</p>
+        <p>Na <strong>leitura final</strong>, o Dashboard reúne KPIs, DRE (Resultado do Exercício), evolução patrimonial (gráfico de linha) e alocação de investimentos (gráfico de rosca). Todos os gráficos usam <strong>Chart.js v4 auto-hospedado</strong> (sem CDN externo).</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="about-section" aria-labelledby="como-usar">
+    <h2 id="como-usar">Como usar?</h2>
+    <ol class="steps">
+      <li>
+        <strong>Crie seu espaço</strong> — Acesse <em>Meus núcleos</em> e clique em <em>Novo núcleo</em>. Um núcleo (workspace) agrupa perfis financeiros.
+      </li>
+      <li>
+        <strong>Configure perfis e renda</strong> — Em <em>Configurações</em>, crie perfis (ex.: Pessoal, Família) e defina a renda mensal de cada um.
+      </li>
+      <li>
+        <strong>Planeje despesas e investimentos</strong> — Nas abas <em>Despesas</em> e <em>Investimentos</em>, cadastre recorrentes, imprevistos e posições.
+      </li>
+      <li>
+        <strong>Execute e acompanhe</strong> — Use <em>Movimentações</em> para pagar/receber, importar extratos (CSV/OFX/PDF) e ver o ledger. O <em>Dashboard</em> mostra tudo consolidado.
+      </li>
+    </ol>
+  </section>
+
+  <footer class="about-footer" aria-labelledby="identidade-visual">
+    <h2 id="identidade-visual" class="visually-hidden">Identidade visual</h2>
+    <div class="flags">
+      <!-- Bandeira do Brasil (SVG inline) -->
+      <svg class="flag" viewBox="0 0 20 14" aria-label="Bandeira do Brasil" role="img">
+        <rect width="20" height="14" fill="#009B3A"/>
+        <polygon points="10,0 15.5,7 10,14 4.5,7" fill="#FFDF00"/>
+        <circle cx="10" cy="7" r="4.5" fill="#002776"/>
+        <text x="10" y="9" font-family="Arial" font-size="5" font-weight="bold" fill="#FFF" text-anchor="middle">ORDEM E PROGRESSO</text>
+      </svg>
+      <!-- Bandeira do Ceará (SVG inline) -->
+      <svg class="flag" viewBox="0 0 20 14" aria-label="Bandeira do Ceará" role="img">
+        <rect width="20" height="14" fill="#0077C8"/>
+        <rect x="2" y="2" width="16" height="10" fill="#FFF"/>
+        <rect x="3" y="3" width="14" height="8" fill="#0077C8"/>
+        <circle cx="10" cy="7" r="3" fill="#FFF"/>
+        <text x="10" y="9" font-family="Arial" font-size="3" fill="#0077C8" text-anchor="middle">CE</text>
+      </svg>
+      <!-- Logo NTEC (SVG inline) -->
+      <svg class="flag" viewBox="0 0 20 14" aria-label="Logo NTEC" role="img">
+        <rect width="20" height="14" rx="2" fill="#1A1A2E"/>
+        <text x="10" y="10" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="#00D4AA" text-anchor="middle">NTEC</text>
+      </svg>
+    </div>
+    <div class="links">
+      <a href="https://caiotomaza.github.io/alece/" target="_blank" rel="noopener">Projeto ALECE</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://caiotomaza.github.io/" target="_blank" rel="noopener">Portfólio do autor</a>
+    </div>
+    <p class="license">Licenciado sob <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GPL-3.0-only</a> — Código aberto, livre para usar, estudar, modificar e distribuir.</p>
+  </footer>
+</main>
+{% endblock %}

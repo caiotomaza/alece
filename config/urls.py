@@ -13,6 +13,8 @@ urlpatterns = [
     path("finance/", include("apps.finance.urls")),
     path("health/live/", views.live, name="health-live"),
     path("health/ready/", views.ready, name="health-ready"),
+    path("healthz/", views.healthz, name="healthz"),
+    path("about/", views.about_page, name="about-page"),
     # Autenticação
     path("login/", auth_views.login_view, name="login"),
     path("logout/", auth_views.logout_view, name="logout"),

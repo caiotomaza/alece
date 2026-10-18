@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.9.0 (Sprint 08 — Consolidação Final MVP: UX v1.32.1, Retenção Arquivos, Backup/Restore AC-08, Hardening Docker/ZimaOS) — 2026-10-18
+
+- **UX v1.32.1 — Cinco abas de navegação**: Sidebar (desktop) e barra inferior (mobile) com exatamente 5 destinos: "Visão geral", "Despesas", "Investimentos", "Movimentações", "Configurações".
+- **Página interna "Sobre o projeto" (`/about/`)**: Rota, view e template dedicados (sem modal/dialog/backdrop). Conteúdo obrigatório:
+  - Apresentação ALECE (gratuita, self-hosted, GPL-3.0-only).
+  - Homenagem explícita à Alice (mãe do criador, exímia profissional de economia).
+  - Seção "Lógica da ferramenta" com fluxo de 5 estágios e 2 blocos `<details>/<summary>` acessíveis por teclado.
+  - Seção "Como usar?" em 4 etapas claras.
+  - Rodapé com SVGs inline das bandeiras do Brasil, Ceará e logo NTEC + links oficiais (`caiotomaza.github.io/alece/` e `caiotomaza.github.io/`).
+- **Botão Sair (Logout) em vermelho**: Estilização visual vermelha tanto no tema Claro quanto Escuro via classe `.logout-button` (CSS `background: var(--negative)`).
+- **Modo de Privacidade "Ocultar valores" (AT-155)**: Toggle global na topbar persiste em sessão (`alece_privacy`), aplica classe `is-private` no `<body>` via context processor, mascara todos os valores monetários em KPIs, tabelas, tooltips, atributos `title`/`aria-label` e legendas/dados de gráficos Chart.js.
+- **Comando `cleanup_expired_files`**: Remove arquivos físicos de `ReportExport` e `ImportBatch` expirados (> N horas, default 24h) fora do webroot público, atualiza status para `failed` sem apagar registro de auditoria. Suporte `--dry-run` para inspeção.
+- **Comando `verify_ledger_backup` (AC-08)**: Gera snapshot lógico consistente dos dados financeiros do perfil, calcula e salva `.sha256` adjacente, valida invariantes contábeis:
+  - Soma das pernas de cada lançamento balanceada (`Σ débitos = Σ créditos`).
+  - Reconciliação exata entre saldos das `BankAccount` e movimentações confirmadas/estornadas.
+  - Integridade de investimentos (valores não negativos).
+- **Hardening Docker / ZimaOS (Etapa F6)**:
+  - Endpoint `/healthz/`: testa conectividade mínima com banco (`SELECT 1`), retorna `200 OK` com `{"status": "ok"}`, sem autenticação, sem expor saldos/config/stacktraces.
+  - `Dockerfile`: executa processo com usuário não-root (`USER alece`), sem credenciais embutidas.
+  - `compose.yaml`: serviço `db` (PostgreSQL 16) com `healthcheck` via `pg_isready`, porta 5432 não exposta publicamente; serviço `web` depende de `db:service_healthy`; proibido `privileged: true` ou bind de `/var/run/docker.sock`; volumes persistentes mapeados para `ALECE_DATA_DIR` no ZimaOS.
+- **Testes Sprint 08 (`tests/test_sprint08.py`)**: 11 testes cobrindo navegação 5 abas + página About, modo "Ocultar valores", comando limpeza arquivos, backup/restore com validação SHA-256 e reconciliação ledger, endpoint `/healthz/`.
+- **Verificações**: Django check, migrações, pip-audit, Docker build — todos aprovados.
+- **Docs**: README, RUNBOOK (Sec. Backup/Restore/Limpeza), CHANGELOG v0.9.0, ZIMAOS.md, SPRINT08_REPORT.md, PANORAMA v0.9.0.
+
 ## 0.8.0 (Sprint 06 — Versionamento De-Para, OCR PDF, Exportação Relatórios, Gráficos) — 2026-10-18
 
 - **Versionamento De-Para**: Modelo `CategorizationRuleVersion` com snapshot imutável dos campos, `version_number` sequencial por regra (`UniqueConstraint`), `changed_by`, `changed_at` e `change_reason`. UI para CRUD de regras (exato/regex, campo alvo, prioridade, ativação), teste de regra via AJAX, escopo (workspace/perfil), prioridade explícita, histórico e autoria. Rollback via `rollback_categorization_rule()` protegido por `@transaction.atomic` e `require_workspace_admin`.

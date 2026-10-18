@@ -30,3 +30,27 @@ def ready(request):
     except Exception:
         return JsonResponse({"status": "unavailable"}, status=503)
     return JsonResponse({"status": "ready"})
+
+
+@require_GET
+def healthz(request):
+    """Health check endpoint for container orchestration (ZimaOS, Kubernetes, etc.).
+    Returns 200 OK with minimal JSON payload. No authentication required.
+    Never exposes balances, settings, or stack traces.
+    """
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+    except Exception:
+        return JsonResponse({"status": "error"}, status=503)
+    return JsonResponse({"status": "ok"})
+
+
+def about_page(request):
+    """Página 'Sobre o projeto' - página interna (não modal).
+    Roteiro v1.32.1: ALECE grátis/self-hosted/GPL-3.0-only, homenagem à Alice,
+    Lógica da ferramenta com <details>/<summary>, Como usar em 4 etapas,
+    SVGs inline das bandeiras Brasil/Ceará/NTEC, links oficiais.
+    """
+    return render(request, "about.html", {})
