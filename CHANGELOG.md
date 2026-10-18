@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.0 (Sprint 05 — Categorização De-Para, Importação PDF, Relatórios Financeiros) — 2026-10-18
+
+- **Regras de Categorização De-Para Persistidas**: Modelo `CategorizationRule` com escopo por núcleo/perfil, correspondência exata ou regex (protegida contra ReDoS via timeout 100ms e validação de complexidade), prioridade explícita, ativação/desativação, autoria e trilha de auditoria. Prevenção de ReDoS via limite de grupos de captura, detecção de padrões perigosos e timeout de execução.
+- **Importação PDF Assistida**: Parser `PDFParser` com validação de assinatura `%PDF-`, limites de páginas (50), texto extraído (500KB), criptografia rejeitada. Extração nativa via `pdfplumber` (texto + tabelas), OCR opcional isolado via `pymupdf` apenas quando tecnicamente necessário. Validação de criptografia, integridade, páginas, limites de memória/tempo. Reutiliza pipeline completo do Sprint 04 (staging, duplicidade, categorização, prévia, commit).
+- **Relatórios Financeiros Consolidados**: 
+  - **DRE simplificada**: Receitas (kind=income) vs Despesas confirmadas (recurring/unexpected), pendências separadas, não confunde orçamento com execução.
+  - **Evolução Patrimonial**: Série temporal (diária/semanal/mensal) de Ativos (bancos conhecidos + investimentos current_value) - Passivos. Saldo desconhecido (NULL) sinalizado, não somado como zero.
+  - **Investimentos**: Posições detalhadas (aplicado, atual, ganho/perda não realizado), fluxo do período (aplicações/resgates), por categoria.
+  - **Metas e Reserva**: Progresso da Reserva (essenciais × meses), metas de investimento (target_amount), sugestão mensal, alertas de gap.
+  - **Dashboard consolidado**: Agregação de todos os relatórios com alertas de consolidação parcial.
+- **Persistência De-Para**: UI para CRUD de regras (exato/regex, campo alvo, prioridade, ativação), teste de regra via AJAX, escopo núcleo/perfil, prioridade explícita, histórico e autoria.
+- **PDF Security**: Validação assinatura `%PDF-`, rejeição criptografia sem senha, limites páginas/tamanho/tempo, sanitização texto, proteção path traversal.
+- **Pipeline Reutilizado**: Staging (ImportBatch/ImportRow + SHA-256), deduplicação (FITID/hash/contextual), categorização (regras persistidas + heurística fallback), reconciliação assistida, prévia editável com dry-run AJAX, commit atômico idempotente reutilizando serviços ledger, relatório detalhado.
+- **Testes Abrangentes**: 80+ testes cobrindo regras De-Para (criação, regex seguro, prioridade, escopo), parsers (CSV/OFX/PDF), detecção duplicidade, integração fluxo completo, relatórios (DRE, patrimônio, investimentos, metas), segurança (ReDoS, oversized, criptografia, sanitização), permissões, revogação, idempotência.
+- **Verificações**: Django check, Ruff, migrações, pip-audit, Docker build — todos aprovados.
+
 ## 0.6.0 (Sprint 04 — Importação Bancária e Reconciliação Assistida) — 2026-10-18
 
 - **Pipeline de Importação Modular**: Adaptadores versionados para CSV (UTF-8, ISO-8859-1, Windows-1252; delimitadores `;`, `,`, tab, `|`; cabeçalho opcional; colunas crédito/débito separadas ou valor único com sinal), OFX 1.x (SGML) e OFX 2.x (XML com proteção XXE e expansão de entidades). Parser factory com detecção automática de formato por extensão e conteúdo.

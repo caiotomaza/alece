@@ -1,0 +1,120 @@
+{% extends "finance/base.html" %}
+{% block title %}DRE · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>DRE - Demonstração do Resultado do Exercício</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<!-- Filtro de período -->
+<form method="get" class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_start">Início</label>
+      <input type="date" name="period_start" id="id_period_start" class="form-input" value="{{ period_start|date:'Y-m-d' }}">
+    </div>
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_end">Fim</label>
+      <input type="date" name="period_end" id="id_period_end" class="form-input" value="{{ period_end|date:'Y-m-d' }}">
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn">Atualizar</button>
+    </div>
+  </div>
+</form>
+
+<!-- Resumo -->
+<div class="metrics" style="margin-bottom: 1.5rem;">
+  <article class="card metric">
+    <h3>Receitas recebidas</h3>
+    <strong style="color: var(--positive);">R$ {{ dre.income_received|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Despesas confirmadas</h3>
+    <strong style="color: var(--negative);">R$ {{ dre.expenses_confirmed|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Resultado líquido</h3>
+    <strong style="color: {% if dre.net_result >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+      R$ {{ dre.net_result|floatformat:2 }}
+    </strong>
+  </article>
+  <article class="card metric">
+    <h3>Despesas pendentes</h3>
+    <strong style="color: var(--warning);">R$ {{ dre.expenses_pending|floatformat:2 }}</strong>
+  </article>
+</div>
+
+{% if dre.warnings %}
+<div class="card" style="border-color: var(--warning); background: var(--gold-soft); margin-bottom: 1.5rem;">
+  <strong style="color: var(--warning);">⚠ Alertas:</strong>
+  <ul style="margin: 0.5rem 0 0;">
+    {% for w in dre.warnings %}<li>{{ w }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<!-- Detalhamento por tipo -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Receitas por Tipo</h3>
+  {% if dre.income_by_type %}
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead><tr><th>Tipo</th><th class="align-right">Valor</th></tr></thead>
+      <tbody>
+        {% for type, value in dre.income_by_type.items %}
+        <tr><td>{{ type }}</td><td class="align-right" style="color: var(--positive);">R$ {{ value|floatformat:2 }}</td></tr>
+        {% endfor %}
+        <tr style="font-weight: bold; border-top: 2px solid var(--border);">
+          <td>Total</td><td class="align-right" style="color: var(--positive);">R$ {{ dre.income_received|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nenhuma receita no período.</p>
+  {% endif %}
+</div>
+
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Despesas por Tipo</h3>
+  {% if dre.expenses_by_type %}
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead><tr><th>Tipo</th><th class="align-right">Valor</th></tr></thead>
+      <tbody>
+        {% for type, value in dre.expenses_by_type.items %}
+        <tr><td>{{ type }}</td><td class="align-right" style="color: var(--negative);">R$ {{ value|floatformat:2 }}</td></tr>
+        {% endfor %}
+        <tr style="font-weight: bold; border-top: 2px solid var(--border);">
+          <td>Total</td><td class="align-right" style="color: var(--negative);">R$ {{ dre.expenses_confirmed|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nenhuma despesa confirmada no período.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Despesas por Categoria</h3>
+  {% if dre.expenses_by_category %}
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead><tr><th>Categoria</th><th class="align-right">Valor</th></tr></thead>
+      <tbody>
+        {% for cat, value in dre.expenses_by_category.items %}
+        <tr><td>{{ cat }}</td><td class="align-right" style="color: var(--negative);">R$ {{ value|floatformat:2 }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Sem despesas categorizadas no período.</p>
+  {% endif %}
+</div>
+{% endblock %}

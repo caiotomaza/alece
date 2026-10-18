@@ -1,0 +1,114 @@
+{% extends "finance/base.html" %}
+{% block title %}Regras De-Para · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Regras de Categorização (De-Para)</h1>
+  </div>
+</div>
+
+<!-- Filtros -->
+<form method="get" class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+    <div class="filter-field" style="flex: 1; min-width: 200px;">
+      <label for="id_profile">Perfil financeiro</label>
+      <select name="profile" id="id_profile" class="form-input">
+        <option value="">Núcleo (todas)</option>
+        {% for p in profiles %}
+        <option value="{{ p.pk }}" {% if selected_profile == p.pk %}selected{% endif %}>
+          {{ p.emoji }} {{ p.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="actions">
+      <button type="submit">Filtrar</button>
+      <a href="{% url 'finance:categorization-list' workspace.pk %}" class="btn secondary">Limpar</a>
+    </div>
+  </div>
+</form>
+
+<!-- Botão de nova regra -->
+{% if can_manage %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="{% url 'finance:categorization-create' workspace.pk %}{% if selected_profile %}?profile={{ selected_profile }}{% endif %}" class="btn" id="quick-add">
+    <span>+</span> Nova regra
+  </a>
+</div>
+{% endif %}
+
+<!-- Lista de regras -->
+{% if rules %}
+<div class="table-wrap">
+  <table class="source-table" data-table-sort>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Escopo</th>
+        <th>Padrão</th>
+        <th>Campo</th>
+        <th>Tipo</th>
+        <th>Ação sugerida</th>
+        <th class="align-right">Prioridade</th>
+        <th>Status</th>
+        <th><span class="sr-only">Ações</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rule in rules %}
+      <tr>
+        <td>
+          <strong>{{ rule.name }}</strong>
+          {% if rule.description %}
+          <div class="subline muted">{{ rule.description|truncatechars:80 }}</div>
+          {% endif %}
+        </td>
+        <td>
+          {% if rule.profile %}
+          <span class="demo-pill">{{ rule.profile.emoji }} {{ rule.profile.name }}</span>
+          {% else %}
+          <span class="demo-pill" style="background: var(--gold-soft); color: var(--gold);">Núcleo</span>
+          {% endif %}
+        </td>
+        <td style="font-family: monospace; font-size: 12px;">{{ rule.pattern }}</td>
+        <td>{{ rule.get_match_field_display }}</td>
+        <td>
+          <span class="demo-pill {% if rule.match_type == 'regex' %}confirmed{% else %}partial{% endif %}">
+            {{ rule.get_match_type_display }}
+          </span>
+          {% if rule.case_sensitive %}
+          <div class="subline muted">Case-sensitive</div>
+          {% endif %}
+        </td>
+        <td>{{ rule.get_suggested_kind_display }}</td>
+        <td class="align-right">{{ rule.priority }}</td>
+        <td>
+          <span class="status-chip {% if rule.is_active %}confirmed{% else %}{% endif %}">
+            {% if rule.is_active %}Ativa{% else %}Inativa{% endif %}
+          </span>
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.5rem;">
+            {% if can_manage %}
+            <a href="{% url 'finance:categorization-edit' workspace.pk rule.pk %}" class="row-action" title="Editar">✎</a>
+            <form method="post" action="{% url 'finance:categorization-delete' workspace.pk rule.pk %}" data-confirm-reversal style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="row-action" style="color: var(--negative);" title="Excluir">🗑</button>
+            </form>
+            {% endif %}
+            <a href="{% url 'finance:categorization-test' workspace.pk %}?pattern={{ rule.pattern|urlencode }}&match_type={{ rule.match_type }}&match_field={{ rule.match_field }}&case_sensitive={{ rule.case_sensitive|yesno:'true,false' }}" class="row-action" title="Testar">Testar</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="card contextual-empty">
+  <h2>Nenhuma regra encontrada</h2>
+  <p>Crie regras de categorização para automatizar a classificação de transações importadas.</p>
+</p>
+{% endif %}
+{% endblock %}

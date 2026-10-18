@@ -138,6 +138,38 @@ As movimentações financeiras gravadas (`TransactionBatch`, `LedgerLeg` e `Jour
 - Relatório pós-commit (`/imports/<id>/report/`) detalha: confirmadas, vinculadas, ignoradas, duplicatas, erros, trilha de auditoria (hash, idempotency key, autor, timestamp).
 - Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` registram upload, parse, commit.
 
-## 10. Encerramento de intervenção
+## 10. Operações de Categorização De-Para e Relatórios (Sprint 05)
+
+### 10.1 Regras de Categorização De-Para
+1. **Listagem** — `/finance/workspaces/<id>/categorization/` com filtro por perfil (núcleo + perfis).
+2. **Criação** — `/categorization/new/` — define nome, tipo (exato/regex), padrão, campo alvo, ação sugerida, prioridade, escopo (núcleo/perfil).
+3. **Teste de Regra** — AJAX em `/categorization/test/` valida regex (segurança ReDoS) e simula correspondência.
+3. **Edição/Exclusão** — Ações por linha na listagem, apenas admin do workspace.
+4. **Escopo e Prioridade** — Regras de perfil têm precedência sobre núcleo; prioridade numérica (menor = maior prioridade).
+
+### 10.2 Importação PDF (Além de CSV/OFX)
+1. **Upload** — Mesma interface, aceita `.pdf` (assinatura `%PDF-` validada).
+2. **Validação** — Rejeita criptografia sem senha, >50 páginas, >500KB texto, PDFs corrompidos.
+3. **Extração** — `pdfplumber` para texto/tabelas nativas; OCR opcional via `pymupdf` isolado.
+4. **Pipeline** — Mesmo fluxo CSV/OFX: staging → deduplicação → categorização (regras De-Para) → prévia → commit.
+
+### 10.3 Relatórios Financeiros
+- **Dashboard** — `/finance/workspaces/<id>/reports/` consolidado (DRE, patrimônio, investimentos, metas).
+- **DRE** — `/finance/profiles/<id>/reports/dre/` — Receitas vs Despesas confirmadas/pendentes, por tipo/categoria.
+- **Patrimônio** — `/finance/profiles/<id>/reports/equity/` — Série temporal (diário/semanal/mensal), saldos conhecidos/desconhecidos.
+- **Investimentos** — `/finance/profiles/<id>/reports/investments/` — Posições, aplicações/resgates, ganho/perda, por categoria.
+- **Metas/Reserva** — `/finance/profiles/<id>/reports/goals/` — Progresso Reserva, metas de investimento, sugestão mensal.
+
+### 10.4 Segurança Específica Sprint 05
+- **ReDoS Protection**: Regex validada (timeout 100ms, máx 10 grupos, padrões perigosos rejeitados).
+- **PDF Security**: Assinatura `%PDF-`, rejeita criptografia, limites páginas/tamanho/tempo, sanitização.
+- **Regex Safety**: Limite 500 chars, grupos máx 10, padrões perigosos (nested quantifiers, lookaheads) rejeitados.
+- **Permissões**: `accounts:edit` + `movements:edit` para importação; `overview`+`expenses`+`investments` para relatórios; admin workspace full access.
+
+### 10.5 Monitoramento Sprint 05
+- Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` para criação/edição regras, importação PDF, geração relatórios.
+- Relatórios de importação incluem trilha de auditoria completa (hash, parser, autor, timestamp, idempotency key).
+
+## 11. Encerramento de intervenção
 
 Anote versão da imagem, commit, resultado de CI, backup/hash, testes de leitura e escrita, horários, erros e caminho do rollback. Mantenha arquivos de log e backup; jamais delete automaticamente.

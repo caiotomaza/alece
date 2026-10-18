@@ -1,0 +1,66 @@
+{% load static %}
+<!-- Resultado do teste de regra (parcial HTMX) -->
+<div class="dialog-fallback" data-dialog-content>
+  <dialog class="unified-dialog" data-edit-dialog id="categorization-test-dialog">
+    <div class="dialog-in">
+      <div class="dialog-title">
+        <h2>Resultado do Teste</h2>
+        <button class="close-x" aria-label="Fechar">&times;</button>
+      </div>
+      
+      <div class="dialog-form">
+        {% if error %}
+        <div class="dialog-error">
+          {{ error }}
+        </div>
+        {% else %}
+        <div class="form-field">
+          <label>Descrição testada</label>
+          <input type="text" value="{{ test_description }}" class="form-input" readonly>
+        </div>
+        {% if test_memo %}
+        <div class="form-field">
+          <label>Memo testado</label>
+          <input type="text" value="{{ test_memo }}" class="form-input" readonly>
+        </div>
+        {% endif %}
+        
+        <div class="form-inline">
+          <div class="form-field">
+            <label>Resultado</label>
+            <input type="text" value="{% if matched %}✓ Casou{% else %}✗ Não casou{% endif %}" 
+                   class="form-input {% if matched %}confirmed{% else %}error{% endif %}" readonly>
+          </div>
+          <div class="form-field">
+            <label>Tipo sugerido</label>
+            <input type="text" value="{{ kind }}" class="form-input" readonly>
+          </div>
+        </div>
+        
+        <div class="form-inline">
+          <div class="form-field">
+            <label>Confiança</label>
+            <input type="text" value="{{ confidence|floatformat:0 }}%" class="form-input" readonly>
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label>Justificativa</label>
+          <textarea class="form-input" readonly rows="2">{{ justification }}</textarea>
+        </div>
+        {% endif %}
+        
+        <div class="dialog-row">
+          <button type="button" class="btn" onclick="closeDialog()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</div>
+
+<script>
+function closeDialog() {
+  const dialog = document.getElementById('categorization-test-dialog');
+  if (dialog) dialog.close();
+}
+</script>

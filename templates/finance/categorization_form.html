@@ -1,0 +1,153 @@
+{% extends "finance/base.html" %}
+{% block title %}{% if is_edit %}Editar{% else %}Nova{% endif %} Regra De-Para · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>{% if is_edit %}Editar{% else %}Nova{% endif %} Regra de Categorização</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<div class="card" style="max-width: 800px;">
+  <form method="post" class="dialog-form">
+    {% csrf_token %}
+    
+    <div class="form-field">
+      <label for="id_name">Nome da regra <span class="required">*</span></label>
+      <input type="text" name="name" id="id_name" maxlength="120" class="form-input" required 
+             value="{{ rule.name|default:'' }}">
+      <p class="helptext">Nome identificador único dentro do escopo (núcleo ou perfil).</p>
+    </div>
+    
+    <div class="form-field">
+      <label for="id_description">Descrição</label>
+      <textarea name="description" id="id_description" class="form-input" rows="2">{{ rule.description|default:'' }}</textarea>
+      <p class="helptext">Descrição opcional da finalidade da regra.</p>
+    </div>
+    
+    <div class="form-inline">
+      <div class="form-field">
+        <label for="id_profile">Perfil financeiro</label>
+        <select name="profile" id="id_profile" class="form-input">
+          <option value="">Núcleo (todas)</option>
+          {% for p in profiles %}
+          <option value="{{ p.pk }}" {% if selected_profile == p.pk %}selected{% endif %}>
+            {{ p.emoji }} {{ p.name }}
+          </option>
+          {% endfor %}
+        </select>
+        <p class="helptext">Se vazio, a regra vale para todo o núcleo. Regras de perfil têm precedência.</p>
+      </div>
+    </div>
+    
+    <hr style="margin: 1.5rem 0; border-color: var(--border);">
+    
+    <h3 style="margin-bottom: 1rem;">Padrão de Correspondência</h3>
+    
+    <div class="form-inline">
+      <div class="form-field">
+        <label for="id_match_type">Tipo de correspondência</label>
+        <select name="match_type" id="id_match_type" class="form-input" onchange="toggleRegexWarning()">
+          {% for value, label in match_types %}
+          <option value="{{ value }}" {% if rule.match_type == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-field">
+        <label for="id_match_field">Campo alvo</label>
+        <select name="match_field" id="id_match_field" class="form-input">
+          {% for value, label in match_fields %}
+          <option value="{{ value }}" {% if rule.match_field == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-field">
+      <label for="id_pattern">Padrão <span class="required">*</span></label>
+      <input type="text" name="pattern" id="id_pattern" maxlength="500" class="form-input" required
+             value="{{ rule.pattern|default:'' }}">
+      <p class="helptext" id="pattern-help">
+        {% if rule.match_type == 'regex' %}
+        Expressão regular (protegida contra ReDoS). Ex: <code>supermercado|mercado</code>
+        {% else %}
+        Termo exato (case-insensitive por padrão). Ex: <code>supermercado</code>
+        {% endif %}
+      </p>
+      <div id="regex-warning" class="dialog-error" style="display: none;"></div>
+    </div>
+    
+    <div class="form-field">
+      <label class="form-checkbox">
+        <input type="checkbox" name="case_sensitive" id="id_case_sensitive" {% if rule.case_sensitive %}checked{% endif %}>
+        <span>Case-sensitive (diferenciar maiúsculas/minúsculas)</span>
+      </label>
+    </div>
+    
+    <hr style="margin: 1.5rem 0; border-color: var(--border);">
+    
+    <h3 style="margin-bottom: 1rem;">Ação Sugerida</h3>
+    
+    <div class="form-inline">
+      <div class="form-field">
+        <label for="id_suggested_kind">Tipo de movimentação <span class="required">*</span></label>
+        <select name="suggested_kind" id="id_suggested_kind" class="form-input" required>
+          {% for value, label in kinds %}
+          <option value="{{ value }}" {% if rule.suggested_kind == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-field">
+        <label for="id_priority">Prioridade <span class="required">*</span></label>
+        <input type="number" name="priority" id="id_priority" min="1" max="9999" class="form-input" required
+               value="{{ rule.priority|default:100 }}">
+        <p class="helptext">Menor valor = maior prioridade. Regras de perfil executam antes do núcleo.</p>
+      </div>
+    </div>
+    
+    <div class="form-field">
+      <label for="id_suggested_link">Vínculo sugerido (JSON)</label>
+      <textarea name="suggested_link" id="id_suggested_link" class="form-input" rows="3" 
+                placeholder='{"recurring_expense_id": 1} ou {"investment_id": 2}'>{% if rule.suggested_link %}{{ rule.suggested_link|json_script:"suggested_link_json" }}{% endif %}</textarea>
+      <p class="helptext">Vínculo automático sugerido quando a regra casa. Exemplos: <code>{"recurring_expense_id": 1}</code>, <code>{"investment_id": 2}</code>, <code>{"unexpected_expense_id": 3}</code>.</p>
+    </div>
+    
+    <div class="form-field">
+      <label class="form-checkbox">
+        <input type="checkbox" name="is_active" id="id_is_active" {% if rule.is_active %}checked{% endif %}>
+        <span>Regra ativa</span>
+      </label>
+    </div>
+    
+    <div class="dialog-error" id="form-error"></div>
+    
+    <div class="dialog-row">
+      <a href="{{ cancel_url }}" class="text-button">Cancelar</a>
+      <button type="submit" class="btn" id="quick-add">{% if is_edit %}Salvar{% else %}Criar{% endif %}</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function toggleRegexWarning() {
+  const select = document.getElementById('id_match_type');
+  const warning = document.getElementById('regex-warning');
+  const help = document.getElementById('pattern-help');
+  
+  if (select.value === 'regex') {
+    warning.textContent = '⚠ Regex é poderosa mas arriscada. Evite: (a+)+, (a*)*, .*{1000,}, lookaheads aninhados. Testes de timeout: 100ms.';
+    warning.style.display = 'block';
+    help.innerHTML = 'Expressão regular (protegida contra ReDoS). Ex: <code>supermercado|mercado</code>';
+  } else {
+    warning.style.display = 'none';
+    help.innerHTML = 'Termo exato (case-insensitive por padrão). Ex: <code>supermercado</code>';
+  }
+}
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', toggleRegexWarning);
+</script>
+{% endblock %}

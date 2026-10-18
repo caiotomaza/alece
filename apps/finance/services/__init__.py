@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Serviços transacionais do ALECE — fronteira exclusiva de escrita financeira."""
 from apps.finance.services.accounts import create_bank_account
+from apps.finance.services.categorization import (
+    create_categorization_rule, update_categorization_rule, delete_categorization_rule,
+    get_categorization_rules, apply_categorization_rules, apply_rules_to_transactions,
+    get_rules_for_import, validate_regex_safety, compile_safe_regex,
+    CategorizationError, RegexSecurityError,
+)
 from apps.finance.services.grants import save_grant, GRANT_FIELDS
 from apps.finance.services.ledger import (
     confirm_outflow, transfer, withdraw_investment,
@@ -13,6 +19,11 @@ from apps.finance.services.monthly import (
 )
 from apps.finance.services.profiles import (
     create_financial_profile, update_financial_profile,
+)
+from apps.finance.services.reports import (
+    generate_dre_report, generate_equity_evolution_report,
+    generate_investment_report, generate_goals_report, generate_dashboard_report,
+    DREReport, EquityEvolutionReport, InvestmentReport, GoalsReport, DashboardReport,
 )
 from apps.finance.services.records import save_record, delete_record, update_income
 from apps.finance.services.imports import (
@@ -28,6 +39,11 @@ from apps.finance.services.importers import (
 __all__ = [
     # Accounts
     "create_bank_account",
+    # Categorization (Sprint 05)
+    "create_categorization_rule", "update_categorization_rule", "delete_categorization_rule",
+    "get_categorization_rules", "apply_categorization_rules", "apply_rules_to_transactions",
+    "get_rules_for_import", "validate_regex_safety", "compile_safe_regex",
+    "CategorizationError", "RegexSecurityError",
     # Grants
     "save_grant", "GRANT_FIELDS",
     # Ledger
@@ -42,6 +58,10 @@ __all__ = [
     "create_financial_profile", "update_financial_profile",
     # Records
     "save_record", "delete_record", "update_income",
+    # Reports (Sprint 05)
+    "generate_dre_report", "generate_equity_evolution_report",
+    "generate_investment_report", "generate_goals_report", "generate_dashboard_report",
+    "DREReport", "EquityEvolutionReport", "InvestmentReport", "GoalsReport", "DashboardReport",
     # Imports
     "stage_import", "commit_import", "dry_run_import",
     "generate_reconciliation_suggestions", "generate_import_report",

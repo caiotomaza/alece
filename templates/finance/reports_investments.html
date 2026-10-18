@@ -1,0 +1,173 @@
+{% extends "finance/base.html" %}
+{% block title %}Relatório de Investimentos · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Relatório de Investimentos</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<!-- Filtro de período -->
+<form method="get" class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_start">Início</label>
+      <input type="date" name="period_start" id="id_period_start" class="form-input" value="{{ period_start|date:'Y-m-d' }}">
+    </div>
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_end">Fim</label>
+      <input type="date" name="period_end" id="id_period_end" class="form-input" value="{{ period_end|date:'Y-m-d' }}">
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn">Atualizar</button>
+    </div>
+  </div>
+</form>
+
+<!-- Resumo -->
+<div class="metrics" style="margin-bottom: 1.5rem;">
+  <article class="card metric">
+    <h3>Total Aplicado</h3>
+    <strong>R$ {{ investments.total_applied|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Valor Atual</h3>
+    <strong>R$ {{ investments.total_current|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Ganho/Perda Não Realizado</h3>
+    <strong style="color: {% if investments.total_unrealized_gain >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+      R$ {{ investments.total_unrealized_gain|floatformat:2 }}
+    </strong>
+  </article>
+  <article class="card metric">
+    <h3>Aplicações no período</h3>
+    <strong style="color: var(--negative);">R$ {{ investments.applications_period|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Resgates no período</h3>
+    <strong style="color: var(--positive);">R$ {{ investments.withdrawals_period|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Fluxo líquido</h3>
+    <strong style="color: {% if investments.applications_period >= investments.withdrawals_period %}var(--negative){% else %}var(--positive){% endif %};">
+      R$ {{ investments.applications_period|add:investments.withdrawals_period|floatformat:2 }}
+    </strong>
+  </article>
+</div>
+
+<!-- Posições Detalhadas -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Posições Detalhadas ({{ investments.positions|length }})</h3>
+  {% if investments.positions %}
+  <div class="table-wrap">
+    <table class="source-table" data-table-sort>
+      <thead>
+        <tr>
+          <th>Posição / Instituição</th>
+          <th>Categoria</th>
+          <th class="align-right">Aplicado</th>
+          <th class="align-right">Atual</th>
+          <th class="align-right">Ganho/Perda</th>
+          <th class="align-right">%</th>
+          <th>Meta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pos in investments.positions %}
+        <tr>
+          <td>
+            <strong>{{ pos.name }}</strong>
+            {% if pos.institution %}
+            <div class="subline muted">{{ pos.institution }}</div>
+            {% endif %}
+          </td>
+          <td>{{ pos.category }}</td>
+          <td class="align-right">R$ {{ pos.applied_amount|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ pos.current_value|floatformat:2 }}</td>
+          <td class="align-right" style="color: {% if pos.unrealized_gain >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+            R$ {{ pos.unrealized_gain|floatformat:2 }}
+          </td>
+          <td class="align-right" style="color: {% if pos.unrealized_gain >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+            {% if pos.applied_amount > 0 %}{{ pos.unrealized_gain|div:pos.applied_amount|mul:100|floatformat:2 }}{% else %}—{% endif %}
+          </td>
+          <td>
+            {% if pos.target_amount %}
+            R$ {{ pos.target_amount|floatformat:2 }}
+            {% else %}
+            <span class="muted">Não informada</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        <tr style="font-weight: bold; border-top: 2px solid var(--border);">
+          <td colspan="2">Total</td>
+          <td class="align-right">R$ {{ investments.total_applied|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ investments.total_current|floatformat:2 }}</td>
+          <td class="align-right" style="color: {% if investments.total_unrealized_gain >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+            R$ {{ investments.total_unrealized_gain|floatformat:2 }}
+          </td>
+          <td class="align-right">
+            {% if investments.total_applied > 0 %}{{ investments.total_unrealized_gain|div:investments.total_applied|mul:100|floatformat:2 }}{% else %}—{% endif %}
+          </td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nenhuma posição de investimento cadastrada.</p>
+  {% endif %}
+</div>
+
+<!-- Por Categoria -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Por Categoria</h3>
+  {% if investments.by_category %}
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead>
+        <tr><th>Categoria</th><th class="align-right">Aplicado</th><th class="align-right">Atual</th><th class="align-right">Qtd. Posições</th></tr>
+      </thead>
+      <tbody>
+        {% for cat, data in investments.by_category.items %}
+        <tr>
+          <td>{{ cat|capfirst }}</td>
+          <td class="align-right">R$ {{ data.applied|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ data.current|floatformat:2 }}</td>
+          <td class="align-right">{{ data.count }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Movimentações do Período -->
+<div class="card">
+  <h3 style="margin-top: 0;">Movimentações no Período ({{ period_start|date:'d/m/Y' }} a {{ period_end|date:'d/m/Y' }})</h3>
+  <p class="muted" style="font-size: 13px;">
+    Aplicações = saída de conta bancária para investimento (não é despesa no DRE).<br>
+    Resgates = entrada de investimento para conta bancária (não é receita no DRE).
+  </p>
+  <div class="metrics">
+    <article class="card metric">
+      <h3>Aplicações</h3>
+      <strong style="color: var(--negative);">R$ {{ investments.applications_period|floatformat:2 }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Resgates</h3>
+      <strong style="color: var(--positive);">R$ {{ investments.withdrawals_period|floatformat:2 }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Fluxo Líquido</h3>
+      <strong style="color: {% if investments.applications_period >= investments.withdrawals_period %}var(--negative){% else %}var(--positive){% endif %};">
+        R$ {{ investments.applications_period|add:investments.withdrawals_period|floatformat:2 }}
+      </strong>
+    </article>
+  </div>
+</div>
+{% endblock %}

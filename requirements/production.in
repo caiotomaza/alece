@@ -3,3 +3,6 @@ Django>=5.2.8,<5.3
 psycopg[binary]>=3.2,<3.4
 gunicorn>=23,<24
 whitenoise>=6.8,<7
+# PDF processing (Sprint 05)
+pdfplumber>=0.11,<0.12
+pymupdf>=1.23,<1.24

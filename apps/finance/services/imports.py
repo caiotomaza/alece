@@ -9,7 +9,7 @@ Pipeline:
 5. Persistência em staging com hash SHA-256
 6. Detecção conservadora de duplicidades
 7. Reconciliação assistida (vínculo a lançamentos existentes)
-8. Categorização por regras De-Para
+8. Categorização por regras De-Para (persistidas, Sprint 05)
 9. Prévia editável com confirmação humana obrigatória
 10. Commit atômico com trilha de auditoria
 """
@@ -32,6 +32,9 @@ from apps.finance.models import (
     BankAccount, FinancialProfile, ImportBatch, ImportRow,
     InvestmentPosition, MonthlyExpense, RecurringExpense,
     TransactionBatch, UnexpectedExpense,
+)
+from apps.finance.services.categorization import (
+    get_rules_for_import, apply_rules_to_transactions,
 )
 from apps.finance.services.importers import (
     ParsedStatement, ParsedTransaction, detect_format, get_parser,
@@ -239,90 +242,7 @@ class CategorizationRule:
     match_field: str  # "description", "memo", "both"
     suggested_kind: str  # recurring, unexpected, application, withdrawal, transfer, income
     suggested_link: dict  # JSON com expense_id, investment_id, etc.
-    priority: int
-    is_active: bool
-    created_at: date
-
-
-def get_categorization_rules(profile: FinancialProfile) -> list[CategorizationRule]:
-    """Obtém regras de categorização ativas para o perfil, ordenadas por prioridade."""
-    # Por enquanto, retorna lista vazia - implementação completa requer modelo
-    # TODO: Criar modelo CategorizationRule no banco
-    return []
-
-
-def apply_categorization_rules(
-    txn: ParsedTransaction,
-    rules: list[CategorizationRule],
-) -> tuple[str, dict, Decimal, str]:
-    """Aplica regras de categorização a uma transação.
-    
-    Returns:
-        (suggested_kind, suggested_link, confidence, justification)
-    """
-    for rule in rules:
-        if not rule.is_active:
-            continue
-        
-        text_to_match = ""
-        if rule.match_field in ("description", "both"):
-            text_to_match += " " + txn.description
-        if rule.match_field in ("memo", "both"):
-            text_to_match += " " + txn.memo
-        
-        text_to_match = text_to_match.strip().lower()
-        
-        matched = False
-        if rule.is_regex:
-            try:
-                if re.search(rule.pattern, text_to_match, re.IGNORECASE):
-                    matched = True
-            except re.error:
-                continue
-        else:
-            if rule.pattern.lower() in text_to_match:
-                matched = True
-        
-        if matched:
-            justification = f"Regra '{rule.name}' (prioridade {rule.priority}): padrão '{rule.pattern}' encontrado em {rule.match_field}"
-            return (
-                rule.suggested_kind,
-                rule.suggested_link,
-                Decimal("0.85"),
-                justification
-            )
-    
-    # Sem regra - heurística básica
-    return _heuristic_categorization(txn)
-
-
-def _heuristic_categorization(txn: ParsedTransaction) -> tuple[str, dict, Decimal, str]:
-    """Categorização heurística básica quando não há regra."""
-    desc = (txn.description + " " + txn.memo).lower()
-    
-    # Transferências (pix, ted, doc, transfer)
-    if any(kw in desc for kw in ["pix", "ted", "doc", "transfer", "transf"]):
-        return "transfer", {}, Decimal("0.60"), "Descrição sugere transferência"
-    
-    # Investimentos (aplicação, resgate, corretora)
-    if any(kw in desc for kw in ["aplic", "resgat", "corretor", "xp", "clear", "rico", "btg", "modal"]):
-        if txn.is_credit:
-            return "withdrawal", {}, Decimal("0.55"), "Descrição sugere resgate de investimento"
-        else:
-            return "application", {}, Decimal("0.55"), "Descrição sugere aplicação em investimento"
-    
-    # Recebimentos (salário, pagamento, crédito)
-    if txn.is_credit and any(kw in desc for kw in ["salario", "salário", "pagamento", "credito", "crédito", "pix receb"]):
-        return "income", {}, Decimal("0.50"), "Crédito com descrição de recebimento"
-    
-    # Pagamentos (débito, compra, pagamento)
-    if not txn.is_credit:
-        return "unexpected", {}, Decimal("0.40"), "Débito sem regra específica"
-    
-    return "unexpected", {}, Decimal("0.30"), "Sem regra ou heurística clara"
-
-
-# =============================================================================
+    # =============================================================================
 # Serviço Principal de Importação
 # =============================================================================
 
@@ -407,8 +327,13 @@ def stage_import(
         
         for i, (txn, dup_result) in enumerate(zip(statement.transactions, duplicate_results)):
             # Aplicar categorização
-            rules = get_categorization_rules(profile)
-            kind, link, confidence, justification = apply_categorization_rules(txn, rules)
+            get_rules_for_import(profile)
+            transactions = apply_rules_to_transactions([txn], profile)
+            txn = transactions[0]
+            kind = txn.suggested_kind
+            link = txn.suggested_link
+            confidence = txn.confidence
+            justification = txn.justification
             
             # Sugerir vínculo com despesas/investimentos existentes
             suggested_link = _suggest_link(profile, account, txn, kind)
@@ -1107,8 +1032,12 @@ def dry_run_import(
     # Criar rows em memória para sugestões
     mock_rows = []
     for i, (txn, dup_result) in enumerate(zip(statement.transactions, duplicate_results)):
-        rules = get_categorization_rules(profile)
-        kind, link, confidence, justification = apply_categorization_rules(txn, rules)
+        transactions = apply_rules_to_transactions([txn], profile)
+        txn = transactions[0]
+        kind = txn.suggested_kind
+        link = txn.suggested_link
+        confidence = txn.confidence
+        justification = txn.justification
         suggested_link = _suggest_link(profile, account, txn, kind)
         if suggested_link:
             link = suggested_link

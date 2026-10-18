@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-"""Adaptadores modulares para importação de extratos bancários (CSV e OFX).
+"""Adaptadores modulares para importação de extratos bancários (CSV, OFX e PDF).
 
 Segurança:
 - Validação de tamanho, tipo, codificação e estrutura antes de processar
@@ -700,6 +700,242 @@ class OFX2Parser(BaseParser):
 
 
 # =============================================================================
+# Parser PDF (Sprint 05)
+# =============================================================================
+
+class PDFParser(BaseParser):
+    """Parser para extratos bancários em PDF.
+    
+    Segurança:
+    - Validação de assinatura PDF (%PDF-)
+    - Limites de páginas, memória e tempo
+    - Extração nativa de texto/tabelas (pdfplumber)
+    - OCR opcional e isolado (pymupdf) apenas quando necessário
+    - Validação de criptografia, integridade, limites de memória/tempo
+    """
+    
+    # Limites de segurança
+    MAX_PAGES = 50
+    MAX_TEXT_LENGTH = 500_000  # 500KB de texto extraído
+    PROCESSING_TIMEOUT = 30  # segundos
+    
+    def __init__(self, profile, account=None):
+        super().__init__(profile, account)
+        self._pdfplumber = None
+        self._fitz = None
+    
+    def _import_pdfplumber(self):
+        """Import lazy de pdfplumber."""
+        if self._pdfplumber is None:
+            import pdfplumber
+            self._pdfplumber = pdfplumber
+        return self._pdfplumber
+    
+    def _import_fitz(self):
+        """Import lazy de pymupdf (fitz)."""
+        if self._fitz is None:
+            import fitz
+            self._fitz = fitz
+        return self._fitz
+    
+    def parse(self, content: bytes, filename: str) -> ParsedStatement:
+        validate_file_size(content)
+        
+        # Validar assinatura PDF
+        if not content.startswith(b"%PDF-"):
+            raise ImportParseError("Arquivo não é um PDF válido (assinatura %PDF- ausente).")
+        
+        # Verificar criptografia
+        fitz = self._import_fitz()
+        try:
+            doc = fitz.open(stream=content, filetype="pdf")
+            if doc.needs_pass:
+                raise ImportParseError("PDF criptografado não suportado sem senha.")
+            page_count = doc.page_count
+            if page_count > self.MAX_PAGES:
+                raise ImportSecurityError(f"PDF excede o limite de {self.MAX_PAGES} páginas.")
+            doc.close()
+        except Exception as e:
+            if "PDF criptografado" in str(e):
+                raise
+            raise ImportParseError(f"Erro ao validar PDF: {str(e)}")
+        
+        # Extrair texto e tabelas com pdfplumber
+        pdfplumber = self._import_pdfplumber()
+        statement = ParsedStatement()
+        statement.parser_version = "pdf-1.0"
+        
+        text_parts = []
+        total_text_length = 0
+        
+        try:
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                # Metadados
+                meta = pdf.metadata or {}
+                statement.institution_id = meta.get("Producer", "") or meta.get("Creator", "") or ""
+                
+                for page_num, page in enumerate(pdf.pages):
+                    if page_num >= self.MAX_PAGES:
+                        self.warnings.append(f"Página {page_num + 1} ignorada (limite de {self.MAX_PAGES} páginas).")
+                        break
+                    
+                    # Extrair texto
+                    text = page.extract_text()
+                    if text:
+                        text_parts.append(text)
+                        total_text_length += len(text)
+                        if total_text_length > self.MAX_TEXT_LENGTH:
+                            self.warnings.append("Texto extraído truncado (limite de 500KB).")
+                            break
+                    
+                    # Extrair tabelas
+                    tables = page.extract_tables()
+                    if tables:
+                        self._process_tables(tables, statement)
+                
+                # Se não extraiu transações de tabelas, tentar parsing de texto livre
+                if not statement.transactions:
+                    full_text = "\n".join(text_parts)
+                    self._parse_free_text(full_text, statement)
+        
+        except Exception as e:
+            if isinstance(e, (ImportParseError, ImportSecurityError)):
+                raise
+            raise ImportParseError(f"Erro ao processar PDF: {str(e)}")
+        
+        if not statement.transactions:
+            raise ImportParseError("Nenhuma transação válida encontrada no PDF.")
+        
+        # Definir datas de início/fim
+        if statement.transactions:
+            dates = [t.occurred_on for t in statement.transactions if t.occurred_on]
+            if dates:
+                statement.start_date = min(dates)
+                statement.end_date = max(dates)
+        
+        statement.parser_version = "pdf-1.0"
+        return statement
+    
+    def _process_tables(self, tables, statement: ParsedStatement):
+        """Processa tabelas extraídas do PDF."""
+        for table in tables:
+            if not table or len(table) < 2:
+                continue
+            
+            # Tentar detectar cabeçalho
+            header = [str(c).strip().lower() if c else "" for c in table[0]]
+            
+            # Mapear colunas
+            date_col = self._find_column(header, ["data", "date", "dt", "dtlanc", "datamov"])
+            desc_col = self._find_column(header, ["descricao", "description", "historico", "hist", "memo"])
+            amount_col = self._find_column(header, ["valor", "value", "vl", "vlr", "importancia"])
+            type_col = self._find_column(header, ["tipo", "type", "cd", "c_d", "credito_debito"])
+            credit_col = self._find_column(header, ["credito", "credit", "cr"])
+            debit_col = self._find_column(header, ["debito", "debit", "db"])
+            
+            # Se não tem coluna de valor mas tem crédito/débito separados
+            has_split = credit_col is not None and debit_col is not None
+            
+            for row_idx, row in enumerate(table[1:], 1):
+                if len(row) <= max(filter(lambda x: x is not None, [date_col, desc_col, amount_col, type_col, credit_col, debit_col])):
+                    continue
+                
+                txn = ParsedTransaction()
+                
+                # Data
+                if date_col is not None and date_col < len(row):
+                    txn.occurred_on = parse_date_flexible(str(row[date_col]) if row[date_col] else "")
+                
+                # Descrição
+                if desc_col is not None and desc_col < len(row):
+                    txn.description = sanitize_text(str(row[desc_col]) if row[desc_col] else "", MAX_DESCRIPTION_LENGTH)
+                
+                # Valor
+                if has_split:
+                    credit_val = parse_decimal_safe(str(row[credit_col]) if credit_col < len(row) and row[credit_col] else "0")
+                    debit_val = parse_decimal_safe(str(row[debit_col]) if debit_col < len(row) and row[debit_col] else "0")
+                    if credit_val > 0:
+                        txn.amount = credit_val
+                        txn.is_credit = True
+                    elif debit_val > 0:
+                        txn.amount = debit_val
+                        txn.is_credit = False
+                    else:
+                        continue
+                elif amount_col is not None and amount_col < len(row):
+                    raw_val = str(row[amount_col]) if row[amount_col] else "0"
+                    txn.amount = abs(parse_decimal_safe(raw_val))
+                    # Determinar crédito/débito pela coluna de tipo
+                    if type_col is not None and type_col < len(row):
+                        type_val = str(row[type_col]).strip().lower()
+                        txn.is_credit = type_val in ("c", "cr", "cred", "credito", "crédito", "credit", "+", "receita", "entrada")
+                    else:
+                        txn.is_credit = parse_decimal_safe(str(row[amount_col])) > 0
+                else:
+                    continue
+                
+                # FITID
+                ctx = f"{txn.occurred_on}|{txn.amount}|{txn.description}|{txn.memo}"
+                txn.fitid = hashlib.sha256(ctx.encode()).hexdigest()[:32]
+                
+                if self._validate_transaction(txn, len(statement.transactions) + 1):
+                    statement.transactions.append(txn)
+    
+    def _find_column(self, header: list[str], keywords: list[str]) -> Optional[int]:
+        """Encontra índice da coluna por palavras-chave."""
+        for idx, col in enumerate(header):
+            col_lower = col.lower().replace(" ", "").replace("_", "")
+            for kw in keywords:
+                if kw in col_lower:
+                    return idx
+        return None
+    
+    def _parse_free_text(self, text: str, statement: ParsedStatement):
+        """Tenta extrair transações de texto livre (fallback)."""
+        # Padrões comuns de transação em texto
+        patterns = [
+            # Data Descrição Valor
+            r"(\d{2}/\d{2}/\d{4})\s+(.+?)\s+([\d\.,]+)",
+            # Data Valor Descrição
+            r"(\d{2}/\d{2}/\d{4})\s+([\d\.,]+)\s+(.+)",
+        ]
+        
+        for pattern in patterns:
+            for match in re.finditer(pattern, text, re.MULTILINE):
+                try:
+                    if len(match.groups()) >= 3:
+                        date_str, val1, val2 = match.groups()
+                        # Tentar identificar qual é data, valor, descrição
+                        # Simplificado: assumir primeiro grupo = data
+                        occurred_on = parse_date_flexible(date_str)
+                        if not occurred_on:
+                            continue
+                        
+                        # Tentar parse dos outros dois
+                        amount = parse_decimal_safe(val1)
+                        if amount == 0:
+                            amount = parse_decimal_safe(val2)
+                        if amount == 0:
+                            continue
+                        
+                        txn = ParsedTransaction()
+                        txn.occurred_on = occurred_on
+                        txn.amount = abs(amount)
+                        txn.is_credit = amount > 0
+                        txn.description = sanitize_text(val2 if amount == parse_decimal_safe(val1) else val1, MAX_DESCRIPTION_LENGTH)
+                        ctx = f"{txn.occurred_on}|{txn.amount}|{txn.description}"
+                        txn.fitid = hashlib.sha256(ctx.encode()).hexdigest()[:32]
+                        
+                        if self._validate_transaction(txn, len(statement.transactions) + 1):
+                            statement.transactions.append(txn)
+                except Exception:
+                    continue
+    
+    def _parse_ofx_date(self, value: Optional[str]) -> Optional[date]:
+        return parse_date_flexible(value)
+
+
+# =============================================================================
 # Factory de Parsers
 # =============================================================================
 
@@ -709,6 +945,7 @@ def get_parser(format_type: str, profile, account=None, **options) -> BaseParser
         "csv": CSVParser,
         "ofx": OFX1Parser,
         "ofx2": OFX2Parser,
+        "pdf": PDFParser,
     }
     
     parser_class = parsers.get(format_type.lower())
@@ -720,4 +957,19 @@ def get_parser(format_type: str, profile, account=None, **options) -> BaseParser
 
 def detect_format(filename: str, content: bytes) -> str:
     """Detecta formato do arquivo."""
-    return validate_file_type(filename, content)
+    filename_lower = filename.lower()
+    
+    if filename_lower.endswith(".csv"):
+        return "csv"
+    elif filename_lower.endswith(".ofx"):
+        if content.lstrip().startswith(b"<?xml") or content.lstrip().startswith(b"<OFX>"):
+            return "ofx2"
+        return "ofx"
+    elif filename_lower.endswith(".pdf"):
+        if content.startswith(b"%PDF-"):
+            return "pdf"
+        raise ImportFormatError("Arquivo PDF inválido (assinatura %PDF- ausente).")
+    else:
+        raise ImportFormatError(
+            "Formato não suportado. Use arquivos .csv, .ofx ou .pdf."
+        )

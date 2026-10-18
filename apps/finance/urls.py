@@ -2,7 +2,7 @@
 from django.urls import path
 
 from apps.finance import views
-from apps.finance import grant_views, transaction_views, import_views
+from apps.finance import grant_views, transaction_views, import_views, categorization_views, reports_views
 
 app_name = "finance"
 urlpatterns = [
@@ -38,6 +38,20 @@ urlpatterns = [
     path("profiles/<int:profile_id>/imports/<int:batch_id>/report/", import_views.import_report, name="import-report"),
     path("profiles/<int:profile_id>/imports/<int:batch_id>/rows/<int:row_id>/edit/", import_views.import_row_edit, name="import-row-edit"),
     path("profiles/<int:profile_id>/imports/<int:batch_id>/rows/<int:row_id>/", import_views.import_row_detail, name="import-row-detail"),
+    
+    # Regras de Categorização (De-Para)
+    path("workspaces/<int:workspace_id>/categorization/", categorization_views.categorization_list, name="categorization-list"),
+    path("workspaces/<int:workspace_id>/categorization/new/", categorization_views.categorization_create, name="categorization-create"),
+    path("workspaces/<int:workspace_id>/categorization/<int:rule_id>/edit/", categorization_views.categorization_edit, name="categorization-edit"),
+    path("workspaces/<int:workspace_id>/categorization/<int:rule_id>/delete/", categorization_views.categorization_delete, name="categorization-delete"),
+    path("workspaces/<int:workspace_id>/categorization/test/", categorization_views.categorization_test, name="categorization-test"),
+    
+    # Relatórios Financeiros (Sprint 05)
+    path("workspaces/<int:workspace_id>/reports/", reports_views.reports_dashboard, name="reports-dashboard"),
+    path("profiles/<int:profile_id>/reports/dre/", reports_views.dre_report, name="dre-report"),
+    path("profiles/<int:profile_id>/reports/equity/", reports_views.equity_evolution_report, name="equity-report"),
+    path("profiles/<int:profile_id>/reports/investments/", reports_views.investment_report, name="investment-report"),
+    path("profiles/<int:profile_id>/reports/goals/", reports_views.goals_report, name="goals-report"),
 ]
 
 for kind in ("account", "recurring", "unexpected", "investment"):

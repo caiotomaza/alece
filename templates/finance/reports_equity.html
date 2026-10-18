@@ -1,0 +1,114 @@
+{% extends "finance/base.html" %}
+{% block title %}Evolução Patrimonial · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Evolução Patrimonial</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<!-- Filtros -->
+<form method="get" class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_start">Início</label>
+      <input type="date" name="period_start" id="id_period_start" class="form-input" value="{{ period_start|date:'Y-m-d' }}">
+    </div>
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_end">Fim</label>
+      <input type="date" name="period_end" id="id_period_end" class="form-input" value="{{ period_end|date:'Y-m-d' }}">
+    </div>
+    <div class="filter-field" style="min-width: 150px;">
+      <label for="id_interval">Intervalo</label>
+      <select name="interval" id="id_interval" class="form-input">
+        <option value="day" {% if interval == 'day' %}selected{% endif %}>Diário</option>
+        <option value="week" {% if interval == 'week' %}selected{% endif %}>Semanal</option>
+        <option value="month" {% if interval == 'month' %}selected{% endif %}>Mensal</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn">Atualizar</button>
+    </div>
+  </div>
+</form>
+
+<!-- Resumo -->
+<div class="metrics" style="margin-bottom: 1.5rem;">
+  <article class="card metric">
+    <h3>Patrimônio atual</h3>
+    <strong>R$ {{ equity.current_equity|floatformat:2 }}</strong>
+  </article>
+  <article class="card metric">
+    <h3>Variação no período</h3>
+    <strong style="color: {% if equity.variation >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+      {% if equity.variation >= 0 %}+{% endif %}R$ {{ equity.variation|floatformat:2 }}
+    </strong>
+    <div class="subline muted">({{ equity.variation_pct|floatformat:2 }}%)</div>
+  </article>
+  <article class="card metric">
+    <h3>Pontos calculados</h3>
+    <strong>{{ equity.points|length }}</strong>
+  </article>
+</div>
+
+{% if equity.warnings %}
+<div class="card" style="border-color: var(--warning); background: var(--gold-soft); margin-bottom: 1.5rem;">
+  <strong style="color: var(--warning);">⚠ Alertas:</strong>
+  <ul style="margin: 0.5rem 0 0;">
+    {% for w in equity.warnings %}<li>{{ w }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<!-- Tabela de Evolução -->
+<div class="card">
+  <h3 style="margin-top: 0;">Série Histórica ({{ equity.points|length }} pontos)</h3>
+  {% if equity.points %}
+  <div class="table-wrap">
+    <table class="source-table" data-table-sort>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th class="align-right">Saldo Bancário</th>
+          <th class="align-right">Investimentos</th>
+          <th class="align-right">Total Ativos</th>
+          <th class="align-right">Patrimônio Líquido</th>
+          <th>Saldo unk.</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for point in equity.points %}
+        <tr>
+          <td>{{ point.date|date:'d/m/Y' }}</td>
+          <td class="align-right">R$ {{ point.bank_balance|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ point.investment_value|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ point.total_assets|floatformat:2 }}</td>
+          <td class="align-right"><strong>R$ {{ point.net_equity|floatformat:2 }}</strong></td>
+          <td {% if point.unknown_balance_count > 0 %}style="color: var(--warning);"{% endif %}>
+            {% if point.unknown_balance_count > 0 %}{{ point.unknown_balance_count }}{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Dados insuficientes para evolução patrimonial.</p>
+  {% endif %}
+</div>
+
+<!-- Nota metodológica -->
+<div class="card" style="margin-top: 1.5rem; background: var(--surface-alt);">
+  <h4 style="margin-top: 0;">Metodologia</h4>
+  <ul style="margin: 0; font-size: 13px; line-height: 1.8;">
+    <li><strong>Ativos = Saldos bancários conhecidos + Valor atual dos investimentos</strong></li>
+    <li>Saldo bancário <code>NULL</code> (desconhecido) <strong>não</strong> é somado como zero — contabilizado como "Saldo unk."</li>
+    <li>Valor de investimentos = <code>current_value</code> das posições ativas (marcação a mercado informada pelo usuário)</li>
+    <li>Passivos = 0 (não há passivos modelados além de contas a pagar futuras, que não entram no patrimônio líquido)</li>
+    <li><strong>Patrimônio líquido = Ativos - Passivos</strong></li>
+    <li>Variação = Patrimônio final - Patrimônio inicial do período selecionado</li>
+  </ul>
+</div>
+{% endblock %}

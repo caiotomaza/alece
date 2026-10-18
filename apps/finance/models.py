@@ -327,3 +327,80 @@ class ImportRow(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["batch", "row_number"], name="uq_import_row_number"),
         ]
+
+
+class CategorizationRule(models.Model):
+    """Regras de categorização De-Para configuráveis por perfil/núcleo.
+
+    Permite correspondência exata ou por regex (com proteção contra ReDoS),
+    prioridade explícita, ativação/desativação, autoria e auditoria.
+    """
+    class MatchType(models.TextChoices):
+        EXACT = "exact", "Exato (case-insensitive)"
+        REGEX = "regex", "Expressão regular"
+
+    class MatchField(models.TextChoices):
+        DESCRIPTION = "description", "Descrição"
+        MEMO = "memo", "Memo"
+        BOTH = "both", "Descrição e Memo"
+
+    class Kind(models.TextChoices):
+        RECURRING = "recurring", "Pagamento previsível"
+        UNEXPECTED = "unexpected", "Despesa imprevisível"
+        APPLICATION = "application", "Aplicação"
+        WITHDRAWAL = "withdrawal", "Resgate"
+        TRANSFER = "transfer", "Transferência"
+        INCOME = "income", "Recebimento"
+
+    # Escopo: núcleo (workspace) ou perfil específico
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name="categorization_rules")
+    profile = models.ForeignKey(FinancialProfile, on_delete=models.CASCADE, related_name="categorization_rules", null=True, blank=True)
+
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+
+    # Padrão de correspondência
+    match_type = models.CharField(max_length=8, choices=MatchType.choices, default=MatchType.EXACT)
+    pattern = models.CharField(max_length=500, help_text="Termo exato ou regex (protegido contra ReDoS)")
+    match_field = models.CharField(max_length=12, choices=MatchField.choices, default=MatchField.BOTH)
+    case_sensitive = models.BooleanField(default=False)
+
+    # Ação sugerida quando a regra casa
+    suggested_kind = models.CharField(max_length=12, choices=Kind.choices)
+    suggested_link = models.JSONField(default=dict, blank=True, help_text="Vínculo sugerido: {recurring_expense_id, investment_id, ...}")
+
+    # Prioridade e estado
+    priority = models.PositiveIntegerField(default=100, help_text="Menor valor = maior prioridade")
+    is_active = models.BooleanField(default=True)
+
+    # Auditoria
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="created_categorization_rules")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="updated_categorization_rules", null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["workspace", "priority", "name"]
+        constraints = [
+            models.UniqueConstraint(fields=["workspace", "name"], name="uq_categorization_rule_workspace_name"),
+        ]
+
+    def __str__(self):
+        scope = self.profile.name if self.profile else f"Núcleo {self.workspace.name}"
+        return f"{scope} / {self.name}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        # Validar regex se tipo for REGEX
+        if self.match_type == self.MatchType.REGEX and self.pattern:
+            try:
+                import re
+                re.compile(self.pattern)
+            except re.error as e:
+                raise ValidationError({"pattern": f"Regex inválida: {e}"})
+        # Validar suggested_link JSON
+        if self.suggested_link and not isinstance(self.suggested_link, dict):
+            raise ValidationError({"suggested_link": "Deve ser um objeto JSON válido"})
+        # Perfil deve pertencer ao workspace
+        if self.profile_id and self.profile.workspace_id != self.workspace_id:
+            raise ValidationError("Perfil deve pertencer ao mesmo núcleo da regra")

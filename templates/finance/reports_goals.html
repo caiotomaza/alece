@@ -1,0 +1,111 @@
+{% extends "finance/base.html" %}
+{% block title %}Metas e Reserva · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Metas e Reserva de Emergência</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<!-- Reserva -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Reserva de Emergência · {{ goals.reserve.coverage_months }} meses</h3>
+  
+  <div class="metrics" style="margin-bottom: 1rem;">
+    <article class="card metric">
+      <h3>Atual</h3>
+      <strong>R$ {{ goals.reserve.current|floatformat:2 }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Meta</h3>
+      <strong>R$ {{ goals.reserve.target|floatformat:2 }}</strong>
+    </article>
+    <article class="card metric">
+      <h3>Falta</h3>
+      <strong style="color: {% if goals.reserve.gap > 0 %}var(--negative){% else %}var(--positive){% endif %};">
+        R$ {{ goals.reserve.gap|floatformat:2 }}
+      </strong>
+    </article>
+    <article class="card metric">
+      <h3>Progresso</h3>
+      <strong>{{ goals.reserve.progress_pct|floatformat:1 }}%</strong>
+    </article>
+    <article class="card metric">
+      <h3>Sugestão mensal</h3>
+      <strong>R$ {{ goals.reserve.monthly_suggestion|floatformat:2 }}</strong>
+      <div class="subline muted">Base: {{ goals.reserve.coverage_months }} meses × essenciais</div>
+    </article>
+  </div>
+  
+  <!-- Barra de progresso visual -->
+  <div style="margin-top: 1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="flex: 1; height: 24px; background: var(--surface-alt); border-radius: 12px; overflow: hidden; border: 1px solid var(--border);">
+        <div style="width: {% if goals.reserve.target > 0 %}{{ goals.reserve.progress_pct|floatformat:1 }}{% else %}0{% endif %}%; height: 100%; background: {% if goals.reserve.progress_pct >= 100 %}var(--positive){% else %}var(--primary){% endif %}; border-radius: 12px; transition: width 0.3s ease;"></div>
+      </div>
+      <span class="muted" style="min-width: 80px; text-align: right;">{{ goals.reserve.progress_pct|floatformat:1 }}%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Metas de Investimento -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Metas de Investimento ({{ goals.goals|length }})</h3>
+  {% if goals.goals %}
+  <div class="table-wrap">
+    <table class="source-table" data-table-sort>
+      <thead>
+        <tr>
+          <th>Meta</th>
+          <th>Categoria</th>
+          <th class="align-right">Atual</th>
+          <th class="align-right">Meta</th>
+          <th class="align-right">Falta</th>
+          <th class="align-right">Progresso</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for goal in goals.goals %}
+        <tr>
+          <td>{{ goal.name }}</td>
+          <td>{{ goal.category }}</td>
+          <td class="align-right">R$ {{ goal.current|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ goal.target|floatformat:2 }}</td>
+          <td class="align-right" style="color: var(--negative);">
+            R$ {{ goal.target|add:goal.current|floatformat:2 }}
+          </td>
+          <td class="align-right">{{ goal.progress_pct|floatformat:1 }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nenhuma meta de investimento cadastrada (defina <code>target_amount</code> nas posições).</p>
+  {% endif %}
+</div>
+
+<!-- Alertas -->
+{% if goals.warnings %}
+<div class="card" style="border-color: var(--warning); background: var(--gold-soft);">
+  <strong style="color: var(--warning);">⚠ Alertas:</strong>
+  <ul style="margin: 0.5rem 0 0;">
+    {% for w in goals.warnings %}<li>{{ w }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<!-- Nota metodológica -->
+<div class="card" style="margin-top: 1.5rem; background: var(--surface-alt);">
+  <h4 style="margin-top: 0;">Metodologia</h4>
+  <ul style="margin: 0; font-size: 13px; line-height: 1.8;">
+    <li><strong>Reserva</strong>: Meta = Despesas essenciais mensais × Meses de proteção (configurável 6-12, padrão 9).</li>
+    <li><strong>Progresso da Reserva</strong>: Valor atual das posições com categoria "Reserva" ÷ Meta.</li>
+    <li><strong>Sugestão mensal</strong>: Prioriza a Reserva até atingir a meta; excedente vai para outras metas.</li>
+    <li><strong>Metas de Investimento</strong>: Posições com <code>target_amount</code> preenchido. Progresso = Valor atual ÷ Meta.</li>
+    <li><strong>Não confundir</strong>: Meta de investimento ≠ Reserva. Aplicação em meta move dinheiro entre ativos, não é despesa.</li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,8 +1,8 @@
-# Panorama Técnico Consolidado do ALECE — Para Auditoria Independente e Planejamento do Sprint 05
+# Panorama Técnico Consolidado do ALECE — Para Auditoria Independente e Planejamento do Sprint 06
 
 **Documento:** Panorama de Arquitetura, Engenharia, Domínio Financeiro e Evidências do ALECE  
-**Destinatário:** Auditoria Técnica Independente / ChatGPT (para emissão de parecer e elaboração do prompt do Sprint 05)  
-**Versão Atual:** `0.6.0 (Sprint 04 Concluído)`  
+**Destinatário:** Auditoria Técnica Independente / ChatGPT (para emissão de parecer e elaboração do prompt do Sprint 06)  
+**Versão Atual:** `0.7.0 (Sprint 05 Concluído)`  
 **Data:** 18 de outubro de 2026  
 **Branch:** `codex/sprint01-audit-sprint02`  
 **Licença:** GNU General Public License v3 (`GPL-3.0-only`) — Cópia integral em `LICENSE`  
@@ -35,7 +35,7 @@ O **ALECE** é uma plataforma de gestão financeira pessoal e familiar, gratuita
 
 ---
 
-## 2. Histórico Evolutivo do Projeto até o Sprint 04
+## 2. Histórico Evolutivo do Projeto até o Sprint 05
 
 - **Sprint 01 (Auditoria e Segurança Fundamental)**:
   - Eliminação de vulnerabilidades críticas de emissão anônima de códigos de recuperação e proteção contra ataques de força bruta com limitação persistente por IP/usuário.
@@ -64,6 +64,22 @@ O **ALECE** é uma plataforma de gestão financeira pessoal e familiar, gratuita
   - **Testes abrangentes**: 43 testes cobrindo parsers CSV/OFX, detecção de duplicidade, categorização, reconciliação, fluxo completo upload→stage→preview→commit, pagamentos parciais, investimentos, idempotência, permissões, revogação, reimportação concorrente, segurança (XXE, oversized, encoding, sanitização).
   - **Migração criada**: `finance.0005_importbatch_importrow.py`.
   - **Arquivos criados**: `importers.py`, `imports.py`, `import_views.py`, 6 templates, `test_sprint04_imports.py` (43 testes).
+  - **Verificações**: Django check, Ruff, migrações, pip-audit, Docker build — todos aprovados.
+- **Sprint 05 (Categorização De-Para, Importação PDF, Relatórios Financeiros — CONCLUÍDO)**:
+  - **Regras de Categorização De-Para Persistidas**: Modelo `CategorizationRule` com escopo por núcleo/perfil, correspondência exata ou regex (protegida contra ReDoS via timeout 100ms e validação de complexidade), prioridade explícita, ativação/desativação, autoria e trilha de auditoria. Prevenção de ReDoS via limite de grupos de captura, detecção de padrões perigosos e timeout de execução.
+  - **Importação PDF Assistida**: Parser `PDFParser` com validação de assinatura `%PDF-`, limites de páginas (50), texto extraído (500KB), criptografia rejeitada. Extração nativa via `pdfplumber` (texto + tabelas), OCR opcional isolado via `pymupdf` apenas quando tecnicamente necessário. Validação de criptografia, integridade, páginas, limites de memória/tempo. Reutiliza pipeline completo do Sprint 04 (staging, duplicidade, categorização, prévia, commit).
+  - **Relatórios Financeiros Consolidados**: 
+    - **DRE simplificada**: Receitas (kind=income) vs Despesas confirmadas (recurring/unexpected), pendências separadas, não confunde orçamento com execução.
+    - **Evolução Patrimonial**: Série temporal (diária/semanal/mensal) de Ativos (bancos conhecidos + investimentos current_value) - Passivos. Saldo desconhecido (NULL) sinalizado, não somado como zero.
+    - **Investimentos**: Posições detalhadas (aplicado, atual, ganho/perda não realizado), fluxo do período (aplicações/resgates), por categoria.
+    - **Metas e Reserva**: Progresso da Reserva (essenciais × meses), metas de investimento (target_amount), sugestão mensal, alertas de gap.
+    - **Dashboard consolidado**: Agregação de todos os relatórios com alertas de consolidação parcial.
+  - **Persistência De-Para**: UI para CRUD de regras (exato/regex, campo alvo, prioridade, ativação), teste de regra via AJAX, escopo núcleo/perfil, prioridade explícita, histórico e autoria.
+  - **PDF Security**: Validação assinatura `%PDF-`, rejeita criptografia, limites páginas/tamanho/tempo, sanitização.
+  - **Pipeline Reutilizado**: Staging (ImportBatch/ImportRow + SHA-256), deduplicação (FITID/hash/contextual), categorização (regras persistidas + heurística fallback), reconciliação assistida, prévia editável com dry-run AJAX, commit atômico idempotente reutilizando serviços ledger, relatório detalhado.
+  - **Testes Abrangentes**: 80+ testes cobrindo regras De-Para (criação, regex seguro, prioridade, escopo), parsers (CSV/OFX/PDF), detecção duplicidade, integração fluxo completo, relatórios (DRE, patrimônio, investimentos, metas), segurança (ReDoS, oversized, criptografia, sanitização), permissões, revogação, idempotência.
+  - **Migração criada**: `finance.0006_categorizationrule.py`.
+  - **Arquivos criados**: `categorization.py`, `reports.py`, `categorization_views.py`, `reports_views.py`, `PDFParser` em `importers.py`, 4 templates de relatórios, `test_sprint05.py` (80+ testes).
   - **Verificações**: Django check, Ruff, migrações, pip-audit, Docker build — todos aprovados.
 
 ---
