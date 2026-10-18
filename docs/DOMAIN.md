@@ -34,3 +34,12 @@ saldo_projetado = soma_saldos_conhecidos - total_pendente_mes
 ## Integridade de transação
 
 `confirm_outflow` verifica antes de gravar: perfil, saldo disponível, contas válidas do perfil e idempotência. Tranca linhas de conta com `select_for_update`, desconta o saldo, grava batch e legs na mesma transação. O serviço **não** implementa ainda estorno nem conciliação oficial de investimentos. Não operar dados financeiros reais usando este starter como produto final.
+
+## Cadastros e consultas do Sprint 02
+
+- Cinco perfis **ativos** por núcleo, com lock no workspace para criação/reativação. Arquivados conservam histórico e podem ser consultados, mas não recebem novos cadastros.
+- Administrador vê e configura todos os perfis do próprio núcleo. Usuário Comum depende de grant para leitura/edição. A renda nula é desconhecida; `0.00` é zero informado. Editar renda não altera saldos.
+- Conta nula é saldo desconhecido; a soma de saldos conhecidos é apresentada separadamente da renda. Conta/posição ligada a movimentação não pode ter valor histórico sobrescrito por formulário.
+- Cadastro de despesa previsível ou imprevisível não gera pagamento. Imprevisível recebe data do servidor. Vencimento 29–31 em mês curto é apresentado no último dia válido do mês.
+- `profile_summary()` agrega só um perfil autorizado pela view: Reserva = essenciais ativas × meses (6–12, padrão 9); atual = posições ativas da categoria Reserva; falta = `max(0, meta - atual)`. A sugestão mensal usa `allocate_monthly` com renda e despesas previsíveis conhecidas e imprevisíveis confirmadas, priorizando Reserva. Despesas pendentes são exibidas separadamente. Sem renda ou despesa previsível cadastrada, nenhuma sugestão é apresentada. Meta atingida resulta em sugestão zero.
+- Visão combinada soma indicadores **já calculados por perfil autorizado**, preservando perfis isolados. Não funde contas, grants, posições ou histórico.

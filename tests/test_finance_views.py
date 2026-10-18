@@ -49,7 +49,7 @@ class FinanceWorkflowTests(TestCase):
         response = self.client.post(reverse("login"), {
             "username": "owner", "password": "test-password",
         }, follow=True)
-        self.assertContains(response, self.url("profile-list"))
+        self.assertContains(response, reverse("finance:overview", args=[self.workspace.pk]))
         self.assertNotContains(response, "Outro núcleo")
         response = self.client.get(self.url("profile-list"))
         self.assertContains(response, self.url("profile-create"))

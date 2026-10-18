@@ -4,20 +4,20 @@
 
 - `main`: sempre validada, protegida por aprovação e CI; sem commit direto em produção.
 - Branch de trabalho `feature/...`, `fix/...`, `docs/...`; PR pequeno e reversível.
-- Tags `vX.Y.Z` (SemVer para releases do backend) disparam construção/publicação de imagem no GHCR.
+- Tags `vX.Y.Z` identificam versões; publicar imagem requer execução manual explícita do workflow em uma tag e `publish=true`.
 - Mudança de arquitetura/invariante → ADR; mudança funcional → documentação; mudança de schema → migration versionada + testes.
 
 ## CI (`.github/workflows/ci.yml`)
 
 - Instalar dependências de desenvolvimento.
-- Verificar Python/ruff, `manage.py check` e divergências de migrações.
+- Verificar Python/ruff, `manage.py check`, divergências de migrações e auditar dependências de produção.
 - Migrar Postgres de teste e executar `pytest` (unitários e integração).
 - Checar Docker build em job independente.
 - Não depende do ZimaOS físico nem de acesso às credenciais de produção.
 
 ## CD (`.github/workflows/release.yml`)
 
-- Gatilho por tag versionada após testes.
+- Gatilho manual em tag versionada, com `publish=true`, após testes.
 - Cria imagem Docker com `docker/build-push-action` e publica no GHCR.
 - **Não instala nada automaticamente no servidor pessoal**; ZimaOS precisa receber imagem aprovada, backup verificado e execução assistida do RUNBOOK.
 - Para supply chain mais rígida, evolução planejada: pinagem por SHA dos actions, SBOM, assinatura/atestado, scan SCA/containers e atualização automatizada de digests.

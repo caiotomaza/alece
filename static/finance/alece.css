@@ -20,3 +20,14 @@ label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}input:not([
 @media(max-width:760px){.shell{display:block}.sidebar{position:static;width:100%;height:auto;padding:18px 16px;border-right:0;border-bottom:1px solid var(--border);overflow:visible}.brand{padding:0 0 16px}.nav-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.nav-button{padding:10px;font-size:13px}.sidebar-bottom{display:flex;gap:4px;flex-wrap:wrap;margin-top:14px;padding-top:10px}.sidebar-bottom>.nav-button{width:auto;flex:1}.sidebar-bottom form{display:flex}.sidebar button[type="submit"]{font-size:13px}.main{width:100%}.topbar{position:static;padding:12px 16px}.content{padding:24px 16px 40px}.card{padding:18px}.metrics{grid-template-columns:1fr}.section-heading{gap:12px}.unified-dialog .dialog-fallback{padding:20px}.theme-toggle{flex:none}}
 @media(max-width:390px){.content{padding-inline:12px}.sidebar{padding-inline:12px}.topbar{padding-inline:12px}.card{padding:14px}.actions{gap:8px}.actions .button{padding-inline:11px}.unified-dialog{width:calc(100% - 20px)}.unified-dialog .dialog-fallback{padding:16px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* The filter contains Django's form.as_p fields; each field must be allowed to shrink. */
+.profile-selector>h2{flex:1 0 100%;margin-bottom:0}
+.profile-selector>p{flex:1 1 220px;min-width:0;max-width:100%;margin:0}
+.profile-selector>.actions{flex:0 0 auto;margin:0}
+.profile-selector #id_profiles{display:flex;flex-wrap:wrap;gap:8px}
+.profile-selector #id_profiles>div{min-width:0}
+.nav-button,.section-heading>*{min-width:0;overflow-wrap:anywhere}
+.profile-selector #id_profiles>div label{display:inline-flex;align-items:center;gap:8px;min-width:max-content;margin:0}
+.table-wrap table{min-width:840px}
+@media(max-width:600px){.profile-selector>p,.profile-selector>.actions{flex:1 0 100%;max-width:100%}.profile-selector>.actions button{width:100%}}

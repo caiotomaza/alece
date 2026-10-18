@@ -1,11 +1,11 @@
-# ALECE — Base de desenvolvimento (v0.2.0)
+# ALECE — Base de desenvolvimento (Sprint 02 em validação)
 
 **Gestão financeira pessoal e familiar, gratuita, self-hosted e código aberto.**
 
 ![status](https://img.shields.io/badge/estado-base%20t%C3%A9cnica-215d40)
 ![license](https://img.shields.io/badge/licen%C3%A7a-GPL--3.0--only-215d40)
 
-**Estado real:** este pacote é um **starter kit de engenharia**, não o ALECE concluído. A interface HTML interativa **v1.32.1** e toda a especificação histórica estão preservadas em `reference/` e `docs/SPEC_ORIGINAL_COMPLETA.md`. O backend Django tem esquema de dados, autenticação de produto (login/logout/recuperação offline), sistema de permissões por workspace/perfil, painel administrativo inicial, serviços de saída de caixa e endpoints de saúde. Ainda **não** conecta a interface HTML ao PostgreSQL, **não** importa PDF/CSV de verdade, **não** oferece API pública e **não** implementa CRUD completo de finanças.
+**Estado real:** há fluxos Django persistentes para autenticação, seleção de núcleo, perfis, renda, contas, despesas, investimentos e Reserva. A migração do Sprint 02 precisa ser aplicada apenas após backup e pré-verificação de dados existentes. A interface do protótipo foi portada parcialmente; movimentações e importações completas seguem pendentes. **Não usar com finanças reais antes da revisão de segurança, restore e implantação.**
 
 ## Objetivos
 
@@ -19,12 +19,12 @@
 
 | Camada | Implementado no starter | Planejado |
 |---|---|---|
-| App Django | Página de estado, admin, saúde `/health/live/` `/health/ready/`, **auth completo** | Interface integrada, API |
+| App Django | Login/recuperação auditados, saúde, visão geral e cadastros financeiros por perfil | Importações, reconciliação e API pública |
 | Domínio | Modelos de workspace, perfis, contas, despesas, investimentos, reserva, movimentações | REST e isolamento autorizado por endpoint |
-| Finanças | Reserva 6–12 meses (padrão **9**), cálculo puro com Decimal, débito atômico multi-conta, idempotência | CRUD completo, estorno imutável, conciliação, importações |
-| Auth/Permissões | **Login/logout, recuperação offline, roles admin/common, grants por perfil** | MFA, convites, auditoria |
+| Finanças | Perfis, renda, contas, despesas, investimentos e Reserva 6–12 meses; cálculos Decimal; serviço de débito interno | Pagamentos via UI, estorno, conciliação, importações |
+| Auth/Permissões | **Login/logout, recuperação offline protegida, roles admin/common, grants por perfil, limites de tentativas** | MFA, convites, trilha de auditoria |
 | Infra | Dockerfile não-root, Compose com healthcheck, Postgres sem porta externa, bootstrap/deploy/backup | Observabilidade e retenção institucional |
-| Entrega | GitHub Actions CI, build/push por tag, Dependabot | CD para ZimaOS após validação |
+| Entrega | GitHub Actions CI, publicação manual e explícita por tag, Dependabot | CD para ZimaOS após validação |
 
 ## Organização do repositório
 
@@ -42,7 +42,7 @@
 ├── reference/prototype/       # HTML v1.32.1 (somente referência visual)
 ├── requirements/              # dependências restritas por faixa
 ├── scripts/                   # bootstrap, backup, deploy e validação
-├── tests/                     # testes unitários e de integração (40 testes)
+├── tests/                     # testes unitários e de integração (consulte relatório atual)
 ├── .github/workflows/         # CI e publicação de imagens
 ├── Dockerfile
 ├── compose.yaml
@@ -76,7 +76,7 @@ O script valida Compose, sobe o banco, cria dump anterior à migração, confere
 docker compose exec web python manage.py createsuperuser
 ```
 
-Acesse **http://127.0.0.1:8000/** ou o IP/porta que configurou no host. Acesse `/admin/` somente para administrar a base. **Nunca exponha a porta de administração diretamente à internet sem autenticação de perímetro e TLS.** O produto ainda não está pronto para dados financeiros reais.
+Acesse **http://127.0.0.1:8000/** ou o IP/porta que configurou no host. Acesse `/admin/` somente para administração de usuários e memberships; modelos financeiros são somente leitura ali. **Nunca exponha a porta de administração diretamente à internet sem autenticação de perímetro e TLS.** O produto ainda não está pronto para dados financeiros reais.
 
 ### ZimaOS
 

@@ -9,7 +9,7 @@ from django.db import IntegrityError, transaction
 from django.test import TestCase
 
 from apps.finance.models import (
-    BankAccount, FinancialProfile, InvestmentPosition, LedgerLeg, ProfileGrant,
+    BankAccount, InvestmentPosition, LedgerLeg, ProfileGrant,
     RecurringExpense, ReservePolicy, TransactionBatch, UnexpectedExpense, Workspace,
     WorkspaceMembership,
 )

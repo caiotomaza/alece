@@ -30,7 +30,7 @@ flowchart LR
 - Mudanças em cálculos: testes de invariantes, snapshots auditáveis, sem alterar retroativamente ledger já confirmado.
 - Integrações por adaptador (CSV Bancos, PDF, futuro Open Finance) isoladas em `apps/imports/` quando implementadas.
 - No ZimaOS, proteger volumes e restauração antes de upgrade. Compose é infraestrutura, não arquivo para colocar senhas em Git.
-- Regras de permissão por núcleo/usuário/perfil aplicadas **em cada service/view**, não apenas ocultando botões no navegador. Esta camada de autorização ainda é **trabalho pendente**.
+- Regras de permissão por núcleo/usuário/perfil aplicadas **em cada service/view**, não apenas ocultando botões no navegador. A autorização por workspace, perfil e objeto está em `apps.core.permissions` e nas views/serviços financeiros; mutações do Django Admin financeiro ficam bloqueadas. Permissões por módulo ainda são futuras.
 
 ## Segurança e disponibilidade
 

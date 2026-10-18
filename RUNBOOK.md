@@ -85,7 +85,9 @@ Para testar a integridade **sem modificar o banco**: `docker compose exec -T db 
 
 ## 7. Recuperação de usuário e acesso administrativo
 
-O starter permite criar um superusuário Django; não implementa ainda login final nem **código de recuperação de senha**. Não assuma que a recuperação por e-mail existe. Trabalhos pendentes estão em `docs/ROADMAP.md`.
+O login por usuário/senha está disponível. A geração de um novo código de recuperação offline exige sessão autenticada e senha atual; o código aparece uma vez e deve ser guardado pelo proprietário fora do sistema. O endpoint público `/recovery/` não emite códigos. Códigos emitidos antes da migração `core.0002` são recusados por versão e precisam ser regenerados pelo titular. O resgate tem uso único e limites de tentativas no PostgreSQL. Não há recuperação por e-mail.
+
+Antes de aplicar `finance.0002` em qualquer banco persistente, execute backup validado e confira se há posições de Reserva antigas com `target_amount IS NOT NULL`; a nova constraint as rejeita. A migração não corrige automaticamente dados financeiros. Investigue e decida com o titular antes de avançar. Para consulta de pré-verificação no PostgreSQL isolado/autorizado: `SELECT COUNT(*) FROM finance_investmentposition WHERE category = 'reserve' AND target_amount IS NOT NULL;`. Valor maior que zero exige plano de reconciliação, não substituição silenciosa da meta.
 
 ## 8. Incidentes financeiros
 
