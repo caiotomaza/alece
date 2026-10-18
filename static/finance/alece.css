@@ -35,4 +35,11 @@ label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}input:not([
 .checkbox-button{display:inline-grid;place-items:center;width:44px;height:44px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--primary);font-size:24px;text-decoration:none;cursor:pointer}
 .checkbox-button:hover{background:var(--surface-alt)}.paid-label{text-decoration:line-through;color:var(--muted)}
 .account-picker{padding:14px;border:1px solid var(--border);border-radius:11px}.account-picker summary{cursor:pointer;font-weight:700}.account-picker #id_accounts{display:grid;gap:6px;margin-top:12px}.account-picker label{display:flex;align-items:center;gap:8px;margin:0;min-height:40px}
-.is-private .money-private,.is-private .account-picker label,.is-private #selected-total,.is-private #payment-gap,.is-private #account-allocations{filter:blur(7px)}
+.is-private .money-private,.is-private .account-picker label,.is-private #selected-total,.is-private #payment-gap,.is-private #account-allocations,.is-private .metric strong,.is-private .source-table td,.is-private .source-table th,.is-private .card strong,.is-private .chart-value{filter:blur(7px)}
+
+/* Global privacy toggle button */
+[data-privacy-toggle-global]{background:var(--surface);border:1px solid var(--border);width:44px;height:44px;min-width:44px;display:inline-grid;place-items:center;border-radius:11px;color:var(--text);font-size:20px;text-decoration:none;cursor:pointer}
+[data-privacy-toggle-global]:hover{background:var(--surface-alt);color:var(--primary)}[data-privacy-toggle-global]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+/* Hidden values state */
+.is-private .money-private,.is-private .account-picker label,.is-private #selected-total,.is-private #payment-gap,.is-private #account-allocations,.is-private .metric strong,.is-private .source-table td,.is-private .source-table th,.is-private .card strong,.is-private .chart-value{filter:blur(7px)}

@@ -22,6 +22,8 @@
     </div>
     <div class="actions">
       <button type="submit" class="btn">Atualizar</button>
+      <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'dre' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar CSV</a>
+      <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'dre' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=json" class="btn secondary">Exportar JSON</a>
     </div>
   </div>
 </form>

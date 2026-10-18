@@ -92,4 +92,33 @@
       event.currentTarget.textContent = hidden ? 'Mostrar valores' : 'Ocultar valores';
     });
   }
+
+  // Global "Ocultar valores" toggle (AT-155)
+  const privacyToggle = document.querySelector('[data-privacy-toggle-global]');
+  let isPrivate = localStorage.getItem('alece-privacy') === 'true';
+  const applyPrivacy = () => {
+    document.body.classList.toggle('is-private', isPrivate);
+    if (privacyToggle) {
+      privacyToggle.setAttribute('aria-pressed', String(isPrivate));
+      privacyToggle.setAttribute('aria-label', isPrivate ? 'Mostrar valores' : 'Ocultar valores');
+      privacyToggle.textContent = isPrivate ? 'Mostrar valores' : 'Ocultar valores';
+      privacyToggle.setAttribute('aria-pressed', String(isPrivate));
+    }
+  };
+  applyPrivacy();
+  privacyToggle?.addEventListener('click', () => {
+    isPrivate = !isPrivate;
+    applyPrivacy();
+    try { localStorage.setItem('alece-privacy', String(isPrivate)); } catch (_) {}
+  });
+
+  // Also apply to payment form toggle for consistency
+  const paymentPrivacyToggle = document.querySelector('[data-privacy-toggle]');
+  if (paymentPrivacyToggle) {
+    paymentPrivacyToggle.addEventListener('click', (event) => {
+      const hidden = payment.classList.toggle('is-private');
+      event.currentTarget.setAttribute('aria-pressed', String(hidden));
+      event.currentTarget.textContent = hidden ? 'Mostrar valores' : 'Ocultar valores';
+    });
+  }
 })();

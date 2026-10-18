@@ -6,6 +6,10 @@
     <p class="muted">{{ workspace.name }}</p>
     <h1>Metas e Reserva de Emergência</h1>
   </div>
+  <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+    <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'goals' %}?format=csv" class="btn secondary">Exportar CSV</a>
+    <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'goals' %}?format=json" class="btn secondary">Exportar JSON</a>
+  </div>
   <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
 </div>
 

@@ -14,8 +14,8 @@ from apps.core.permissions import (
 )
 from apps.finance.forms import BankAccountForm, FinancialProfileForm
 from apps.finance.models import (
-    BankAccount, InvestmentPosition, LedgerLeg, RecurringExpense,
-    ReservePolicy, UnexpectedExpense, Workspace,
+    BankAccount, FinancialProfile, InvestmentPosition, LedgerLeg, ProfileGrant,
+    RecurringExpense, ReservePolicy, UnexpectedExpense, Workspace,
 )
 from apps.finance.query_forms import IncomeForm, WorkspaceFilterForm
 from apps.finance.services.metrics import profile_summary
@@ -322,6 +322,12 @@ def workspace_page(request, workspace_id, section="overview"):
             ))
             for leg in item["movements"]:
                 leg.reversal_key = uuid4().hex
+        if section == "settings":
+            item["profiles"] = FinancialProfile.objects.filter(workspace=workspace, is_archived=False).order_by("pk")
+            item["grants"] = ProfileGrant.objects.filter(
+                profile__in=item["profiles"]
+            ).select_related("membership", "membership__user").order_by("profile__pk", "membership__user__username")
+            item["workspace"] = workspace
         sections.append(item)
     known_income = sum((s["summary"].get("income") for s in sections
                         if s["summary"].get("income") is not None), Decimal("0"))
@@ -336,7 +342,7 @@ def workspace_page(request, workspace_id, section="overview"):
     context = {
         "workspace": workspace, "filter_form": filter_form, "sections": sections,
         "active_nav": section, "month": month,
-        "title": {"overview": "Visão geral", "expenses": "Despesas", "investments": "Investimentos", "movements": "Movimentações"}[section],
+        "title": {"overview": "Visão geral", "expenses": "Despesas", "investments": "Investimentos", "movements": "Movimentações", "settings": "Configurações"}[section],
         "known_income": known_income,
         "unknown_income_count": sum(s["summary"].get("income") is None for s in sections),
         "bank_balance": bank_balance,

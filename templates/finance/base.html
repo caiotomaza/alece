@@ -21,7 +21,7 @@
       <a class="nav-button{% if active_nav == 'expenses' %} is-active{% endif %}" {% if active_nav == 'expenses' %}aria-current="page"{% endif %} href="{% url 'finance:expenses' workspace.pk %}">Despesas</a>
       <a class="nav-button{% if active_nav == 'investments' %} is-active{% endif %}" {% if active_nav == 'investments' %}aria-current="page"{% endif %} href="{% url 'finance:investments' workspace.pk %}">Investimentos</a>
       <a class="nav-button{% if active_nav == 'movements' %} is-active{% endif %}" {% if active_nav == 'movements' %}aria-current="page"{% endif %} href="{% url 'finance:movements' workspace.pk %}">Movimentações</a>
-      <a class="nav-button{% if active_nav == 'profiles' %} is-active{% endif %}" {% if active_nav == 'profiles' %}aria-current="page"{% endif %} href="{% url 'finance:profile-list' workspace.pk %}">Perfis financeiros</a>
+      <a class="nav-button{% if active_nav == 'settings' %} is-active{% endif %}" {% if active_nav == 'settings' %}aria-current="page"{% endif %} href="{% url 'finance:profile-list' workspace.pk %}">Configurações</a>
       {% endif %}
     </nav>
     <nav class="sidebar-bottom" aria-label="Minha conta">
@@ -31,7 +31,7 @@
     </nav>
   </aside>
   <div class="main">
-    <header class="topbar"><div class="topbar-profile"><span class="label">{% if workspace %}Núcleo financeiro{% else %}Seu espaço financeiro{% endif %}</span><strong>{% if workspace %}{{ workspace.name }}{% else %}ALECE{% endif %}</strong></div><button class="theme-toggle button secondary" type="button" data-theme-toggle hidden aria-pressed="false" aria-label="Ativar tema escuro">Escuro</button></header>
+    <header class="topbar"><div class="topbar-profile"><span class="label">{% if workspace %}Núcleo financeiro{% else %}Seu espaço financeiro{% endif %}</span><strong>{% if workspace %}{{ workspace.name }}{% else %}ALECE{% endif %}</strong></div><button class="theme-toggle button secondary" type="button" data-theme-toggle hidden aria-pressed="false" aria-label="Ativar tema escuro">Escuro</button><button class="theme-toggle button secondary" type="button" data-privacy-toggle-global hidden aria-pressed="false" aria-label="Ocultar valores">Ocultar valores</button></header>
     <main class="content" id="main-content" tabindex="-1">
       {% for message in messages %}<div class="card notice" role="status">{{ message }}</div>{% endfor %}
       {% block content %}{% endblock %}

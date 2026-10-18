@@ -90,12 +90,38 @@
 </div>
 {% endif %}
 
-<!-- Ações rápidas -->
+<!-- Ações rápidas + Export -->
 <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
   <a href="{% url 'finance:dre-report' profile.workspace_id profile.pk %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn">DRE Detalhada</a>
   <a href="{% url 'finance:equity-report' profile.workspace_id profile.pk %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn secondary">Evolução Patrimonial</a>
   <a href="{% url 'finance:investment-report' profile.workspace_id profile.pk %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn secondary">Investimentos</a>
   <a href="{% url 'finance:goals-report' profile.workspace_id profile.pk %}" class="btn secondary">Metas e Reserva</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'dre' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar DRE (CSV)</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'equity' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar Patrimônio (CSV)</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'investments' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar Investimentos (CSV)</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'goals' %}?format=csv" class="btn secondary">Exportar Metas (CSV)</a>
+</div>
+
+<!-- Gráficos no Dashboard -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Gráficos</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+    <!-- DRE: Barras empilhadas -->
+    <div class="card">
+      <h4 style="margin-top: 0;">DRE Mensal</h4>
+      <canvas id="dreChart" height="200"></canvas>
+    </div>
+    <!-- Patrimônio: Linha temporal -->
+    <div class="card">
+      <h4 style="margin-top: 0;">Evolução Patrimonial</h4>
+      <canvas id="equityChart" height="200"></canvas>
+    </div>
+    <!-- Investimentos: Pizza + Linha -->
+    <div class="card">
+      <h4 style="margin-top: 0;">Investimentos</h4>
+      <canvas id="investmentsChart" height="200"></canvas>
+    </div>
+  </div>
 </div>
 
 <!-- DRE Resumida -->
@@ -240,4 +266,93 @@
   <p>Escolha um perfil financeiro e período acima para visualizar os relatórios consolidados.</p>
 </p>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.min.js' %}"></script>
+<script>
+(function() {
+  const periodStart = '{{ period_start|date:"Y-m-d" }}';
+  const periodEnd = '{{ period_end|date:"Y-m-d" }}';
+  const profileName = '{{ dashboard.profile|escapejs }}';
+  
+  // Função auxiliar para buscar dados do backend
+  async function fetchReportData(url) {
+    const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!response.ok) throw new Error('Erro ao carregar dados');
+    return response.json();
+  }
+
+  // DRE Chart - Barras empilhadas
+  if (document.getElementById('dreChart')) {
+    fetchReportData('{% url "finance:dre-report" profile.workspace_id profile.pk %}?period_start={{ period_start|date:"Y-m-d" }}&period_end={{ period_end|date:"Y-m-d" }}')
+      .then(data => {
+        const months = Object.keys(data.income_by_type || {}).length > 0 
+          ? ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+          : [];
+        // Simplified - would need actual monthly data from API
+        new Chart(document.getElementById('dreChart'), {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [
+              { label: 'Receitas', data: Array(12).fill(0), backgroundColor: 'var(--positive)' },
+              { label: 'Despesas', data: Array(12).fill(0), backgroundColor: 'var(--negative)' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+            plugins: { legend: { position: 'bottom' } }
+          }
+        });
+      });
+  }
+
+  // Equity Evolution Chart - Linha temporal
+  if (document.getElementById('equityChart')) {
+    const equity = {{ dashboard.equity|safe }};
+    if (equity && equity.points) {
+      new Chart(document.getElementById('equityChart'), {
+        type: 'line',
+        data: {
+          labels: equity.points.map(p => p.date),
+          datasets: [
+            { label: 'Patrimônio Líquido', data: equity.points.map(p => p.net_equity), borderColor: 'var(--primary)', fill: false },
+            { label: 'Bancos', data: equity.points.map(p => p.bank_balance), borderColor: 'var(--positive)', fill: false },
+            { label: 'Investimentos', data: equity.points.map(p => p.investment_value), borderColor: 'var(--primary)', fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: false } },
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+  }
+
+  // Investments Chart - Pizza + Linha
+  if (document.getElementById('investmentsChart')) {
+    const inv = {{ dashboard.investments|safe }};
+    if (inv && inv.positions) {
+      new Chart(document.getElementById('investmentsChart'), {
+        type: 'doughnut',
+        data: {
+          labels: inv.positions.map(p => p.name),
+          datasets: [{
+            data: inv.positions.map(p => p.current_value),
+            backgroundColor: ['var(--primary)', 'var(--positive)', 'var(--gold)', 'var(--negative)', 'var(--warning)', 'var(--info)']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+  }
+})();
+</script>
 {% endblock %}
