@@ -2,6 +2,7 @@
 """Sistema de permissões e autorização para isolamento de workspaces e perfis financeiros."""
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
+from django.db.models import F, Q
 
 from apps.finance.models import FinancialProfile, ProfileGrant, WorkspaceMembership
 
@@ -44,18 +45,29 @@ def get_user_profile_grants(user, profile_id):
     """Retorna grants do usuário para um perfil financeiro específico."""
     memberships = WorkspaceMembership.objects.filter(user=user).values_list("pk", flat=True)
     return ProfileGrant.objects.filter(
-        membership_id__in=memberships, profile_id=profile_id
+        membership_id__in=memberships, profile_id=profile_id,
+        membership__workspace_id=F("profile__workspace_id"),
     ).first()
 
 
 def user_can_view_profile(user, profile_id) -> bool:
     """Verifica se o usuário pode visualizar o perfil financeiro."""
+    if FinancialProfile.objects.filter(
+        pk=profile_id, workspace__memberships__user=user,
+        workspace__memberships__role=WorkspaceMembership.Role.ADMIN,
+    ).exists():
+        return True
     grant = get_user_profile_grants(user, profile_id)
-    return grant is not None and grant.can_view
+    return grant is not None and (grant.can_view or grant.can_edit)
 
 
 def user_can_edit_profile(user, profile_id) -> bool:
     """Verifica se o usuário pode editar o perfil financeiro."""
+    if FinancialProfile.objects.filter(
+        pk=profile_id, workspace__memberships__user=user,
+        workspace__memberships__role=WorkspaceMembership.Role.ADMIN,
+    ).exists():
+        return True
     grant = get_user_profile_grants(user, profile_id)
     return grant is not None and grant.can_edit
 
@@ -64,18 +76,22 @@ def get_accessible_profiles(user):
     """Retorna queryset de perfis financeiros que o usuário pode visualizar."""
     memberships = WorkspaceMembership.objects.filter(user=user).values_list("pk", flat=True)
     granted_profile_ids = ProfileGrant.objects.filter(
-        membership_id__in=memberships, can_view=True
+        Q(can_view=True) | Q(can_edit=True), membership_id__in=memberships,
+        membership__workspace_id=F("profile__workspace_id"),
     ).values_list("profile_id", flat=True)
-    return FinancialProfile.objects.filter(pk__in=granted_profile_ids)
+    admin_workspaces = WorkspaceMembership.objects.filter(user=user, role="admin").values("workspace_id")
+    return FinancialProfile.objects.filter(Q(pk__in=granted_profile_ids) | Q(workspace_id__in=admin_workspaces))
 
 
 def get_editable_profiles(user):
     """Retorna queryset de perfis financeiros que o usuário pode editar."""
     memberships = WorkspaceMembership.objects.filter(user=user).values_list("pk", flat=True)
     granted_profile_ids = ProfileGrant.objects.filter(
-        membership_id__in=memberships, can_edit=True
+        membership_id__in=memberships, can_edit=True,
+        membership__workspace_id=F("profile__workspace_id"),
     ).values_list("profile_id", flat=True)
-    return FinancialProfile.objects.filter(pk__in=granted_profile_ids)
+    admin_workspaces = WorkspaceMembership.objects.filter(user=user, role="admin").values("workspace_id")
+    return FinancialProfile.objects.filter(Q(pk__in=granted_profile_ids) | Q(workspace_id__in=admin_workspaces))
 
 
 def require_workspace_access(user, workspace_id):

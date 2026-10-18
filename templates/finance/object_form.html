@@ -1,0 +1,28 @@
+{% extends "finance/base.html" %}
+{% block title %}{{ title }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading"><h1>{{ title }}</h1></div>
+<div class="dialog-fallback" data-dialog-content>
+  <form method="post" class="object-form">
+    {% csrf_token %}
+    <h2 id="dialog-title">{{ title }}</h2>
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% if field.is_hidden %}{{ field }}{{ field.errors }}{% else %}
+      <div class="field-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.help_text %}<div class="helptext" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</div>{% endif %}
+        {{ field.errors }}
+      </div>
+      {% endif %}
+    {% endfor %}
+    <footer class="actions">
+      {% if delete_url %}<a class="button danger secondary" href="{{ delete_url }}">Excluir</a>{% endif %}
+      <a class="button secondary" href="{{ cancel_url }}" data-dialog-cancel>Cancelar</a>
+      <button class="button" type="submit">Salvar e fechar</button>
+    </footer>
+  </form>
+</div>
+<dialog class="unified-dialog" data-edit-dialog aria-labelledby="dialog-title"></dialog>
+{% endblock %}

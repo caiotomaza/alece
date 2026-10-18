@@ -14,64 +14,14 @@
 <body>
   <main class="content" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px 16px">
     <div class="card" style="width:100%;max-width:480px">
-      {% if code %}
-      <!-- Exibição do código gerado -->
-      <div style="text-align:center;margin-bottom:24px">
-        <div class="brandmark" style="margin:0 auto 16px;width:48px;height:48px;border-radius:16px;font-size:28px;background:var(--positive)">✓</div>
-        <h1 style="margin:0 0 8px;font-size:1.75rem;font-weight:800;letter-spacing:-1px">Código de recuperação gerado</h1>
-        <p class="muted" style="margin:0">Usuário: <strong>{{ username }}</strong></p>
-      </div>
+      <h1>Recuperação offline</h1>
+      <p>Use o código que você guardou anteriormente para redefinir sua senha.</p>
+      <a href="{% url 'recovery_use' %}" class="btn">Usar código guardado</a>
+      <p>Para gerar ou substituir um código, entre na sua conta e confirme sua senha atual.</p>
+      <a href="{% url 'recovery_generate' %}" class="link">Gerar código após login</a>
+      <p class="muted">Sem senha e sem código guardado, entre em contato com o administrador da sua instalação.</p>
+      <a href="{% url 'login' %}" class="link">Voltar ao login</a>
 
-      <div class="message success">
-        <strong>Copie e guarde este código em local seguro.</strong> Ele será exibido apenas uma vez.
-      </div>
-
-      <div class="code-display">{{ code }}</div>
-
-      <div class="warning-box">
-        <strong>⚠ Importante:</strong>
-        <ul style="margin:0;padding-left:20px;line-height:1.8">
-          <li>Este código permite redefinir a senha sem e-mail.</li>
-          <li>Quem tiver o código tem acesso à conta.</li>
-          <li>Guarde em gerenciador de senhas ou papel seguro.</li>
-          <li>Ao usar, o código é invalidado e um novo deve ser gerado.</li>
-        </ul>
-      </div>
-
-      <a href="{% url 'login' %}" class="btn" style="width:100%">Ir para login</a>
-
-      {% else %}
-      <!-- Solicitação de código -->
-      <div style="text-align:center;margin-bottom:24px">
-        <div class="brandmark" style="margin:0 auto 16px;width:48px;height:48px;border-radius:16px;font-size:28px">↻</div>
-        <h1 style="margin:0 0 8px;font-size:1.75rem;font-weight:800;letter-spacing:-1px">Recuperação offline</h1>
-        <p class="muted" style="margin:0">Gere um código único para redefinir sua senha</p>
-      </div>
-
-      {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-        <li class="message {{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="id_username">Nome de usuário</label>
-          <input type="text" name="username" id="id_username" required autocomplete="username" style="width:100%;padding:12px 14px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:11px;font:inherit;font-size:15px">
-        </div>
-        <button type="submit" class="btn" style="width:100%">Gerar código</button>
-      </form>
-
-      <div class="divider"></div>
-
-      <div style="display:flex;flex-direction:column;gap:10px;text-align:center">
-        <a href="{% url 'login' %}" class="link">Voltar ao login</a>
-        <p class="muted" style="margin:0;font-size:13px">O código será exibido apenas uma vez. Não há envio por e-mail.</p>
-      </div>
-      {% endif %}
     </div>
   </main>
 </body>

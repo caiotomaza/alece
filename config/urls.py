@@ -1,12 +1,16 @@
 # SPDX-License-Identifier: GPL-3.0-only
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 from apps.core import views
 from apps.core import auth_views
+from apps.core.auth_forms import ThrottledAdminAuthenticationForm
+
+admin.site.login_form = ThrottledAdminAuthenticationForm
 
 urlpatterns = [
     path("", views.index, name="home"),
+    path("finance/", include("apps.finance.urls")),
     path("health/live/", views.live, name="health-live"),
     path("health/ready/", views.ready, name="health-ready"),
     # Autenticação

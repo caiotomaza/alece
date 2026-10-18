@@ -20,11 +20,11 @@ class HealthViewsTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
-    def test_landing_shows_dev_base_when_logged_in(self):
+    def test_landing_shows_workspaces_when_logged_in(self):
         from django.contrib.auth import get_user_model
         User = get_user_model()
         user = User.objects.create_user(username='testuser', password='testpass123')
         self.client.force_login(user)
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Base de desenvolvimento')
+        self.assertContains(response, 'Meus núcleos')

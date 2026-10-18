@@ -3,6 +3,7 @@
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
@@ -35,6 +36,7 @@ class FinancialProfile(models.Model):
     name = models.CharField(max_length=80)
     emoji = models.CharField(max_length=16, blank=True)
     monthly_income = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -52,6 +54,11 @@ class ProfileGrant(models.Model):
     profile = models.ForeignKey(FinancialProfile, on_delete=models.CASCADE)
     can_view = models.BooleanField(default=True)
     can_edit = models.BooleanField(default=False)
+
+    def clean(self):
+        if self.membership_id and self.profile_id:
+            if self.membership.workspace_id != self.profile.workspace_id:
+                raise ValidationError("Concessão deve pertencer ao mesmo núcleo do perfil.")
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["membership", "profile"], name="uq_member_profile_grant")]
@@ -93,7 +100,10 @@ class RecurringExpense(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        constraints = [models.CheckConstraint(condition=Q(amount__gt=0), name="ck_recurring_amount_positive")]
+        constraints = [
+            models.CheckConstraint(condition=Q(amount__gt=0), name="ck_recurring_amount_positive"),
+            models.CheckConstraint(condition=Q(due_day__gte=1, due_day__lte=31), name="ck_recurring_due_day_range"),
+        ]
 
     def __str__(self):
         return self.name
@@ -125,12 +135,18 @@ class InvestmentPosition(models.Model):
     current_value = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal("0.00"))
     target_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    recorded_on = models.DateField(null=True, blank=True)
+
+    def clean(self):
+        if self.category == self.Category.RESERVE and self.target_amount is not None:
+            raise ValidationError({"target_amount": "A meta da Reserva é calculada automaticamente."})
 
     class Meta:
         constraints = [
             models.CheckConstraint(condition=Q(applied_amount__gte=0), name="ck_applied_amount_nonnegative"),
             models.CheckConstraint(condition=Q(current_value__gte=0), name="ck_current_value_nonnegative"),
             models.CheckConstraint(condition=Q(target_amount__gt=0) | Q(target_amount__isnull=True), name="ck_target_positive_or_null"),
+            models.CheckConstraint(condition=~Q(category="reserve") | Q(target_amount__isnull=True), name="ck_reserve_no_manual_target"),
         ]
 
 

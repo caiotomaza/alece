@@ -64,6 +64,10 @@
 
       <form method="post">
         {% csrf_token %}
+        <div class="form-group">
+          <label for="current_password">Senha atual</label>
+          <input id="current_password" type="password" name="current_password" autocomplete="current-password" required>
+        </div>
         <button type="submit" class="btn" style="width:100%">Gerar novo código</button>
       </form>
 

@@ -40,6 +40,10 @@ jobs:
           cache-dependency-path: requirements/development.in
       - name: Install test dependencies
         run: python -m pip install -r requirements/development.txt
+      - name: Audit production dependencies
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit -r requirements/production.txt
       - name: Static and style checks
         run: |
           python -m compileall -q apps config tests manage.py

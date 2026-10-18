@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 — 2026-10-18
+
+- Primeiro fluxo financeiro após login: seleção de núcleo, listagem e criação de perfis financeiros, consulta e criação de contas bancárias ou dinheiro físico por perfil.
+- Criação de perfis restrita a administradores do núcleo, com limite de cinco aplicado pelo serviço transacional e grant de visualização/edição para o criador.
+- Visualização e criação de contas protegidas por grants; vínculos de permissão entre núcleos diferentes são ignorados. Nenhum acesso implícito aos perfis por ser administrador.
+- Formulários com validação de nomes duplicados, valores não negativos e distinção entre renda/saldo desconhecido e zero informado; navegação, estados vazios e mensagens em português.
+- Testes do fluxo autenticado, autorização, isolamento, validação e limite. Modelos existentes reutilizados, sem nova migration.
+
 ## 0.2.0 — 2026-10-15
 
 ### Fase 1 — Autenticação, Usuários, Workspaces, Perfis Financeiros e Permissões

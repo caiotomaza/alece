@@ -39,7 +39,7 @@ def confirm_outflow(
         raise ValidationError("Chave idempotente obrigatória.")
     if not splits:
         raise ValidationError("Informe ao menos uma conta de origem.")
-    FinancialProfile.objects.get(pk=profile_id)
+    FinancialProfile.objects.select_for_update().get(pk=profile_id)
     amounts = {int(pk): money(value) for pk, value in splits.items()}
     if any(amt <= 0 for amt in amounts.values()):
         raise ValidationError("Todas as parcelas devem ser positivas.")

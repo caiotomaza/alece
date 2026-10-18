@@ -1,0 +1,9 @@
+{% extends "finance/base.html" %}
+{% block title %}Perfis · {{ workspace.name }} · ALECE{% endblock %}
+{% block content %}
+<p><a href="{% url 'home' %}">Meus núcleos</a> / {{ workspace.name }}</p>
+<div class="section-heading"><h1>Perfis financeiros</h1>{% if can_create %}<a class="button" href="{% url 'finance:profile-create' workspace.pk %}">+ Novo perfil</a>{% endif %}</div>
+<p class="muted">Até cinco perfis ativos por núcleo. Perfis arquivados preservam o histórico. Administradores acessam todos os perfis deste núcleo.</p>
+{% for profile in profiles %}<section class="card"><h2><a href="{% url 'finance:profile-detail' profile.pk %}">{{ profile.emoji }} {{ profile.name }}</a></h2><p>{% if profile.is_archived %}Arquivado{% else %}Ativo{% endif %}</p>{% if can_create %}<a class="icon-button" aria-label="Editar perfil {{ profile.name }}" href="{% url 'finance:profile-edit' profile.pk %}">✎</a>{% endif %}</section>
+{% empty %}<p class="card">Nenhum perfil disponível para você neste núcleo.{% if can_create %} Crie um perfil para começar.{% endif %}</p>{% endfor %}
+{% endblock %}

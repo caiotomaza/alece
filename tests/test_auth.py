@@ -6,7 +6,6 @@ from django.urls import reverse
 
 from apps.core.models import UserProfile
 from apps.core.permissions import (
-    get_user_workspaces,
     user_has_workspace_access,
     user_is_workspace_admin,
     user_can_view_profile,
@@ -78,33 +77,20 @@ class RecoveryCodeTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Recuperação offline")
 
-    def test_recovery_request_post_generates_code(self):
+    def test_recovery_request_never_issues_code(self):
         response = self.client.post(reverse("recovery_request"), {"username": "recoveryuser"})
         self.assertEqual(response.status_code, 200)
-        # Deve exibir o código
-        self.assertContains(response, "Código de recuperação gerado")
-        # Verificar que o hash foi salvo
-        self.user.refresh_from_db()
-        profile = self.user.profile
-        self.assertIsNotNone(profile.recovery_code_hash)
-        self.assertIsNotNone(profile.recovery_code_created)
+        self.assertFalse(UserProfile.objects.filter(user=self.user).exists())
 
     def test_recovery_request_nonexistent_user(self):
-        # Não deve revelar se o usuário existe
-        response = self.client.post(reverse("recovery_request"), {"username": "nonexistent"})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Se o usuário existir")
+        existing = self.client.post(reverse("recovery_request"), {"username": "recoveryuser"})
+        missing = self.client.post(reverse("recovery_request"), {"username": "nonexistent"})
+        self.assertEqual(existing.content, missing.content)
 
     def test_recovery_use_valid_code(self):
-        # Gerar código conhecido diretamente no perfil
-        import hashlib
-        from django.utils import timezone
-        from apps.core.models import UserProfile
         code = "test-recovery-code-123"
         profile, _ = UserProfile.objects.get_or_create(user=self.user)
-        profile.recovery_code_hash = hashlib.sha256(code.encode()).hexdigest()
-        profile.recovery_code_created = timezone.now()
-        profile.save(update_fields=["recovery_code_hash", "recovery_code_created", "updated_at"])
+        profile.set_recovery_code(code)
 
         # Usar o código
         response = self.client.post(reverse("recovery_use"), {
@@ -118,8 +104,8 @@ class RecoveryCodeTests(TestCase):
         # Verificar que o código foi invalidado
         profile.refresh_from_db()
         self.assertEqual(response.status_code, 302, f"Expected 302, got {response.status_code}. Content: {response.content[:500]}")
-        self.assertTrue(self.user.check_password("newpass789"), f"Password not changed. Hash: {self.user.password}")
-        self.assertIsNone(profile.recovery_code_hash, f"Code not invalidated: {profile.recovery_code_hash}")
+        self.assertTrue(self.user.check_password("newpass789"))
+        self.assertIsNone(profile.recovery_code_hash)
 
     def test_recovery_use_invalid_code(self):
         response = self.client.post(reverse("recovery_use"), {
@@ -144,11 +130,11 @@ class RecoveryCodeTests(TestCase):
             "new_password2": "pass2",
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "As senhas não coincidem")
+        self.assertContains(response, "Código de recuperação inválido")
 
     def test_recovery_generate_logged_in(self):
         self.client.force_login(self.user)
-        response = self.client.post(reverse("recovery_generate"))
+        response = self.client.post(reverse("recovery_generate"), {"current_password": "oldpass123"})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Novo código de recuperação gerado")
         self.user.refresh_from_db()
@@ -288,6 +274,8 @@ class AuthorizationIntegrationTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_user_without_profile_access_cannot_see_profile_data(self):
-        """Usuário sem grant não deve acessar dados do perfil."""
-        # Esta parte será testada quando houver views de perfil
-        pass
+        self.client.force_login(self.user2)
+        hidden = FinancialProfile.objects.create(workspace=self.ws1, name="Perfil oculto")
+        response = self.client.get(reverse("finance:profile-detail", args=[hidden.pk]))
+        self.assertEqual(response.status_code, 403)
+        self.assertNotContains(response, "Perfil oculto", status_code=403)

@@ -35,9 +35,25 @@ class SuperuserOnlyAdmin(admin.ModelAdmin):
         return request.user.is_active and request.user.is_superuser
 
 
+class FinancialReadOnlyAdmin(SuperuserOnlyAdmin):
+    """Cadastros financeiros são alterados apenas pelos serviços do produto."""
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+for model in (Workspace, WorkspaceMembership, ProfileGrant):
+    admin.site.register(model, SuperuserOnlyAdmin)
+
 for model in (
-    Workspace, WorkspaceMembership, FinancialProfile, ProfileGrant,
+    FinancialProfile,
     BankAccount, RecurringExpense, UnexpectedExpense, InvestmentPosition,
     ReservePolicy, TransactionBatch, LedgerLeg,
 ):
-    admin.site.register(model, SuperuserOnlyAdmin)
+    admin.site.register(model, FinancialReadOnlyAdmin)

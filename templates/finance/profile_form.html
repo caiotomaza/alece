@@ -1,0 +1,7 @@
+{% extends "finance/base.html" %}
+{% block title %}Novo perfil · ALECE{% endblock %}
+{% block content %}
+<p>{{ workspace.name }}</p><h1>Novo perfil financeiro</h1>
+<p>O núcleo pode ter até cinco perfis financeiros.</p>
+<form method="post" class="card">{% csrf_token %}{{ form.as_p }}<div class="actions"><a href="{% url 'finance:profile-list' workspace.pk %}">Cancelar</a><button type="submit">Criar perfil</button></div></form>
+{% endblock %}

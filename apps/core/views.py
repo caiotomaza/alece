@@ -5,11 +5,15 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 
+from apps.core.permissions import get_user_workspace_memberships
+
 
 @require_GET
 @login_required
 def index(request):
-    return render(request, "index.html", {"version": "0.1.0 (base técnica)"})
+    return render(request, "index.html", {
+        "memberships": get_user_workspace_memberships(request.user).order_by("workspace_id"),
+    })
 
 
 @require_GET

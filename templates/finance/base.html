@@ -1,0 +1,41 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}ALECE · Finanças{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'finance/alece.css' %}">
+  <script src="{% static 'finance/alece.js' %}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Ir para o conteúdo</a>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="{% url 'home' %}" aria-label="ALECE — início"><span class="brandmark" aria-hidden="true">A</span><span><strong>ALECE</strong><small>FINANÇAS PESSOAIS</small></span></a>
+    <nav aria-label="Navegação principal" class="nav-list">
+      <a class="nav-button" href="{% url 'home' %}">Meus núcleos</a>
+      {% if workspace %}
+      <a class="nav-button{% if active_nav == 'overview' %} is-active{% endif %}" {% if active_nav == 'overview' %}aria-current="page"{% endif %} href="{% url 'finance:overview' workspace.pk %}">Visão geral</a>
+      <a class="nav-button{% if active_nav == 'expenses' %} is-active{% endif %}" {% if active_nav == 'expenses' %}aria-current="page"{% endif %} href="{% url 'finance:expenses' workspace.pk %}">Despesas</a>
+      <a class="nav-button{% if active_nav == 'investments' %} is-active{% endif %}" {% if active_nav == 'investments' %}aria-current="page"{% endif %} href="{% url 'finance:investments' workspace.pk %}">Investimentos</a>
+      <a class="nav-button{% if active_nav == 'profiles' %} is-active{% endif %}" {% if active_nav == 'profiles' %}aria-current="page"{% endif %} href="{% url 'finance:profile-list' workspace.pk %}">Perfis financeiros</a>
+      {% endif %}
+    </nav>
+    <nav class="sidebar-bottom" aria-label="Minha conta">
+      <a class="nav-button" href="{% url 'password_change' %}">Alterar senha</a>
+      <a class="nav-button" href="{% url 'recovery_generate' %}">Código de recuperação</a>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="nav-button" type="submit">Sair</button></form>
+    </nav>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="topbar-profile"><span class="label">{% if workspace %}Núcleo financeiro{% else %}Seu espaço financeiro{% endif %}</span><strong>{% if workspace %}{{ workspace.name }}{% else %}ALECE{% endif %}</strong></div><button class="theme-toggle button secondary" type="button" data-theme-toggle hidden aria-pressed="false" aria-label="Ativar tema escuro">Escuro</button></header>
+    <main class="content" id="main-content" tabindex="-1">
+      {% for message in messages %}<div class="card notice" role="status">{{ message }}</div>{% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+</body>
+</html>

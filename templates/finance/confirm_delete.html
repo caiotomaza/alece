@@ -1,0 +1,16 @@
+{% extends "finance/base.html" %}
+{% block title %}{{ title }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading"><h1>{{ title }}</h1></div>
+<div class="dialog-fallback" data-dialog-content>
+  <form method="post" class="object-form">
+    {% csrf_token %}
+    <h2 id="dialog-title">{{ title }}</h2>
+    <p>Confirme a exclusão de <strong>{{ object }}</strong>.</p>
+    <p class="muted">Itens com histórico financeiro vinculado não podem ser excluídos.</p>
+    <label class="checkbox-label"><input type="checkbox" name="confirm" value="yes" required> Confirmo a exclusão deste item.</label>
+    <footer class="actions"><a class="button secondary" href="{{ cancel_url }}" data-dialog-cancel>Cancelar</a><button class="button danger" type="submit">Excluir</button></footer>
+  </form>
+</div>
+<dialog class="unified-dialog" data-edit-dialog aria-labelledby="dialog-title"></dialog>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "finance/base.html" %}
+{% block title %}Nova conta · ALECE{% endblock %}
+{% block content %}
+<p>{{ profile.name }}</p><h1>Nova conta</h1>
+<form method="post" class="card">{% csrf_token %}{{ form.as_p }}<div class="actions"><a href="{% url 'finance:profile-detail' profile.pk %}">Cancelar</a><button type="submit">Criar conta</button></div></form>
+{% endblock %}
