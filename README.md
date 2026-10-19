@@ -1,11 +1,11 @@
-# ALECE — Base de desenvolvimento (Sprint 08 concluido)
+# ALECE — Release Candidate 1 (MVP Completo — Sprints 01 a 08)
 
-**Gestao financeira pessoal e familiar, gratuita, self-hosted e codigo aberto.**
+**Gestão financeira pessoal e familiar, gratuita, self-hosted e código aberto.**
 
-![status](https://img.shields.io/badge/estado-sprint%2008%20conclu%C3%ADdo-215d40)
+![status](https://img.shields.io/badge/estado-v1.0.0--rc1%20(MVP%20completo)-215d40)
 ![license](https://img.shields.io/badge/licen%C3%A7a-GPL--3.0--only-215d40)
 
-**Estado real:** fluxos Django persistentes e auditados para autenticacao, perfis, cadastros, pagamentos parciais e divididos entre multiplas contas, competencias mensais, transferencias, aplicacoes, resgates, estornos simetricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao prototipo v1.32.1 (temas Claro/Escuro, modais com acoes no rodape e lapis por linha). **Importacoes OFX/CSV/PDF com adaptadores modulares, deteccao conservadora de duplicidades (FITID + contextual), reconciliacao assistida com vinculo a lancamentos existentes, categorizacao De-Para persistida com prioridade e regex segura, relatorios financeiros consolidados (DRE, evolucao patrimonial, investimentos, metas/Reserva), exportacao CSV/JSON, graficos Chart.js self-hosted, previa editavel com confirmacao humana obrigatoria e relatorio detalhado.** **Comandos de limpeza de arquivos expirados e backup/restore com validacao SHA-256 e reconciliacao ledger (AC-08).** **Endpoint `/healthz/` para orquestracao, Docker hardening para ZimaOS.** **Nao usar com financas reais antes da revisao final de seguranca, restore e implantacao oficial.**
+**Estado real:** fluxos Django persistentes e auditados para autenticação, perfis, cadastros, pagamentos parciais e divididos entre múltiplas contas, competências mensais, transferências, aplicações, resgates, estornos simétricos e imutabilidade de ledger com partidas dobradas no PostgreSQL. Interface alinhada ao protótipo v1.32.1 (temas Claro/Escuro, modais com ações no rodapé e lápis por linha). **Importações OFX/CSV/PDF com adaptadores modulares, detecção conservadora de duplicidades (FITID + contextual), reconciliação assistida com vínculo a lançamentos existentes, categorização De-Para persistida com prioridade e regex segura, relatórios financeiros consolidados (DRE, evolução patrimonial, investimentos, metas/Reserva), exportação CSV/JSON, gráficos Chart.js self-hosted, prévia editável com confirmação humana obrigatória e relatório detalhado.** **Comandos de limpeza de arquivos expirados e backup/restore com validação SHA-256 e reconciliação ledger (AC-08).** **Endpoint `/healthz/` para orquestração, Docker hardening para ZimaOS.** **Suíte completa: 51 testes passando. Não usar com finanças reais antes da revisão final de segurança, restore e implantação oficial.**
 
 ## Objetivos
 

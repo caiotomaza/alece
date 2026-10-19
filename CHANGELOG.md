@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0-rc1 (Release Candidate 1 — MVP Completo: Sprints 01 a 08) — 2026-10-19
+
+- **MVP Consolidado (Sprints 01 a 08)**: Todas as funcionalidades core implementadas e testadas.
+- **Sprint 08 (Consolidação Final)**:
+  - UX v1.32.1: 5 abas fixas (Visão geral, Despesas, Investimentos, Movimentações, Configurações).
+  - Página interna `/about/` (sem modal): homenagem à Alice, lógica em `<details>/<summary>`, 4 passos, SVGs Brasil/Ceará/NTEC, links oficiais.
+  - Botão Sair vermelho (`.logout-button`).
+  - Modo "Ocultar valores" (AT-155): toggle global, `is-private` no `<body>`, mascara KPIs, tabelas, tooltips, Chart.js.
+  - `cleanup_expired_files`: limpeza de arquivos físicos >24h, status `failed`.
+  - `verify_ledger_backup` (AC-08): snapshot lógico + SHA-256, valida Σ débitos = Σ créditos, reconciliação saldos.
+  - Hardening Docker/ZimaOS: `/healthz/`, Dockerfile `USER alece`, compose `pg_isready`, sem porta 5432 exposta, `depends_on db:service_healthy`, volumes `ALECE_DATA_DIR`.
+- **Sprints 01-07**: Autenticação/Recuperação, Workspaces/Perfis, Ledger/Partidas Dobradas, Pagamentos/Estornos, Importação OFX/CSV/PDF, Categorização De-Para, Relatórios DRE/Patrimônio/Investimentos/Metas, Exportação CSV/JSON, Gráficos Chart.js self-hosted.
+- **Testes**: 51 testes passando (suíte completa Sprints 01-08).
+- **Validações**: Django check, makemigrations, pip-audit, Docker build, Docker Compose up/restart, `/healthz/` 200 OK, comandos `verify_ledger_backup` e `cleanup_expired_files` exit code 0.
+- **Docs**: CHANGELOG v1.0.0-rc1, README, RUNBOOK, ZIMAOS.md, PANORAMA v1.0.0-rc1, MVP_RC1_AUDIT_REPORT.md.
+
 ## 0.9.0 (Sprint 08 — Consolidação Final MVP: UX v1.32.1, Retenção Arquivos, Backup/Restore AC-08, Hardening Docker/ZimaOS) — 2026-10-18
 
 - **UX v1.32.1 — Cinco abas de navegação**: Sidebar (desktop) e barra inferior (mobile) com exatamente 5 destinos: "Visão geral", "Despesas", "Investimentos", "Movimentações", "Configurações".

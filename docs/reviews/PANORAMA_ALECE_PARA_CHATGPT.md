@@ -1,9 +1,9 @@
-# Panorama Técnico Consolidado do ALECE — Para Auditoria Independente e Planejamento do Sprint 07
+# Panorama Técnico Consolidado do ALECE — Para Auditoria Independente e Planejamento Pós-MVP
 
 **Documento:** Panorama de Arquitetura, Engenharia, Domínio Financeiro e Evidências do ALECE  
-**Destinatário:** Auditoria Técnica Independente / ChatGPT (para emissão de parecer e elaboração do prompt do Sprint 07)  
-**Versão Atual:** `0.8.0 (Sprint 06 Concluído)`  
-**Data:** 18 de outubro de 2026  
+**Destinatário:** Auditoria Técnica Independente / ChatGPT (para emissão de parecer e planejamento pós-MVP)  
+**Versão Atual:** `v1.0.0-rc1 (Release Candidate 1 — MVP Completo Sprints 01 a 08)`  
+**Data:** 19 de outubro de 2026  
 **Branch:** `codex/sprint01-audit-sprint02`  
 **Licença:** GNU General Public License v3 (`GPL-3.0-only`) — Cópia integral em `LICENSE`  
 
