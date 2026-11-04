@@ -38,7 +38,7 @@ jobs:
       DJANGO_SETTINGS_MODULE: config.test_settings
       ALECE_TEST_RESULTS: test-results
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -99,7 +99,7 @@ jobs:
       DJANGO_SETTINGS_MODULE: config.test_settings
       ALECE_TEST_RESULTS: test-results
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -167,7 +167,7 @@ jobs:
       ALECE_AXE_JS: /tmp/alece-axe/node_modules/axe-core/axe.min.js
       ALECE_VISUAL_MODE: ${{ inputs.visual_mode || 'compare' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install locked Django and pinned browser dependencies
         run: |
           python -m pip install --require-hashes -r src/requirements/development.lock
@@ -236,7 +236,7 @@ jobs:
       DJANGO_SETTINGS_MODULE: config.test_settings
       ALECE_TEST_RESULTS: test-results
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install locked application and pinned browser dependencies
         run: |
           python -m pip install --require-hashes -r src/requirements/development.lock
@@ -260,6 +260,6 @@ jobs:
   image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate Docker build
         run: docker build --tag alece:ci -f docker/Dockerfile .
