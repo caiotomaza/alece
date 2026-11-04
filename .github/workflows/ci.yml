@@ -63,7 +63,7 @@ jobs:
         run: python scripts/quality/report_tests.py --root . --out test-results/quality --junit test-results/pytest.xml
       - name: Publish Django and unit evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: alece-django-pytest-results
           path: test-results/
@@ -121,7 +121,7 @@ jobs:
         run: python scripts/quality/report_tests.py --root . --out test-results/quality --junit test-results/browser.xml
       - name: Publish browser evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: alece-browser-results
           path: |
@@ -193,7 +193,7 @@ jobs:
             --screenshot only-on-failure --tracing retain-on-failure
       - name: Preserve candidates, actual PNGs, diffs, axe evidence and reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: alece-visual-${{ inputs.visual_mode || 'compare' }}-evidence
           path: test-results/visual/
@@ -251,7 +251,7 @@ jobs:
             --tracing retain-on-failure --screenshot only-on-failure
       - name: Preserve local laboratory records and browser failures
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: alece-performance-lab-evidence
           path: test-results/performance/
