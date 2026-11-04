@@ -1,0 +1,155 @@
+{
+  "note": "Catálogo estático com dados fictícios, não representa Django autenticado",
+  "checks": [
+    {
+      "theme": "light",
+      "width": 320,
+      "viewport": 320,
+      "document": 320,
+      "cardwidths": [
+        268,
+        268,
+        268,
+        268
+      ],
+      "kpiColumns": "268px",
+      "mainColumns": "268px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "viewport": 390,
+      "document": 390,
+      "cardwidths": [
+        338,
+        338,
+        338,
+        338
+      ],
+      "kpiColumns": "338px",
+      "mainColumns": "338px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "viewport": 768,
+      "document": 768,
+      "cardwidths": [
+        229,
+        229,
+        229,
+        229
+      ],
+      "kpiColumns": "228.641px 228.641px",
+      "mainColumns": "228.641px 228.641px",
+      "scrollContainer": true
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "viewport": 1280,
+      "document": 1280,
+      "cardwidths": [
+        445,
+        445,
+        445,
+        445
+      ],
+      "kpiColumns": "445.062px 445.062px",
+      "mainColumns": "445.062px 445.062px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "viewport": 1920,
+      "document": 1920,
+      "cardwidths": [
+        674,
+        674,
+        674,
+        674
+      ],
+      "kpiColumns": "674px 674px",
+      "mainColumns": "674px 674px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "viewport": 320,
+      "document": 320,
+      "cardwidths": [
+        268,
+        268,
+        268,
+        268
+      ],
+      "kpiColumns": "268px",
+      "mainColumns": "268px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "viewport": 390,
+      "document": 390,
+      "cardwidths": [
+        338,
+        338,
+        338,
+        338
+      ],
+      "kpiColumns": "338px",
+      "mainColumns": "338px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "viewport": 768,
+      "document": 768,
+      "cardwidths": [
+        229,
+        229,
+        229,
+        229
+      ],
+      "kpiColumns": "228.641px 228.641px",
+      "mainColumns": "228.641px 228.641px",
+      "scrollContainer": true
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "viewport": 1280,
+      "document": 1280,
+      "cardwidths": [
+        445,
+        445,
+        445,
+        445
+      ],
+      "kpiColumns": "445.062px 445.062px",
+      "mainColumns": "445.062px 445.062px",
+      "scrollContainer": false
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "viewport": 1920,
+      "document": 1920,
+      "cardwidths": [
+        674,
+        674,
+        674,
+        674
+      ],
+      "kpiColumns": "674px 674px",
+      "mainColumns": "674px 674px",
+      "scrollContainer": false
+    }
+  ]
+}

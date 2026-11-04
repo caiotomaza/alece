@@ -1,0 +1,33 @@
+{% extends "finance/base.html" %}
+{% block title %}Configurações · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible alece-settings settings-shortcuts" id="page-settings">
+  <header class="intro settings-intro">
+    <div><h1>Configurações</h1><p>Conta, segurança e acesso às ferramentas de administração.</p></div>
+    <span class="settings-role"><svg aria-hidden="true"><use href="#i-shield"/></svg>{% if is_workspace_admin %}Administrador{% else %}Usuário comum{% endif %}</span>
+  </header>
+  <div class="settings-board">
+    <article class="card settings-account-panel" id="settings-account" aria-labelledby="settings-account-heading">
+      <div class="settings-heading"><div class="settings-heading-icon"><svg aria-hidden="true"><use href="#i-shield"/></svg></div><div><h2 id="settings-account-heading">Minha conta</h2><p class="muted">Ações pessoais disponíveis para todos os usuários</p></div></div>
+      <div class="settings-actions-grid settings-personal-grid">
+        <a class="settings-action-card settings-modal-trigger" href="{% url 'configuracoes-minha-conta' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-edit"/></svg></span><span class="settings-action-copy"><strong>Editar suas informações</strong><small>Nome, usuário e e-mail</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="settings-action-card settings-modal-trigger" href="{% url 'password_change' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-key"/></svg></span><span class="settings-action-copy"><strong>Resetar sua senha</strong><small>Exige autenticação da conta</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="settings-action-card settings-modal-trigger" href="{% url 'recovery_generate' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-list"/></svg></span><span class="settings-action-copy"><strong>Resetar seus códigos de recuperação</strong><small>Gerar seis novos códigos de uso único</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
+    </article>
+    {% if is_workspace_admin %}
+    <article class="card settings-admin-shortcuts-panel" id="settings-admin" aria-labelledby="settings-admin-heading">
+      <div class="settings-heading"><div class="settings-heading-icon"><svg aria-hidden="true"><use href="#i-settings"/></svg></div><div><h2 id="settings-admin-heading">Administração</h2><p class="muted">Atalhos para gerenciamento do espaço autorizado</p></div></div>
+      <div class="settings-admin-shortcuts-grid">
+        <a class="settings-action-card" href="{% url 'configuracoes-usuarios' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-users"/></svg></span><span class="settings-action-copy"><strong>Gerenciar usuários</strong><small>Contas, papéis e permissões</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="settings-action-card" href="{% url 'configuracoes-perfis' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-wallet"/></svg></span><span class="settings-action-copy"><strong>Gerenciar perfis financeiros</strong><small>Perfis, renda e acessos</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="settings-action-card" href="{% url 'configuracoes-apis' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-code"/></svg></span><span class="settings-action-copy"><strong>Gerenciar APIs de IA</strong><small>Credenciais e integração ativa</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="settings-action-card" href="{% url 'logs' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-list"/></svg></span><span class="settings-action-copy"><strong>Visualizar logs</strong><small>Auditoria e diagnóstico</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="settings-action-card" href="{% url 'relatorios' %}"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-file"/></svg></span><span class="settings-action-copy"><strong>Relatórios, backups e importações</strong><small>Panoramas e transferência financeira</small></span><svg class="settings-action-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <div class="settings-action-card settings-action-unavailable" aria-disabled="true"><span class="settings-action-icon"><svg aria-hidden="true"><use href="#i-settings"/></svg></span><span class="settings-action-copy"><strong>Redefinir ambiente</strong><small>Indisponível: exige um fluxo validado de backup e recuperação</small></span><span class="settings-unavailable-tag">Indisponível</span></div>
+      </div>
+    </article>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

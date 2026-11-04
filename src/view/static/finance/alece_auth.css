@@ -1,0 +1,74 @@
+/* Autenticação e recuperação: mesma geometria e tokens do ALECE 1.0. */
+.auth-page {
+  margin: 0;
+  background: var(--ds-color-bg);
+  color: var(--ds-color-text);
+  font: var(--ds-font-body)/1.5 var(--ds-font-family);
+}
+.auth-page *, .auth-page *::before, .auth-page *::after {box-sizing:border-box}
+.auth-page a {color:var(--ds-color-brand)}
+.auth-page .muted {color:var(--ds-color-muted)}
+.auth-page .content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: none;
+  padding: var(--ds-space-6) var(--ds-space-4);
+}
+.auth-page .card {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--ds-space-6);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-card);
+  background: var(--ds-color-surface);
+  box-shadow: var(--ds-shadow-card);
+}
+.auth-page--login .card {max-width:420px}
+.auth-header {text-align:center;margin-bottom:var(--ds-space-6)}
+.auth-brandmark {width:48px;height:48px;margin:0 auto var(--ds-space-4);display:grid;place-items:center}
+.auth-brandmark img {width:48px;height:48px;display:block}
+.auth-header h1 {margin:0 0 var(--ds-space-2);font-size:1.75rem;font-weight:800;line-height:1.25;letter-spacing:-.7px}
+.auth-header .muted {margin:0}
+.auth-page .form-group {margin-bottom:var(--ds-space-4)}
+.auth-page label {display:block;margin-bottom:var(--ds-space-2);font-weight:650}
+.auth-page :is(input[type="text"],input[type="password"],input[type="email"]) {
+  width:100%;max-width:100%;min-height:var(--ds-size-control);
+  padding:10px var(--ds-space-3);
+  border:1px solid var(--ds-control-border);
+  border-radius:var(--ds-radius-control);
+  background:var(--ds-control-surface);
+  color:var(--ds-color-text);
+  font:inherit;
+}
+.auth-page :is(input,button,a):focus-visible {outline:3px solid var(--ds-color-focus);outline-offset:3px}
+.auth-page :is(input[type="text"],input[type="password"],input[type="email"]):focus-visible {border-color:var(--ds-color-focus)}
+.auth-page .btn {
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--ds-space-2);
+  min-height:var(--ds-size-control);padding:10px var(--ds-space-4);
+  border:1px solid var(--ds-color-brand);border-radius:var(--ds-radius-control);
+  background:var(--ds-color-brand);color:var(--ds-color-on-brand);
+  font:inherit;font-weight:700;text-align:center;text-decoration:none;cursor:pointer;
+}
+.auth-page .btn:hover {background:var(--ds-color-brand-hover);border-color:var(--ds-color-brand-hover)}
+.auth-page .btn-secondary {background:var(--ds-color-surface);color:var(--ds-color-brand);border-color:var(--ds-color-border)}
+.auth-page .btn-secondary:hover {background:var(--ds-color-muted-surface);border-color:var(--ds-color-border)}
+.auth-page .auth-submit {width:100%}
+.auth-page .messages {list-style:none;padding:0;margin:0 0 var(--ds-space-4)}
+.auth-page .message {padding:var(--ds-space-3) var(--ds-space-4);border-radius:var(--ds-radius-control);margin-bottom:var(--ds-space-2);line-height:1.5}
+.auth-page .message.success {background:color-mix(in srgb,var(--ds-color-success) 9%,var(--ds-color-surface));color:var(--ds-color-success)}
+.auth-page .message.error {background:color-mix(in srgb,var(--ds-color-danger) 9%,var(--ds-color-surface));color:var(--ds-color-danger)}
+.auth-page .message.info {background:var(--ds-color-muted-surface);color:var(--ds-color-text)}
+.auth-field-error {margin-top:var(--ds-space-2);font-size:var(--ds-font-label)}
+.auth-page .link {text-decoration:none;font-weight:650}
+.auth-page .link:hover {text-decoration:underline}
+.auth-page .auth-link-muted {color:var(--ds-color-muted)}
+.auth-page .divider {display:flex;align-items:center;gap:var(--ds-space-3);margin:var(--ds-space-4) 0;color:var(--ds-color-muted);font-size:var(--ds-font-label)}
+.auth-page .divider::before,.auth-page .divider::after {content:"";flex:1;height:1px;background:var(--ds-color-border)}
+.auth-footer-links {display:flex;flex-direction:column;gap:var(--ds-space-3);text-align:center}
+.auth-footer-links p {margin:0;font-size:var(--ds-font-label)}
+.auth-code-input {font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;letter-spacing:1px}
+@media(max-width:520px){.auth-page .card{padding:var(--ds-space-5)}.auth-header h1{font-size:1.5rem}}

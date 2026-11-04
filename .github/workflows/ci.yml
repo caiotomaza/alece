@@ -1,0 +1,265 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_DB: alece_test
+          POSTGRES_USER: alece_test
+          POSTGRES_PASSWORD: ci-only-never-production
+        options: >-
+          --health-cmd "pg_isready -U alece_test -d alece_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: ["5432:5432"]
+    env:
+      PYTHONPATH: 'src/controller:.'
+      ALECE_TEST_ISOLATED: '1'
+      ALECE_SECRET_KEY: 'ci-test-key-not-for-production-use-please-replace'
+      ALECE_DB_NAME: alece_test
+      ALECE_DB_USER: alece_test
+      ALECE_DB_PASSWORD: ci-only-never-production
+      ALECE_DB_HOST: 127.0.0.1
+      ALECE_DB_PORT: '5432'
+      ALECE_ALLOWED_HOSTS: localhost,127.0.0.1
+      ALECE_REQUIRE_RECOVERY_SETUP: 'false'
+      ALECE_LOG_VALIDACAO: 'false'
+      DJANGO_SETTINGS_MODULE: config.test_settings
+      ALECE_TEST_RESULTS: test-results
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: src/requirements/development.lock
+      - name: Install test dependencies with hashes
+        run: python -m pip install --require-hashes -r src/requirements/development.lock
+      - name: Audit production dependencies
+        run: python -m pip_audit -r src/requirements/production.lock
+      - name: Static and style checks
+        run: |
+          python -m compileall -q src tests scripts manage.py
+          ruff check .
+      - name: Django check and migration drift
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+      - name: PostgreSQL isolated Django regression
+        run: python scripts/quality/run_suite.py
+      - name: Generate traceability, even if checks blocked pytest
+        if: always()
+        run: python scripts/quality/report_tests.py --root . --out test-results/quality --junit test-results/pytest.xml
+      - name: Publish Django and unit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alece-django-pytest-results
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 30
+  browser:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_DB: alece_test
+          POSTGRES_USER: alece_test
+          POSTGRES_PASSWORD: ci-only-never-production
+        options: >-
+          --health-cmd "pg_isready -U alece_test -d alece_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: ["5432:5432"]
+    env:
+      PYTHONPATH: 'src/controller:.'
+      ALECE_TEST_ISOLATED: '1'
+      ALECE_SECRET_KEY: 'ci-test-key-not-for-production-use-please-replace'
+      ALECE_DB_NAME: alece_test
+      ALECE_DB_USER: alece_test
+      ALECE_DB_PASSWORD: ci-only-never-production
+      ALECE_DB_HOST: 127.0.0.1
+      ALECE_DB_PORT: '5432'
+      ALECE_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      ALECE_REQUIRE_RECOVERY_SETUP: 'false'
+      ALECE_LOG_VALIDACAO: 'false'
+      DJANGO_SETTINGS_MODULE: config.test_settings
+      ALECE_TEST_RESULTS: test-results
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: src/requirements/development.lock
+      - name: Install locked application dependencies
+        run: python -m pip install --require-hashes -r src/requirements/development.lock
+      - name: Install isolated browser test dependencies
+        run: python -m pip install -r src/requirements/browser.in
+      - name: Install Chromium and system dependencies
+        run: python -m playwright install --with-deps chromium
+      - name: Browser journeys on isolated Django and PostgreSQL
+        run: |
+          mkdir -p test-results
+          pytest -q tests/browser/test_navigation_browser.py --browser chromium --junitxml=test-results/browser.xml \
+            --tracing retain-on-failure --screenshot only-on-failure
+      - name: Generate browser traceability
+        if: always()
+        run: python scripts/quality/report_tests.py --root . --out test-results/quality --junit test-results/browser.xml
+      - name: Publish browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alece-browser-results
+          path: |
+            test-results/
+            test-results/browser/
+          if-no-files-found: warn
+          retention-days: 30
+  visual:
+    # Imagem contém Chromium e bibliotecas/fontes fixados na versão do Playwright Python.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.64.1-noble
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_DB: alece_test
+          POSTGRES_USER: alece_test
+          POSTGRES_PASSWORD: ci-only-never-production
+        options: >-
+          --health-cmd "pg_isready -U alece_test -d alece_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 8
+    env:
+      PYTHONPATH: 'src/controller:.'
+      PYTHONUNBUFFERED: '1'
+      TZ: America/Fortaleza
+      LANG: C.UTF-8
+      ALECE_TEST_ISOLATED: '1'
+      ALECE_SECRET_KEY: 'ci-visual-only-not-for-production-please-replace'
+      ALECE_DB_NAME: alece_test
+      ALECE_DB_USER: alece_test
+      ALECE_DB_PASSWORD: ci-only-never-production
+      ALECE_DB_HOST: postgres
+      ALECE_DB_PORT: '5432'
+      ALECE_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      ALECE_REQUIRE_RECOVERY_SETUP: 'false'
+      ALECE_LOG_VALIDACAO: 'false'
+      DJANGO_SETTINGS_MODULE: config.test_settings
+      ALECE_TEST_RESULTS: test-results
+      ALECE_AXE_JS: /tmp/alece-axe/node_modules/axe-core/axe.min.js
+      ALECE_VISUAL_MODE: ${{ inputs.visual_mode || 'compare' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install locked Django and pinned browser dependencies
+        run: |
+          python -m pip install --require-hashes -r src/requirements/development.lock
+          python -m pip install -r src/requirements/browser.in
+          python -m pip install Pillow==12.3.0 pytest-html==4.2.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.16.0"
+      - name: Install pinned axe-core without contacting any analytics service
+        run: |
+          mkdir -p /tmp/alece-axe
+          npm install --prefix /tmp/alece-axe --no-save --no-package-lock --ignore-scripts --no-audit --no-fund axe-core@4.14.0
+          test -f /tmp/alece-axe/node_modules/axe-core/axe.min.js
+      - name: Test image comparator without Django and PostgreSQL
+        run: python -m unittest discover -s tests/browser/visual_unit -p "test_*.py" -v
+      - name: Assert isolation and run actual Django Playwright visual suite
+        run: |
+          mkdir -p test-results/visual
+          pytest -q tests/browser/test_visual_regression.py -m visual --browser chromium \
+            --output=test-results/visual/runner \
+            --junitxml=test-results/visual/junit.xml \
+            --html=test-results/visual/report.html --self-contained-html \
+            --screenshot only-on-failure --tracing retain-on-failure
+      - name: Preserve candidates, actual PNGs, diffs, axe evidence and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alece-visual-${{ inputs.visual_mode || 'compare' }}-evidence
+          path: test-results/visual/
+          if-no-files-found: warn
+          retention-days: 30
+  performance:
+    # Laboratório de performance é explícito: custoso, sem telemetria e sem baselines autoaprovadas.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.64.1-noble
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_DB: alece_test
+          POSTGRES_USER: alece_test
+          POSTGRES_PASSWORD: ci-only-never-production
+        options: >-
+          --health-cmd "pg_isready -U alece_test -d alece_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 8
+    env:
+      PYTHONPATH: 'src/controller:.'
+      PYTHONUNBUFFERED: '1'
+      TZ: America/Fortaleza
+      LANG: C.UTF-8
+      ALECE_TEST_ISOLATED: '1'
+      ALECE_SECRET_KEY: 'ci-lab-only-not-for-production-please-replace'
+      ALECE_DB_NAME: alece_test
+      ALECE_DB_USER: alece_test
+      ALECE_DB_PASSWORD: ci-only-never-production
+      ALECE_DB_HOST: postgres
+      ALECE_DB_PORT: '5432'
+      ALECE_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      ALECE_REQUIRE_RECOVERY_SETUP: 'false'
+      ALECE_LOG_VALIDACAO: 'false'
+      DJANGO_SETTINGS_MODULE: config.test_settings
+      ALECE_TEST_RESULTS: test-results
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install locked application and pinned browser dependencies
+        run: |
+          python -m pip install --require-hashes -r src/requirements/development.lock
+          python -m pip install -r src/requirements/browser.in
+          python -m pip install pytest-html==4.2.0
+      - name: Validate DB queryset contract and run isolated browser lab
+        run: |
+          mkdir -p test-results/performance
+          pytest -q tests/performance/test_movement_reversal_queries.py tests/browser/test_performance_lab.py \
+            --browser chromium --junitxml=test-results/performance/junit.xml \
+            --html=test-results/performance/index.html --self-contained-html \
+            --tracing retain-on-failure --screenshot only-on-failure
+      - name: Preserve local laboratory records and browser failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alece-performance-lab-evidence
+          path: test-results/performance/
+          if-no-files-found: warn
+          retention-days: 30
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker build
+        run: docker build --tag alece:ci -f docker/Dockerfile .

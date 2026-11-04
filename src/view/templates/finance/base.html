@@ -1,0 +1,74 @@
+{% load static alece_navigation %}
+<!doctype html>
+<html lang="pt-BR" data-theme="{{ ui_theme|default:'light' }}" data-user-id="{{ request.user.pk|default:'' }}" data-theme-endpoint="{% url 'preferencia-tema' %}">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}Visão geral · ALECE{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'finance/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_ui_consistency.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_components.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_modals.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_accessibility.css' %}">
+  {% block extra_css %}{% endblock %}
+  <script src="{% static 'finance/alece_modals.js' %}" defer></script>
+  <script src="{% static 'finance/alece.js' %}" defer></script>
+  <script src="{% static 'finance/alece_accessibility.js' %}" defer></script>
+</head>
+<body{% if privacy_mode %} class="is-private"{% endif %}>
+{% include 'finance/_icons.html' %}
+{% accessible_navigation_profiles as displayed_nav_profiles %}
+{% selected_financial_profile as nav_selected_financial_profile %}
+<a class="skip-link" href="#main-content">Ir para o conteúdo</a>
+<div class="shell">
+  <aside class="sidebar" aria-label="Navegação lateral principal">
+    <a class="brand" href="{% url 'home' %}" aria-label="ALECE — início"><img class="brandmark" src="{% static 'finance/favicon.svg' %}" width="38" height="38" alt=""><span><strong>ALECE</strong><small>FINANCE</small></span></a>
+    {% if workspace %}
+    <details class="sidebar-profile-wrapper profile-choice"><summary class="nav-button sidebar-profile-toggle"><span class="finance-profile-active">{% if nav_selected_financial_profile %}{{ nav_selected_financial_profile.emoji }} {{ nav_selected_financial_profile.name }}{% else %}👥 Todos os perfis{% endif %}</span><svg class="profile-caret" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><div class="sidebar-profile-menu"><a class="profile-chip" href="{{ request.path }}?profiles=all">👥 Todos os perfis</a>{% for profile in displayed_nav_profiles %}<a class="profile-chip" href="{{ request.path }}?profiles={{ profile.pk }}">{{ profile.emoji }} {{ profile.name }}</a>{% empty %}<span class="profile-help">Sem perfis disponíveis</span>{% endfor %}<a class="profile-chip" href="{% url 'configuracoes' %}">Gerenciar perfis</a></div></details>
+    <div class="nav-heading">Menu principal</div>
+    <nav aria-label="Destinos principais" class="nav-list">
+      <a class="nav-button{% if active_nav == 'overview' %} is-active{% endif %}" {% if active_nav == 'overview' %}aria-current="page"{% endif %} href="{% url 'visao-geral' %}"><svg aria-hidden="true"><use href="#i-dashboard"/></svg>Visão geral</a>
+      <a class="nav-button{% if active_nav == 'expenses' %} is-active{% endif %}" {% if active_nav == 'expenses' %}aria-current="page"{% endif %} href="{% url 'despesas' %}"><svg aria-hidden="true"><use href="#i-receipt"/></svg>Despesas</a>
+      <a class="nav-button{% if active_nav == 'investments' %} is-active{% endif %}" {% if active_nav == 'investments' %}aria-current="page"{% endif %} href="{% url 'investimentos' %}"><svg aria-hidden="true"><use href="#i-invest"/></svg>Investimentos</a>
+      <a class="nav-button{% if active_nav == 'movements' %} is-active{% endif %}" {% if active_nav == 'movements' %}aria-current="page"{% endif %} href="{% url 'movimentacoes' %}"><svg aria-hidden="true"><use href="#i-arrow"/></svg>Movimentações</a>
+      <a class="nav-button{% if active_nav == 'settings' %} is-active{% endif %}" {% if active_nav == 'settings' %}aria-current="page"{% endif %} href="{% url 'configuracoes' %}"><svg aria-hidden="true"><use href="#i-settings"/></svg>Configurações</a>
+    </nav>
+    {% else %}<nav class="nav-list" aria-label="Navegação principal"><a class="nav-button" href="{% url 'home' %}">Meus núcleos</a></nav>{% endif %}
+    <div class="sidebar-bottom">
+      <div class="demo-status"><span class="status-dot"></span><span><b>{% if workspace %}{{ workspace.name }}{% else %}ALECE{% endif %}</b><br>Dados e operações persistidos no núcleo autorizado.</span></div>
+      <div class="sidebar-utility-stack"><div class="sidebar-utility-inline">
+        <button class="icon-button" type="button" data-privacy-toggle-global aria-label="Ocultar valores" title="Ocultar valores"><svg aria-hidden="true"><use href="#i-eye"/></svg></button>
+        <button class="icon-button" type="button" data-theme-toggle aria-label="Ativar tema escuro" title="Alternar tema"><svg aria-hidden="true"><use href="#i-sun"/></svg></button>
+        <a class="icon-button" href="https://caiotomaza.github.io/projetos/alece/" target="_blank" rel="noopener noreferrer" aria-label="Sobre o ALECE" title="Sobre o ALECE"><svg aria-hidden="true"><use href="#i-info"/></svg></a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="icon-button logout-button" type="submit" aria-label="Sair" title="Sair"><svg aria-hidden="true"><use href="#i-logout"/></svg></button></form>
+      </div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="mobile-profile-slot">{% if workspace %}<details class="sidebar-profile-wrapper profile-choice"><summary class="nav-button sidebar-profile-toggle"><span class="finance-profile-active">{% if nav_selected_financial_profile %}{{ nav_selected_financial_profile.emoji }} {{ nav_selected_financial_profile.name }}{% else %}👥 Todos os perfis{% endif %}</span><svg class="profile-caret" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><div class="sidebar-profile-menu"><a class="profile-chip" href="{{ request.path }}?profiles=all">👥 Todos os perfis</a>{% for profile in displayed_nav_profiles %}<a class="profile-chip" href="{{ request.path }}?profiles={{ profile.pk }}">{{ profile.emoji }} {{ profile.name }}</a>{% empty %}<span class="profile-help">Sem perfis disponíveis</span>{% endfor %}<a class="profile-chip" href="{% url 'configuracoes' %}">Gerenciar perfis</a></div></details>{% endif %}</div>
+    <div class="mobile-utility-bar" aria-label="Ações rápidas móveis">
+      <button class="icon-button" type="button" data-privacy-toggle-global aria-label="Ocultar valores" title="Ocultar valores"><svg aria-hidden="true"><use href="#i-eye"/></svg></button>
+      <button class="icon-button" type="button" data-theme-toggle aria-label="Ativar tema escuro" title="Alternar tema"><svg aria-hidden="true"><use href="#i-sun"/></svg></button>
+      <a class="icon-button" href="https://caiotomaza.github.io/projetos/alece/" target="_blank" rel="noopener noreferrer" aria-label="Sobre o ALECE"><svg aria-hidden="true"><use href="#i-info"/></svg></a>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="icon-button logout-button" type="submit" aria-label="Sair"><svg aria-hidden="true"><use href="#i-logout"/></svg></button></form>
+    </div>
+    <main class="content" id="main-content" tabindex="-1">
+      {% for message in messages %}<div class="card notice" role="status">{{ message }}</div>{% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% if workspace %}<nav class="mobile-nav" aria-label="Navegação principal móvel">
+  <a class="nav-button{% if active_nav == 'overview' %} is-active{% endif %}" {% if active_nav == 'overview' %}aria-current="page"{% endif %} href="{% url 'visao-geral' %}"><svg aria-hidden="true"><use href="#i-dashboard"/></svg>Visão geral</a>
+  <a class="nav-button{% if active_nav == 'expenses' %} is-active{% endif %}" {% if active_nav == 'expenses' %}aria-current="page"{% endif %} href="{% url 'despesas' %}"><svg aria-hidden="true"><use href="#i-receipt"/></svg>Despesas</a>
+  <a class="nav-button{% if active_nav == 'investments' %} is-active{% endif %}" {% if active_nav == 'investments' %}aria-current="page"{% endif %} href="{% url 'investimentos' %}"><svg aria-hidden="true"><use href="#i-invest"/></svg>Investimentos</a>
+  <a class="nav-button{% if active_nav == 'movements' %} is-active{% endif %}" {% if active_nav == 'movements' %}aria-current="page"{% endif %} href="{% url 'movimentacoes' %}"><svg aria-hidden="true"><use href="#i-arrow"/></svg>Movimentações</a>
+  <a class="nav-button{% if active_nav == 'settings' %} is-active{% endif %}" {% if active_nav == 'settings' %}aria-current="page"{% endif %} href="{% url 'configuracoes' %}"><svg aria-hidden="true"><use href="#i-settings"/></svg>Configurações</a>
+</nav>{% endif %}
+{% block extra_js %}{% endblock %}
+</body>
+</html>

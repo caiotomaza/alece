@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Dependências exclusivas da CI/execução de navegação; não fazem parte de produção.
+# Versões conferidas no PyPI em 2026-10-27.
+playwright==1.64.1
+pytest-playwright==0.10.0

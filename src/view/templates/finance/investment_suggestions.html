@@ -1,0 +1,30 @@
+<article class="card alece-data-panel investment-suggestion-panel">
+  <div class="table-scroll">
+    <table class="source-table" aria-label="Metas e sugestões de {{ section.profile.name }}">
+      <caption>Metas e sugestões de {{ section.profile.name }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Objetivo</th>
+          <th scope="col" class="align-right">Valor atual</th>
+          <th scope="col" class="align-right">Meta</th>
+          <th scope="col" class="align-right">Falta</th>
+          <th scope="col" class="align-right">Sugestão mensal</th>
+          <th scope="col">Prazo estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in section.summary.investment_categories %}
+        <tr>
+          <th scope="row">{{ category.label }}</th>
+          <td class="align-right money">R$ {{ category.current|floatformat:2 }}</td>
+          <td class="align-right money">{% if category.target is None %}—{% else %}R$ {{ category.target|floatformat:2 }}{% endif %}</td>
+          <td class="align-right money">{% if category.gap is None %}—{% else %}R$ {{ category.gap|floatformat:2 }}{% endif %}</td>
+          <td class="align-right money">{% if category.suggestion is None %}—{% else %}R$ {{ category.suggestion|floatformat:2 }}{% endif %}</td>
+          <td>{% if category.eta_months is None %}Indisponível{% elif category.eta_months == 0 %}Meta atingida{% else %}{{ category.eta_months }} mês(es){% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="source-note">Cadastre posições e metas pelo botão de adicionar. O perfil financeiro é selecionado no próprio pop-up, no mesmo padrão dos demais formulários do ALECE.</p>
+</article>

@@ -1,0 +1,67 @@
+{
+  "method": "Arquivos CSS/JS/SVG estáticos; gzip nível 9 mtime 0; NÃO mede transferências HTTP, LCP ou tempos de página",
+  "files": [
+    {
+      "file": "core/setup.css",
+      "bytes": 3171,
+      "gzip_bytes": 1063
+    },
+    {
+      "file": "finance/alece.css",
+      "bytes": 129866,
+      "gzip_bytes": 24707
+    },
+    {
+      "file": "finance/alece.js",
+      "bytes": 27496,
+      "gzip_bytes": 7911
+    },
+    {
+      "file": "finance/alece_accessibility.css",
+      "bytes": 2549,
+      "gzip_bytes": 1138
+    },
+    {
+      "file": "finance/alece_accessibility.js",
+      "bytes": 3164,
+      "gzip_bytes": 1260
+    },
+    {
+      "file": "finance/alece_components.css",
+      "bytes": 12677,
+      "gzip_bytes": 2613
+    },
+    {
+      "file": "finance/alece_modals.css",
+      "bytes": 2390,
+      "gzip_bytes": 911
+    },
+    {
+      "file": "finance/alece_modals.js",
+      "bytes": 9292,
+      "gzip_bytes": 2886
+    },
+    {
+      "file": "finance/alece_tokens.css",
+      "bytes": 3422,
+      "gzip_bytes": 1347
+    },
+    {
+      "file": "finance/alece_ui_consistency.css",
+      "bytes": 44257,
+      "gzip_bytes": 8495
+    },
+    {
+      "file": "finance/favicon.svg",
+      "bytes": 253,
+      "gzip_bytes": 216
+    },
+    {
+      "file": "vendor/chart.min.js",
+      "bytes": 205399,
+      "gzip_bytes": 69526
+    }
+  ],
+  "total_bytes": 443936,
+  "total_gzip_bytes": 122073
+}

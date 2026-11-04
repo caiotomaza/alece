@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Teste isolado: nunca herda .env, volumes de produção ou seus secrets.
+FROM python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PYTHONPATH=/app/src/controller:/app
+WORKDIR /app
+COPY src/requirements/ /app/src/requirements/
+RUN python -m pip install --no-cache-dir "pip==26.2.1" \
+ && python -m pip install --no-cache-dir --require-hashes -r src/requirements/development.lock
+COPY . /app
+RUN groupadd -r alece_test && useradd -r -g alece_test -m alece_test \
+    && mkdir -p /app/media /app/.staticfiles /app/src/logs /home/alece_test/backups /app/test-results \
+    && chown -R alece_test:alece_test /app/media /app/.staticfiles /app/src/logs /app/test-results /home/alece_test
+USER alece_test
+CMD ["python", "scripts/quality/run_suite.py"]

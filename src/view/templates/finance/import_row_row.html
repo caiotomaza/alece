@@ -1,0 +1,58 @@
+{% load static %}
+<!-- Linha da tabela de importação (para atualização HTMX) -->
+<tr class="
+  {% if row.status == 'IGNORED' %}row-ignored{% endif %}
+  {% if row.status == 'COMMITTED' and row.linked_batch %}row-link{% endif %}
+  {% if row.status == 'COMMITTED' and not row.linked_batch %}row-new{% endif %}
+  {% if row.status == 'ERROR' %}row-error{% endif %}
+">
+  <td>{{ row.row_number }}</td>
+  <td>
+    {{ row.occurred_on|date:"d/m/Y" }}
+    {% if row.posted_on and row.posted_on != row.occurred_on %}
+    <div class="subline muted">Compens.: {{ row.posted_on|date:"d/m/Y" }}</div>
+    {% endif %}
+  </td>
+  <td>
+    <strong>{{ row.description }}</strong>
+    {% if row.memo %}
+    <div class="subline muted">{{ row.memo }}</div>
+    {% endif %}
+    {% if row.fitid %}
+    <div class="subline muted" style="font-family: monospace; font-size: 10px;">
+      FITID: {{ row.fitid|truncatechars:24 }}
+    </div>
+    {% endif %}
+    {% if row.status == 'ERROR' %}
+    <div class="subline" style="color: var(--negative); font-size: 11px;">
+      ⚠ Dados incompletos ou inválidos
+    </div>
+    {% endif %}
+  </td>
+  <td class="align-right" style="font-variant-numeric: tabular-nums;">
+    {% if row.is_credit %}
+    <span style="color: var(--positive);">+ R$ {{ row.amount|floatformat:2 }}</span>
+    {% else %}
+    <span style="color: var(--negative);">- R$ {{ row.amount|floatformat:2 }}</span>
+    {% endif %}
+  </td>
+  <td>
+    <span class="demo-pill">{{ row.get_suggested_kind_display|default:row.suggested_kind }}</span>
+    {% if row.confidence > 0 %}
+    <div class="subline muted">Confiança: {{ row.confidence|floatformat:0 }}%</div>
+    {% endif %}
+  </td>
+  <td>
+    <select name="row_{{ row.pk }}_action" class="form-input action-select" 
+            {% if not can_edit_rows %}disabled{% endif %}
+            data-row-id="{{ row.pk }}">
+      <option value="create_new" {% if row.status == 'COMMITTED' and not row.linked_batch %}selected{% endif %}>Criar nova</option>
+      <option value="link_existing" {% if row.status == 'COMMITTED' and row.linked_batch %}selected{% endif %}>Vincular existente</option>
+      <option value="partial_payment">Pagamento parcial</option>
+      <option value="ignore" {% if row.status == 'IGNORED' %}selected{% endif %}>Ignorar</option>
+    </select>
+  </td>
+  <td style="text-align: center;">
+    <input type="checkbox" name="row_{{ row.pk }}_selected" class="row-checkbox" data-row-id="{{ row.pk }}">
+  </td>
+</tr>

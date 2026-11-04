@@ -1,0 +1,124 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block title %}Usuários · ALECE{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Gestão de Usuários</h1>
+  </div>
+  <a href="{% url 'visao-geral' %}" class="button secondary" style="text-decoration:none">← Voltar</a>
+</div>
+
+{% for message in messages %}
+<div class="card notice" role="status">{{ message }}</div>
+{% endfor %}
+
+<section class="card">
+  <h2>Novo Usuário</h2>
+  <div class="dialog-fallback" data-dialog-content><form method="post" class="object-form">
+    <div class="dialog-title"><div><h2 id="dialog-title">Novo usuário</h2><p>Crie uma conta e configure seu papel.</p></div><a href="{% url 'configuracoes' %}" class="close-x" data-dialog-cancel aria-label="Fechar"><svg aria-hidden="true"><use href="#i-close"/></svg></a></div>
+    {% csrf_token %}
+    
+    <div class="field-group">
+      <label for="{{ form.username.id_for_label }}">Nome de usuário</label>
+      {{ form.username }}
+      {% if form.username.errors %}
+      <div class="message error">{{ form.username.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <div class="field-group">
+      <label for="{{ form.email.id_for_label }}">E-mail (opcional)</label>
+      {{ form.email }}
+      {% if form.email.errors %}<div class="message error">{{ form.email.errors.0 }}</div>{% endif %}
+    </div>
+    
+    <div class="field-group">
+      <label for="{{ form.password1.id_for_label }}">Senha</label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+      <div class="message error">{{ form.password1.errors.0 }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="field-group">
+      <label for="{{ form.password2.id_for_label }}">Confirmar senha</label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+      <div class="message error">{{ form.password2.errors.0 }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="field-group">
+      <label for="{{ form.role.id_for_label }}">Papel</label>
+      {{ form.role }}
+      {% if form.role.errors %}
+      <div class="message error">{{ form.role.errors.0 }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="field-group checkbox-label">
+      {{ form.is_active }}
+      <label for="{{ form.is_active.id_for_label }}">Conta ativa</label>
+    </div>
+    
+    <div class="actions">
+      <a class="button secondary" href="{% url 'configuracoes' %}" data-dialog-cancel>Cancelar</a>
+      <button type="submit" class="button">Criar usuário</button>
+    </div>
+  </form></div>
+</section>
+
+<section class="card">
+  <h2>Usuários do Núcleo</h2>
+  {% if memberships %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Usuário</th>
+          <th scope="col">Papel</th>
+          <th scope="col">Status</th>
+          <th scope="col">Último login</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for membership in memberships %}
+        <tr>
+          <td>{{ membership.user.username }}</td>
+          <td>
+            <span style="text-transform:capitalize">{{ membership.get_role_display }}</span>
+          </td>
+          <td>
+            {% if membership.user.is_active %}
+            <span style="color:var(--positive)">● Ativo</span>
+            {% else %}
+            <span style="color:var(--negative)">○ Inativo</span>
+            {% endif %}
+          </td>
+          <td>{{ membership.user.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+          <td>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a href="{% url 'core:user-edit' workspace_id=workspace.pk user_id=membership.user.pk %}" class="button secondary" style="padding:6px 12px;font-size:12px">Editar</a>
+              <a href="{% url 'core:user-password-reset' workspace_id=workspace.pk user_id=membership.user.pk %}" class="button secondary" style="padding:6px 12px;font-size:12px">Redefinir Senha</a>
+              <a href="{% url 'core:grant-management' workspace_id=workspace.pk membership_id=membership.pk %}" class="button secondary" style="padding:6px 12px;font-size:12px">Permissões</a>
+              <form method="post" action="{% url 'core:user-revoke-sessions' workspace_id=workspace.pk user_id=membership.user.pk %}" style="display:inline" data-alece-confirm="Revogar todas as sessões deste usuário?" data-confirm-title="Revogar sessões" data-confirm-label="Revogar">
+                {% csrf_token %}
+                <button type="submit" class="button secondary" style="padding:6px 12px;font-size:12px;background:var(--warning);color:var(--surface)">Revogar Sessões</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nenhum usuário neste núcleo.</p>
+  {% endif %}
+</section>
+{% endblock %}

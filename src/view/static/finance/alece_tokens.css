@@ -1,0 +1,97 @@
+/* Design System ALECE 1.0 — fonte única de tokens e compatibilidade com --bg, --surface etc.
+ * O tema segue data-theme (preferência persistente já controlada pelo ALECE).
+ * A paleta é a do CSS de consistência anteriormente aplicado por último; não é redesign. */
+:root, html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fafbf8;
+  --surface: #fff;
+  --surface-alt: #f1f6f0;
+  --text: #12291f;
+  --muted: #52665a;
+  --primary: #146c43;
+  --primary-hover: #0d5436;
+  --on-primary: #FFFFFF;
+  --gold: #98752D;
+  --gold-soft: #FBF2E0;
+  --positive: #146C43;
+  --negative: #C44750;
+  --warning: #986516;
+  --border: #e0e9e1;
+  --focus: #146C43;
+  --chart-bg: #E9F1EC;
+  --topbar-bg: rgba(246,247,248,.95);
+  --shadow: 0 18px 60px rgba(16,49,29,.045);
+  --hero-start: #FFFFFF;
+  --hero-end: #FFFFFF;
+  --ds-font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ds-font-body: 0.9375rem;
+  --ds-font-label: 0.8125rem;
+  --ds-font-caption: 0.75rem;
+  --ds-font-heading: 1.1875rem;
+  --ds-space-1: 4px;
+  --ds-space-2: 8px;
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 20px;
+  --ds-space-6: 24px;
+  --ds-space-8: 32px;
+  --ds-radius-sm: 8px;
+  --ds-radius-control: 12px;
+  --ds-radius-card: 17px;
+  --ds-radius-dialog: 18px;
+  --ds-size-control: 44px;
+  --ds-size-icon: 42px;
+  --ds-size-checkbox: 20px;
+  --ds-border-width: 1px;
+  --ds-color-bg: var(--bg);
+  --ds-color-surface: var(--surface);
+  --ds-color-muted-surface: var(--surface-alt);
+  --ds-color-text: var(--text);
+  --ds-color-muted: var(--muted);
+  --ds-color-border: var(--border);
+  --ds-color-brand: var(--primary);
+  --ds-color-brand-hover: var(--primary-hover);
+  --ds-color-on-brand: var(--on-primary);
+  --ds-color-success: var(--positive);
+  --ds-color-danger: var(--negative);
+  --ds-color-warning: var(--warning);
+  --ds-color-focus: var(--focus);
+  --ds-control-surface: var(--surface-alt);
+  --ds-control-border: #6f8274; /* controle vs fundo >=3:1 nos temas testados */
+  --ds-control-shadow: none;
+  --ds-ring: 0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent);
+  --ds-shadow-card: var(--shadow);
+  --field: #FAFBFA;
+  --ds-color-on-danger: #fff;
+  --ds-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23146c43' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1713;
+  --surface: #14211a;
+  --surface-alt: #18271f;
+  --text: #eff8f0;
+  --muted: #b1c6b7;
+  --primary: #6cdfa3;
+  --primary-hover: #88e8b6;
+  --on-primary: #102A1D;
+  --gold: #E4C57C;
+  --gold-soft: #3C3321;
+  --positive: #6BDBA6;
+  --negative: #F78E97;
+  --warning: #F3C678;
+  --border: #30433a;
+  --focus: #80E4B7;
+  --chart-bg: #304138;
+  --topbar-bg: rgba(16,21,18,.94);
+  --shadow: 0 16px 45px rgba(0,0,0,.1);
+  --hero-start: #1A221D;
+  --hero-end: #1A221D;
+  --graph-red: #FB8185;
+  --graph-amber: #F3CA68;
+  --graph-green: #61D5A2;
+  --field: #202B24;
+  --ds-control-border: #89a996; /* contraste não textual em fundo escuro */
+  --ds-color-on-danger: #0D1512;
+  --ds-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236cdfa3' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}

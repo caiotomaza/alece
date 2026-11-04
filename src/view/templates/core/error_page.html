@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html><html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Erro {{ status }} · ALECE</title>
+<link rel="icon" href="{% static 'finance/favicon.svg' %}" type="image/svg+xml">
+<style>
+:root{color-scheme:light;--bg:#fafbf8;--surface:#fff;--text:#12291f;--muted:#52665a;--border:#e0e9e1;--primary:#146c43;--on-primary:#fff;--alt:#f1f6f0}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0d1713;--surface:#14211a;--text:#eff8f0;--muted:#b1c6b7;--border:#30433a;--primary:#6cdfa3;--on-primary:#102a1d;--alt:#18271f}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+.card{width:min(100%,590px);border:1px solid var(--border);border-radius:17px;background:var(--surface);padding:clamp(24px,5vw,42px);box-shadow:0 18px 60px rgba(16,49,29,.045)}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800;letter-spacing:-.5px}.brand img{width:38px;height:38px}.eyebrow{margin:30px 0 3px;color:var(--primary);font-size:12px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase}h1{font-size:clamp(26px,4vw,34px);line-height:1.2;letter-spacing:-1px;margin:4px 0 12px}p{color:var(--muted);margin:0 0 20px}.detail{border-radius:12px;padding:12px 14px;background:var(--alt);color:var(--muted);font-size:12px;overflow-wrap:anywhere;margin:20px 0}
+.actions{display:flex;flex-wrap:wrap;gap:10px}.btn{min-height:44px;border:1px solid var(--border);border-radius:12px;padding:11px 16px;display:inline-flex;align-items:center;justify-content:center;background:var(--alt);color:var(--text);font:inherit;font-weight:700;cursor:pointer;text-decoration:none}.btn.primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}.btn:hover{background:var(--surface)}.btn.primary:hover{background:var(--primary);filter:brightness(.94)}.btn:focus-visible{outline:3px solid var(--primary);outline-offset:3px}.note{font-size:12px;margin:20px 0 0}.feedback{color:var(--primary);font-size:12px;margin-top:12px;min-height:19px}
+@media(max-width:420px){.actions{display:grid;grid-template-columns:1fr}.btn{width:100%}}
+</style></head><body>
+<main class="card"><div class="brand"><img src="{% static 'finance/favicon.svg' %}" alt="">ALECE <span style="font-size:10px;letter-spacing:1.5px;color:var(--muted)">FINANCE</span></div>
+<div class="eyebrow">CÓDIGO HTTP {{ status }}</div><h1>{{ heading }}</h1><p>{{ description }} Use as ações abaixo para voltar ou registrar o diagnóstico.</p>
+<div class="detail">Incidente: <strong id="incident">{{ incident }}</strong> · HTTP {{ status }}</div>
+<div class="actions"><button type="button" class="btn primary" onclick="if(history.length>1){history.back()}else{location.assign('/')}" >Voltar</button><button type="button" class="btn" id="copy-info">Copiar diagnóstico</button><button type="button" class="btn" id="copy-logs">Copiar logs recentes</button><a class="btn" href="/logs/diagnostico/?baixar=1">Baixar logs recentes</a></div>
+<p class="note">Os logs completos são restritos a administradores. Em caso de falha no banco, copie ao menos o código do incidente para suporte.</p><div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+</main>
+<script>
+const diagnostic = 'ALECE | HTTP {{ status }} | incidente={{ incident }} | caminho={{ path|escapejs }}';
+const feedback = document.getElementById('feedback');
+const copy = async (value) => { if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(value)}else{const node=document.createElement('textarea');node.value=value;document.body.appendChild(node);node.select();document.execCommand('copy');node.remove()} };
+document.getElementById('copy-info').addEventListener('click',async()=>{try{await copy(diagnostic);feedback.textContent='Diagnóstico copiado.'}catch(e){feedback.textContent='Não foi possível copiar automaticamente.'}});
+document.getElementById('copy-logs').addEventListener('click',async()=>{try{const result=await fetch('/logs/diagnostico/',{credentials:'same-origin',headers:{Accept:'text/plain'}});if(!result.ok || !result.headers.get('content-type')?.includes('text/plain'))throw new Error('sem acesso');await copy(await result.text());feedback.textContent='Logs recentes copiados.'}catch(e){feedback.textContent='Os logs completos exigem uma sessão administrativa ativa. Copie o diagnóstico acima.'}});
+</script></body></html>

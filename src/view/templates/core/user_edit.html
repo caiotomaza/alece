@@ -1,0 +1,61 @@
+{% extends "finance/base.html" %}
+{% block title %}Gerenciar usuário · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible account-manage-page">
+  <div class="intro"><h1>Gerenciar usuário</h1></div>
+  <article class="card account-manage-card"><div class="dialog-fallback account-unified" data-dialog-content>
+    <div class="dialog-title account-modal-heading"><div><span class="account-overline">GESTÃO DE USUÁRIOS</span><h2 id="dialog-title">{{ target_user.username }}</h2><p>Dados da conta, permissões e segurança.</p></div><a href="{% url 'configuracoes' %}" class="close-x" data-dialog-cancel aria-label="Fechar">×</a></div>
+    <section class="settings-user-modal-section"><h3>Dados da conta</h3>
+      <form method="post" action="{% url 'core:user-edit' workspace.pk target_user.pk %}" class="object-form account-edit-form">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+        <div class="account-form-grid">
+          <div class="field-group"><label for="{{ form.username.id_for_label }}">Nome de usuário</label>{{ form.username }}{% for error in form.username.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}</div>
+          <div class="field-group"><label for="{{ form.role.id_for_label }}">Papel no núcleo</label>{{ form.role }}{% for error in form.role.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}</div>
+        </div>
+        <div class="field-group account-email-field"><label for="{{ form.email.id_for_label }}">E-mail (opcional)</label>{{ form.email }}{% for error in form.email.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}</div>
+        <label class="alece-check account-status-control">{{ form.is_active }}<span>Conta ativa</span></label>
+        <p class="account-section-helper">Desativar impede novos logins e mantém dados, permissões e histórico. Você pode reativar depois.</p>
+        <div class="actions"><button type="submit" class="button">Salvar alterações</button></div>
+      </form>
+    </section>
+    <section class="settings-user-modal-section"><details class="alece-user-disclosure"><summary><span><strong>Permissões em perfis</strong><small>Gerencie a visualização e edição por perfil financeiro</small></span><svg class="account-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <p class="muted account-section-helper">Administradores possuem acesso completo por padrão.</p>
+      <form method="post" action="{% url 'core:grant-management' workspace.pk membership.pk %}" class="object-form">
+        {% csrf_token %}
+        {% for item in grant_data %}{% with p=item.profile g=item.grant %}
+          <div class="grant-profile-block" data-grant-profile>
+          <div class="permission-line"><strong>{{ p.name }}</strong>
+            <label class="alece-check"><input type="checkbox" name="grant_{{ p.pk }}_can_view" data-grant-bulk="view" {% if item.all_view %}checked{% endif %}><span>Visualizar</span></label>
+            <label class="alece-check"><input type="checkbox" name="grant_{{ p.pk }}_can_edit" data-grant-bulk="edit" {% if item.all_edit %}checked{% endif %}><span>Editar</span></label>
+          </div>
+          <div class="field-group permission-levels">
+            <label>Visão geral<select name="grant_{{ p.pk }}_overview_level" data-grant-module="overview"><option value="none" {% if not g or g.overview_level == 'none' %}selected{% endif %}>Sem acesso</option><option value="view" {% if g and g.overview_level == 'view' %}selected{% endif %}>Visualização</option><option value="edit" {% if g and g.overview_level == 'edit' %}selected{% endif %}>Edição</option></select></label>
+            <label>Contas<select name="grant_{{ p.pk }}_accounts_level" data-grant-module="accounts"><option value="none" {% if not g or g.accounts_level == 'none' %}selected{% endif %}>Sem acesso</option><option value="view" {% if g and g.accounts_level == 'view' %}selected{% endif %}>Visualização</option><option value="edit" {% if g and g.accounts_level == 'edit' %}selected{% endif %}>Edição</option></select></label>
+            <label>Despesas<select name="grant_{{ p.pk }}_expenses_level" data-grant-module="expenses"><option value="none" {% if not g or g.expenses_level == 'none' %}selected{% endif %}>Sem acesso</option><option value="view" {% if g and g.expenses_level == 'view' %}selected{% endif %}>Visualização</option><option value="edit" {% if g and g.expenses_level == 'edit' %}selected{% endif %}>Edição</option></select></label>
+            <label>Investimentos<select name="grant_{{ p.pk }}_investments_level" data-grant-module="investments"><option value="none" {% if not g or g.investments_level == 'none' %}selected{% endif %}>Sem acesso</option><option value="view" {% if g and g.investments_level == 'view' %}selected{% endif %}>Visualização</option><option value="edit" {% if g and g.investments_level == 'edit' %}selected{% endif %}>Edição</option></select></label>
+            <label>Movimentações<select name="grant_{{ p.pk }}_movements_level" data-grant-module="movements"><option value="none" {% if not g or g.movements_level == 'none' %}selected{% endif %}>Sem acesso</option><option value="view" {% if g and g.movements_level == 'view' %}selected{% endif %}>Visualização</option><option value="edit" {% if g and g.movements_level == 'edit' %}selected{% endif %}>Edição</option></select></label>
+          </div></div>
+        {% endwith %}{% empty %}<p>Nenhum perfil ativo no núcleo.</p>{% endfor %}
+        <div class="actions"><button type="submit" class="button">Salvar permissões</button></div>
+      </form></details>
+    </section>
+    <section class="settings-user-modal-section"><details class="alece-user-disclosure"><summary><span><strong>Redefinir senha</strong><small>Operação administrativa auditável</small></span><svg class="account-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <p class="account-section-helper">Defina uma nova senha sem conhecer a senha atual do usuário.</p>
+      <form method="post" action="{% url 'core:user-password-reset' workspace.pk target_user.pk %}" class="object-form" autocomplete="off">
+        {% csrf_token %}<div class="account-form-grid"><div class="field-group"><label for="id_admin_new_password1">Nova senha</label><input id="id_admin_new_password1" type="password" name="new_password1" autocomplete="new-password" required></div>
+        <div class="field-group"><label for="id_admin_new_password2">Confirme a nova senha</label><input id="id_admin_new_password2" type="password" name="new_password2" autocomplete="new-password" required></div></div>
+        <div class="actions"><button class="button" type="submit">Redefinir senha</button></div>
+      </form></details>
+    </section>
+    <section class="settings-user-modal-section account-danger-zone"><details class="alece-user-disclosure"><summary><span><strong>Excluir conta</strong><small>Operação irreversível; preserva a auditoria</small></span><svg class="account-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <p class="account-section-helper">A conta será desativada definitivamente, sem credenciais nem informações pessoais, e seu acesso será removido. O identificador técnico continuará existindo para manter intactos os lançamentos e seus autores. Para suspender temporariamente, use “Conta ativa” acima.</p>
+      <form method="post" action="{% url 'core:user-delete-account' workspace.pk target_user.pk %}" class="object-form" data-confirm-user-deletion data-alece-confirm="A conta será anonimizada e o acesso removido. Esta operação não poderá ser desfeita." data-confirm-title="Excluir conta definitivamente" data-confirm-label="Excluir conta">
+        {% csrf_token %}<input type="hidden" name="confirmation" value="excluir">
+        <div class="field-group"><label for="delete-username-{{ target_user.pk }}">Digite <strong>{{ target_user.username }}</strong> para confirmar a exclusão</label><input id="delete-username-{{ target_user.pk }}" type="text" name="confirm_username" autocomplete="off" required placeholder="Nome de usuário exato"></div>
+        <div class="actions"><button class="button danger" type="submit">Excluir conta definitivamente</button></div>
+      </form></details>
+    </section>
+  </div></article>
+</section>
+{% endblock %}

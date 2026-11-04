@@ -1,0 +1,118 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% block extra_css %}{% if active_nav == "overview" %}<link rel="stylesheet" href="{% static 'finance/alece_overview.css' %}">{% endif %}{% endblock %}
+{% block title %}{{ title }} · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible" id="page-{{ active_nav }}">
+  <div class="intro"><div><h1>{{ title }}</h1><p>{% if active_nav == 'overview' %}Seu dinheiro, com mais clareza e controle.{% elif active_nav == 'expenses' %}Despesas previsíveis e imprevisíveis registradas por perfil.{% elif active_nav == 'investments' %}Posições financeiras e metas nas quatro categorias fixas.{% else %}Histórico auditável de entradas, saídas e transferências.{% endif %}</p></div></div>
+  {% if ai_cards %}
+    <div class="section-head"><h2>Análises de IA</h2><small>Informativas · dados importados e confirmados</small></div>
+    <div class="simple-grid settings-ai-summary-grid">
+      {% for analysis in ai_cards %}
+      <article class="card"><h3>{{ analysis.profile.name }} · Análise assistida</h3>
+        <p class="muted">{{ analysis.created_at|date:"d/m/Y H:i" }} · {{ analysis.record_count }} registros examinados</p>
+        <p class="settings-ai-summary">{{ analysis.summary|linebreaksbr }}</p>
+        <small>Esta análise não altera valores, classificações ou movimentações. Revise antes de tomar decisões.</small>
+      </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% if filter_form.errors %}<div class="alert" role="alert">Revise o filtro de perfis e mês antes de consultar.</div>{% endif %}
+  {% if selected_profile_without_module_access %}<div class="alert" role="status">O perfil selecionado não possui acesso autorizado a esta área. A seleção foi mantida; solicite permissão ao administrador ou escolha outro perfil.</div>{% endif %}
+  {% if active_nav == 'overview' %}
+    {# O layout usa somente dados previamente autorizados pelo servidor; não altera os cálculos. #}
+    <div class="overview-home" aria-label="Painel financeiro">
+      <div class="overview-kpis" aria-label="Indicadores financeiros">
+        <article class="card overview-kpi" aria-labelledby="overview-income-label">
+          <div class="overview-kpi-copy">
+            <h2 id="overview-income-label">Renda</h2>
+            <p>Mensal informada</p>
+            {% if unknown_income_count %}<small>{{ unknown_income_count }} perfil(is) sem renda informada</small>{% endif %}
+          </div>
+          <div class="overview-kpi-value">
+            <strong class="money">{% if known_income_count %}R$ {{ known_income|floatformat:2 }}{% else %}—{% endif %}</strong>
+            {% if action_urls.income %}<a class="overview-kpi-action icon-button" href="{{ action_urls.income }}" data-income-dialog-trigger aria-haspopup="dialog" aria-controls="overview-income-dialog" aria-label="Editar renda mensal"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>{% endif %}
+          </div>
+        </article>
+        <article class="card overview-kpi" aria-labelledby="overview-balance-label">
+          <div class="overview-kpi-copy">
+            <h2 id="overview-balance-label">Saldo</h2>
+            <p>Contas com valor conhecido</p>
+            {% if bank_unknown_count %}<small>{{ bank_unknown_count }} saldo(s) não informado(s)</small>{% endif %}
+          </div>
+          <div class="overview-kpi-value">
+            <strong class="money">{% if bank_balance is None %}—{% else %}R$ {{ bank_balance|floatformat:2 }}{% endif %}</strong>
+            {% if sections|length == 1 and sections.0.can_accounts_view %}<a class="overview-kpi-action icon-button" href="{% url 'finance:profile-detail' sections.0.profile.pk %}" aria-label="Consultar contas e saldos do perfil"><svg aria-hidden="true"><use href="#i-bank"/></svg></a>{% endif %}
+          </div>
+        </article>
+      </div>
+      <div class="overview-main-grid">
+        <article class="card overview-planning" id="overview-planning-card" aria-labelledby="overview-planning-heading">
+          <header class="overview-panel-header">
+            <div><h2 id="overview-planning-heading">Planejamento mensal</h2><p>Distribuição prevista da renda por categoria</p></div>
+
+          </header>
+          {% if income_plan %}
+          {% if income_plan.categories %}
+          <div class="overview-plan-scroll" role="region" aria-label="Categorias do planejamento mensal: tabela rolável" tabindex="0">
+            <table class="overview-plan-table">
+              <thead><tr><th scope="col">Categoria</th><th scope="col" class="align-right">% da renda</th><th scope="col" class="align-right">Valor</th></tr></thead>
+              <tbody>
+              {% for category in income_plan.categories %}
+                <tr><th scope="row"><span class="overview-plan-category"><span class="summary-swatch" style="background:{{ category.color }}" aria-hidden="true"></span>{{ category.label }}</span></th><td class="align-right">{{ category.percent|floatformat:1 }}%</td><td class="align-right money">R$ {{ category.value|floatformat:2 }}</td></tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <ul class="overview-plan-list" aria-label="Categorias, percentuais e valores do planejamento mensal">
+            {% for category in income_plan.categories %}
+            <li><span class="overview-plan-list-name"><span class="summary-swatch" style="background:{{ category.color }}" aria-hidden="true"></span>{{ category.label }}</span><span class="overview-plan-list-figures"><span>{{ category.percent|floatformat:1 }}% da renda</span><strong class="money">R$ {{ category.value|floatformat:2 }}</strong></span></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="overview-panel-empty" role="status"><p>Nenhuma categoria com valor acima de zero neste planejamento.</p></div>
+          {% endif %}
+          <footer class="overview-plan-footer">
+            <span class="overview-plan-status"><strong>Alocado</strong> <span class="money">R$ {{ income_plan.allocated|floatformat:2 }}</span></span>
+            <span class="overview-plan-status"><strong>Não alocado</strong> <span class="money">R$ {{ income_plan.unallocated|floatformat:2 }}</span></span>
+            {% if income_plan.excess %}<span class="overview-plan-status is-warning"><strong>Excedente</strong> <span class="money">R$ {{ income_plan.excess|floatformat:2 }}</span></span>{% endif %}
+          </footer>
+          <p class="overview-panel-footnote">Valores estimados. Despesas previstas e aplicações sugeridas não significam pagamentos realizados.</p>
+          {% else %}
+          <div class="overview-panel-empty" role="status"><p>O sistema não tem informações suficientes para gerar os dados.</p></div>
+          {% endif %}
+        </article>
+        <article class="card" id="overview-month-card"><div class="panel-title"><div><h2>Este mês</h2><div class="muted panel-subtitle">Compromissos e aplicações sugeridas em {{ month|date:'m/Y' }}</div></div>{% if sections|length == 1 and sections.0.can_expenses_edit %}<a class="account-add-btn icon-button" href="{% url 'finance:unexpected-create' sections.0.profile.pk %}" aria-label="Adicionar item deste mês"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>{% endif %}</div><div class="month-table-wrap" role="region" aria-label="Compromissos e aplicações deste mês: tabela rolável" tabindex="0"><table class="month-table" aria-label="Itens deste mês"><thead><tr><th scope="col">Nome</th><th scope="col">Categoria</th><th scope="col">Vencimento</th><th scope="col" class="align-right">Valor pendente</th><th scope="col">Pagar / aplicar</th></tr></thead><tbody>{% for section in sections %}{% if section.can_expenses_view %}{% for item in section.monthly_items %}<tr><td><span{% if item.remaining == 0 %} class="paid-label"{% endif %}>{{ item.object.name }}</span>{% if sections|length > 1 %}<small class="subline">{{ section.profile.name }}</small>{% endif %}</td><td>{{ item.kind_label }}</td><td>{{ item.due_on|date:'d/m/Y' }}</td><td class="align-right money">R$ {{ item.remaining|floatformat:2 }}</td><td>{% if item.remaining == 0 %}{% if item.can_pay %}<form method="post" action="{% url 'finance:reverse-item' section.profile.pk item.kind item.object.pk %}" data-confirm-reversal data-alece-confirm="Estornar a operação e preservar o histórico?" data-confirm-title="Estornar operação" data-confirm-label="Estornar">{% csrf_token %}<input type="hidden" name="month" value="{{ month|date:'Y-m' }}"><input type="hidden" name="idempotency_key" value="{{ item.reversal_key }}"><button class="checkbox-button month-check-button" type="submit" aria-label="Desmarcar e estornar {{ item.object.name }}"><span class="month-check-square is-checked" aria-hidden="true"><svg><use href="#i-check"/></svg></span></button></form>{% else %}<span class="month-check-square is-checked" aria-label="Confirmado"><svg aria-hidden="true"><use href="#i-check"/></svg></span>{% endif %}{% elif item.can_pay %}<a class="checkbox-button month-check-button" aria-label="Confirmar {{ item.object.name }}" href="{% url 'finance:payment' section.profile.pk item.kind item.object.pk %}?month={{ month|date:'Y-m' }}"><span class="month-check-square" aria-hidden="true"></span></a>{% else %}<span class="month-check-inactive" title="Indisponível" aria-label="Pagamento indisponível"></span>{% endif %}</td></tr>{% endfor %}{% endif %}{% endfor %}{% if not monthly_count %}<tr><td colspan="5">Nenhum compromisso disponível para este mês.</td></tr>{% endif %}</tbody></table></div><p class="overview-month-scroll-tip">Deslize a tabela horizontalmente para ver todas as colunas.</p></article>
+      </div>
+    </div>
+
+  {% elif active_nav == 'expenses' %}
+    {% if not recurring_count and not unexpected_count and not chart_series.has_data %}
+      {% include 'finance/_history_chart.html' %}
+      <article class="card contextual-empty"><h2>Sem dados disponíveis neste contexto</h2><p>Os dados financeiros deste perfil serão exibidos quando cadastrados.</p></article>
+    {% endif %}
+    <div class="simple-grid">{% for card in expense_cards %}<article class="card"><div class="label">{{ card.label }}</div><div class="number-large money">R$ {{ card.total|floatformat:2 }}</div><p class="muted card-note">{% if forloop.last %}Despesas registradas no mês selecionado.{% else %}Despesas previsíveis ativas.{% endif %}</p></article>{% endfor %}</div>
+    <section class="page-section section-surface"><div class="section-head"><h2>Despesas previsíveis cadastradas</h2><div class="section-actions"><small>Compromissos mensais</small>{% if action_urls.recurring %}<a class="account-add-btn icon-button" href="{{ action_urls.recurring }}" aria-label="Adicionar despesa previsível"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>{% endif %}</div></div>
+    <article class="card alece-data-panel"><div class="table-scroll"><table class="source-table" aria-label="Despesas previsíveis"><thead><tr><th scope="col">Nome</th><th scope="col">Perfil</th><th scope="col">Categoria</th><th scope="col">Vencimento</th><th scope="col" class="align-right">Valor</th><th scope="col">Situação</th><th scope="col">Ação</th></tr></thead><tbody>{% for section in sections %}{% for expense in section.recurring %}<tr><td>{{ expense.name }}</td><td>{{ section.profile.name }}</td><td>{{ expense.get_category_display }}</td><td>{{ expense.due_on|date:'d/m/Y' }}</td><td class="align-right money">R$ {{ expense.amount|floatformat:2 }}</td><td>{{ expense.is_active|yesno:'Ativa,Arquivada' }}</td><td>{% if section.can_edit %}<a class="alece-edit-action icon-button" aria-label="Editar {{ expense.name }}" href="{% url 'finance:recurring-edit' section.profile.pk expense.pk %}"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>{% else %}—{% endif %}</td></tr>{% endfor %}{% endfor %}{% if not recurring_count %}<tr><td colspan="7">Nenhuma despesa previsível cadastrada.</td></tr>{% endif %}</tbody></table></div><p class="source-note">O cadastro cria o compromisso. O pagamento é confirmado separadamente em Movimentações.</p></article></section>
+    <section class="page-section section-surface"><div class="section-head"><h2>Despesas imprevisíveis</h2><div class="section-actions"><form method="get" class="month-ref-control"><label class="sr-only" for="id_month">Mês de referência</label>{{ filter_form.month }}<button class="sr-only" type="submit">Filtrar</button></form>{% if action_urls.unexpected %}<a class="account-add-btn icon-button" href="{{ action_urls.unexpected }}" aria-label="Adicionar despesa imprevisível"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>{% endif %}</div></div>
+    <article class="card alece-data-panel"><div class="table-scroll"><table class="source-table" aria-label="Despesas imprevisíveis"><thead><tr><th scope="col">Descrição</th><th scope="col">Data</th><th scope="col">Perfil</th><th scope="col" class="align-right">Valor</th><th scope="col">Ação</th></tr></thead><tbody>{% for section in sections %}{% for expense in section.unexpected %}<tr><td>{{ expense.name }}</td><td>{{ expense.recorded_on|date:'d/m/Y' }}</td><td>{{ section.profile.name }}</td><td class="align-right money">R$ {{ expense.amount|floatformat:2 }}</td><td>{% if section.can_edit %}<a class="alece-edit-action icon-button" aria-label="Editar {{ expense.name }}" href="{% url 'finance:unexpected-edit' section.profile.pk expense.pk %}"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>{% else %}—{% endif %}</td></tr>{% endfor %}{% endfor %}{% if not unexpected_count %}<tr><td colspan="5">Nenhuma despesa imprevisível neste mês.</td></tr>{% endif %}</tbody></table></div><p class="source-note">O sistema registra a data da despesa; o cadastro não debita uma conta.</p></article></section>
+    {% if recurring_count or unexpected_count or chart_series.has_data %}{% include 'finance/_history_chart.html' %}{% endif %}
+  {% elif active_nav == 'investments' %}
+    {% include 'finance/_goal_panel.html' %}
+    <section class="page-section section-surface"><div class="section-head"><h2>Investimentos cadastrados</h2><div class="section-actions"><small>Posições financeiras</small>{% if action_urls.investment %}<a class="account-add-btn icon-button" href="{{ action_urls.investment }}" aria-label="Adicionar investimento"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>{% endif %}</div></div><article class="card alece-data-panel"><div class="table-scroll"><table class="source-table" aria-label="Investimentos cadastrados"><thead><tr><th scope="col">Nome / instituição</th><th scope="col">Perfil</th><th scope="col">Categoria</th><th scope="col" class="align-right">Aplicado</th><th scope="col" class="align-right">Atual</th><th scope="col">Data</th><th scope="col">Ação</th></tr></thead><tbody>{% for section in sections %}{% for investment in section.investments %}<tr><td>{{ investment.name }}<span class="subline">{{ investment.institution }}</span></td><td>{{ section.profile.name }}</td><td>{{ investment.get_category_display }}</td><td class="align-right money">R$ {{ investment.applied_amount|floatformat:2 }}</td><td class="align-right money">R$ {{ investment.current_value|floatformat:2 }}</td><td>{{ investment.recorded_on|date:'d/m/Y'|default:'—' }}</td><td>{% if section.can_edit %}<a class="alece-edit-action icon-button" aria-label="Editar {{ investment.name }}" href="{% url 'finance:investment-edit' section.profile.pk investment.pk %}"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>{% else %}—{% endif %}</td></tr>{% endfor %}{% endfor %}{% if not investment_count %}<tr><td colspan="7">Nenhuma posição financeira cadastrada.</td></tr>{% endif %}</tbody></table></div><p class="source-note">Cadastros de posições não debitam contas. Aplicações e resgates exigem confirmação separada.</p></article></section>
+    {% include 'finance/_history_chart.html' %}
+  {% else %}
+    {% include 'finance/_movement_import.html' %}
+    <div class="movement-kpis"><article class="card"><div class="label">Pagamentos confirmados no mês</div><div class="number-large money">{% if movement_month_payments is None %}—{% else %}R$ {{ movement_month_payments|floatformat:2 }}{% endif %}</div></article><article class="card"><div class="label">Emergência no mês</div><div class="number-large money">{% if movement_month_emergency is None %}—{% else %}R$ {{ movement_month_emergency|floatformat:2 }}{% endif %}</div></article><article class="card"><div class="label">Movimentações registradas</div><div class="number-large">{{ movement_count }}</div></article></div>
+    <section class="page-section section-surface"><div class="section-head"><h2>Histórico de movimentações</h2><div class="section-actions"><small>Registros confirmados e estornos</small>{% if action_urls.transfer %}<a class="account-add-btn icon-button" href="{{ action_urls.transfer }}" aria-label="Nova transferência"><svg aria-hidden="true"><use href="#i-plus"/></svg></a>{% endif %}</div></div><article class="card alece-data-panel"><div class="table-scroll"><table class="source-table" aria-label="Histórico de movimentações"><thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Perfil</th><th scope="col">Conta</th><th scope="col" class="align-right">Débito / crédito</th><th scope="col">Situação</th><th scope="col">Ação</th></tr></thead><tbody>{% for section in sections %}{% for leg in section.movements %}<tr><td>{{ leg.batch.occurred_on|date:'d/m/Y' }}</td><td>{{ leg.batch.get_kind_display }}</td><td>{{ section.profile.name }}</td><td>{{ leg.account.name }}</td><td class="align-right money">R$ {{ leg.delta|floatformat:2 }}</td><td>{% if leg.batch.reversal_of_id %}Estorno{% elif leg.batch.reversal.pk %}Estornado{% else %}Confirmado{% endif %}</td><td>{% if section.can_edit %}<a class="alece-edit-action icon-button" aria-label="Ver movimentação {{ leg.batch.pk }}" href="{% url 'finance:movement-detail' section.profile.pk leg.batch.pk %}"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>{% else %}—{% endif %}</td></tr>{% endfor %}{% endfor %}</tbody></table></div><p class="source-note">O histórico contábil é imutável. Correções geram estornos auditáveis.</p></article></section>
+    {% include 'finance/_history_chart.html' %}
+  {% endif %}
+  {% if active_nav == 'overview' and income_rows %}
+  <dialog id="overview-income-dialog" class="alece-income-dialog" aria-labelledby="income-modal-title">
+    {% include 'finance/_income_bulk_form.html' %}
+  </dialog>
+  {% endif %}
+  {% if not sections %}<div class="card contextual-empty"><h2>Nenhum perfil disponível</h2><p>Crie ou reative um perfil autorizado para usar esta área.</p><a class="btn" href="{% url 'configuracoes' %}">Gerenciar perfis</a></div>{% endif %}
+</section>
+{% endblock %}
+{% block extra_js %}{% if active_nav == 'overview' %}<script src="{% static 'finance/alece_overview_income.js' %}" defer></script>{% endif %}{% endblock %}

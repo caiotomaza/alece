@@ -1,0 +1,138 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% block title %}Contas e saldos · ALECE{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'finance/alece_profile_balances.css' %}">{% endblock %}
+{% block content %}
+<div class="profile-balances-page">
+  <nav class="balances-breadcrumb" aria-label="Localização atual">
+    <a href="{% url 'configuracoes-perfis' %}">Perfis financeiros</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ profile.name }}</span>
+  </nav>
+
+  <header class="balances-page-header">
+    <div class="balances-page-heading">
+      <span class="balances-eyebrow">Gestão financeira</span>
+      <h1>{{ profile.emoji }} {{ profile.name }}</h1>
+      <p>Contas bancárias e dinheiro físico vinculados a este perfil.</p>
+    </div>
+    {% if can_admin %}
+    <a class="button secondary balances-profile-action" href="{% url 'finance:profile-edit' profile.pk %}">
+      <svg aria-hidden="true"><use href="#i-edit"/></svg> Editar perfil
+    </a>
+    {% endif %}
+  </header>
+
+  {% if profile.is_archived %}
+  <p class="balances-notice" role="status">Este perfil está arquivado. Seus saldos permanecem disponíveis para consulta, mas os cadastros não podem ser alterados.</p>
+  {% endif %}
+
+  <section class="balances-section" aria-labelledby="balances-list-title">
+    <div class="balances-section-header">
+      <div>
+        <h2 id="balances-list-title">Contas e saldos</h2>
+        <p>Consulte o nome, o perfil financeiro e a quantia de cada conta.</p>
+      </div>
+      {% if can_accounts_edit %}
+      <a class="button balances-new-account" href="{% url 'finance:choose-profile-action' profile.workspace_id 'account' %}?profile_id={{ profile.pk }}&amp;return=profile">
+        <svg aria-hidden="true"><use href="#i-plus"/></svg> Nova conta
+      </a>
+      {% endif %}
+    </div>
+
+    {% if can_accounts_view %}
+      {% if accounts %}
+      <div class="balances-table-panel">
+        <div class="balances-table-scroll">
+          <table class="balances-table">
+            <caption class="sr-only">Contas e saldos do perfil financeiro {{ profile.name }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Perfil financeiro</th>
+                <th scope="col" class="balances-amount-heading">Quantia</th>
+                {% if can_accounts_edit %}<th scope="col" class="balances-action-heading"><span class="sr-only">Ações</span></th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in accounts %}
+              <tr>
+                <td data-label="Nome">
+                  <span class="balances-account-identity">
+                    <span class="balances-account-icon" aria-hidden="true">
+                      <svg><use href="{% if account.kind == 'cash' %}#i-cash{% else %}#i-bank{% endif %}"/></svg>
+                    </span>
+                    <span class="balances-account-detail">
+                      <strong>{{ account.name }}</strong>
+                      <span>{{ account.get_kind_display }}{% if account.is_archived %} · Arquivada{% endif %}</span>
+                    </span>
+                  </span>
+                </td>
+                <td data-label="Perfil financeiro"><span class="balances-profile-name">{{ profile.name }}</span></td>
+                <td data-label="Quantia" class="balances-amount-cell">
+                  {% if account.balance is None %}
+                  <span class="balances-unknown">Desconhecida</span>
+                  {% else %}
+                  <strong class="balances-amount money">R$ {{ account.balance|floatformat:2 }}</strong>
+                  {% endif %}
+                </td>
+                {% if can_accounts_edit %}
+                <td class="balances-account-actions">
+                  <a class="icon-button alece-edit-action" href="{% url 'finance:account-edit' profile.pk account.pk %}?return=profile" aria-label="Editar conta {{ account.name }}" title="Editar conta {{ account.name }}">
+                    <svg aria-hidden="true"><use href="#i-edit"/></svg>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="balances-footnote">Os valores cadastrados representam saldos, não renda. Alterações em contas com movimentações registradas exigem conciliação.</p>
+      {% else %}
+      <div class="balances-empty">
+        <span class="balances-empty-icon" aria-hidden="true"><svg><use href="#i-wallet"/></svg></span>
+        <div>
+          <h3>Nenhuma conta cadastrada neste perfil.</h3>
+          <p>{% if can_accounts_edit %}Use “Nova conta” para registrar um banco ou dinheiro físico e informar a quantia inicial.{% else %}As contas autorizadas aparecerão aqui quando forem cadastradas.{% endif %}</p>
+        </div>
+      </div>
+      {% endif %}
+    {% else %}
+    <div class="balances-empty" role="status">
+      <span class="balances-empty-icon" aria-hidden="true"><svg><use href="#i-shield"/></svg></span>
+      <div>
+        <h3>Acesso restrito a contas e saldos</h3>
+        <p>Você não tem permissão para visualizar os saldos deste perfil. Solicite acesso ao administrador do núcleo.</p>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  {% if can_overview_view or can_admin %}
+  <section class="balances-metadata" aria-labelledby="balances-metadata-title">
+    <div class="balances-metadata-heading">
+      <h2 id="balances-metadata-title">Informações do perfil</h2>
+      <p>Dados complementares e acessos.</p>
+    </div>
+    <div class="balances-metadata-grid">
+      {% if can_overview_view %}
+      <div class="balances-metadata-item">
+        <span>Renda mensal</span>
+        <strong>{% if profile.monthly_income is None %}Desconhecida{% else %}<span class="money">R$ {{ profile.monthly_income|floatformat:2 }}</span>{% endif %}</strong>
+        {% if can_overview_edit %}<a href="{% url 'finance:income-edit' profile.pk %}">Editar renda</a>{% endif %}
+      </div>
+      {% endif %}
+      {% if can_admin %}
+      <div class="balances-metadata-item">
+        <span>Controle de acesso</span>
+        <strong>Permissões do perfil</strong>
+        <a href="{% url 'finance:grant-list' profile.pk %}">Gerenciar permissões</a>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

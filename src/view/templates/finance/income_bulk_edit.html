@@ -1,0 +1,10 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% block title %}Renda dos perfis financeiros · ALECE{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'finance/alece_overview.css' %}">{% endblock %}
+{% block content %}
+<section class="alece-income-fallback" aria-labelledby="income-modal-title">
+  {% include "finance/_income_bulk_form.html" %}
+</section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'finance/alece_overview_income.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,26 @@
+/.git
+/.env
+/.env.*
+!/.env.example
+/.pytest_cache
+/.ruff_cache
+/.venv
+/.vscode
+/HOME
+/backups
+/logs
+/media
+/docs/reviews/screenshots
+*.log
+*.pyc
+__pycache__
+*.dump
+*.sqlite3
+/cookies*
+
+# Não copie logs e dados sensíveis para camadas de imagem.
+/src/logs/
+
+# Generated static/media must not be copied into images
+.staticfiles/
+media/

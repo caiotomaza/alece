@@ -1,0 +1,37 @@
+{# Reusable server-rendered form: inline modal and accessible non-JS fallback. #}
+<form method="post" action="{% url 'finance:income-bulk' workspace.pk %}" class="alece-income-form" data-income-bulk-form novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="profile_ids" value="{{ income_profile_ids }}">
+  <header class="alece-income-header">
+    <div class="alece-income-heading">
+      <span class="alece-income-eyebrow">VISÃO GERAL</span>
+      <h2 class="alece-income-title" id="income-modal-title" tabindex="-1">Renda dos perfis financeiros</h2>
+    </div>
+    <button class="icon-button alece-income-close" type="button" data-income-close
+            aria-label="Fechar edição de rendas" hidden>&times;</button>
+  </header>
+  <div class="alece-income-body">
+    {% if alert %}<p class="alece-income-notice" role="alert">{{ alert }}</p>{% endif %}
+    <p class="alece-income-notice" role="alert" data-income-message hidden></p>
+    <div class="alece-income-rows">
+    {% for row in income_rows %}
+      <div class="alece-income-row">
+        <label for="{{ row.form.monthly_income.id_for_label }}">{{ row.profile.emoji }} {{ row.profile.name }}</label>
+        <div class="alece-income-control">
+          <div class="alece-income-money">
+            <span class="alece-income-currency" aria-hidden="true">R$</span>
+            {{ row.form.monthly_income }}
+          </div>
+          <span class="alece-income-field-error" id="{{ row.form.monthly_income.html_name }}_error" data-income-error-for="{{ row.form.monthly_income.html_name }}" role="alert">{% for error in row.form.monthly_income.errors %}{{ error }}{% endfor %}</span>
+        </div>
+      </div>
+    {% empty %}
+      <p class="muted">Nenhum perfil disponível para editar a renda.</p>
+    {% endfor %}
+    </div>
+  </div>
+  <footer class="alece-income-actions">
+    <a href="{% url 'visao-geral' %}" class="button secondary" data-income-cancel>Cancelar</a>
+    <button type="submit" class="button" data-income-save>Salvar</button>
+  </footer>
+</form>

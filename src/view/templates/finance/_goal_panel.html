@@ -1,0 +1,124 @@
+{% load l10n %}
+<article class="card investment-wireframe-panel" id="investment-goals-panel" data-alece-investments-ui="wireframe-r2-20261104">
+  <div class="section-head investment-wireframe-head">
+    <div>
+      <h2>Metas e distribuição dos investimentos</h2>
+      <p class="investment-wireframe-intro">A página de investimentos consolida as quatro categorias fixas do ALECE e mantém o cadastro das metas no mesmo padrão de pop-up usado no restante do sistema.</p>
+    </div>
+    <div class="section-actions">
+      <small>Metas e posições financeiras</small>
+      {% if action_urls.investment %}
+      <a class="account-add-btn icon-button" href="{{ action_urls.investment }}" aria-label="Adicionar posição ou meta de investimento">
+        <svg aria-hidden="true"><use href="#i-plus"/></svg>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% for section in sections %}
+    {% if section.can_expenses_view %}
+    <section class="investment-profile-block" aria-labelledby="investment-profile-{{ section.profile.pk }}">
+      <div class="investment-profile-header">
+        <div>
+          <h3 id="investment-profile-{{ section.profile.pk }}">Metas e sugestões de {{ section.profile.name }}</h3>
+          <p>Resumo visual das metas por categoria, com progresso atual, sugestão mensal e prazo estimado.</p>
+        </div>
+        <div class="investment-profile-actions">
+          {% if section.can_admin %}
+          <a class="button secondary" href="{% url 'finance:reserve-edit' section.profile.pk %}">Configurar reserva</a>
+          {% endif %}
+          {% if action_urls.investment %}
+          <a class="button secondary" href="{{ action_urls.investment }}">Registrar meta / posição</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="investment-goal-grid">
+        {% for category in section.summary.investment_categories %}
+        <article class="investment-goal-card is-{{ category.category }}">
+          <div class="investment-goal-card-top">
+            <h4>{{ category.label }}</h4>
+            {% if category.category == 'reserve' %}<span class="investment-priority-badge">Prioridade 1</span>{% endif %}
+          </div>
+
+          <div class="investment-goal-ring" style="--goal-progress:{% if category.progress_pct is None %}0{% else %}{{ category.progress_pct|unlocalize }}{% endif %}%">
+            <div class="investment-goal-ring-inner">
+              <strong>{% if category.progress_pct is None %}—{% else %}{{ category.progress_pct|floatformat:0 }}%{% endif %}</strong>
+              <small>concluído</small>
+            </div>
+          </div>
+
+          <dl class="investment-goal-metrics">
+            <div>
+              <dt>Meta</dt>
+              <dd>
+                {% if category.target is None %}
+                  Não informada
+                {% else %}
+                  R$ {{ category.target|floatformat:2 }}
+                  {% if category.category == 'reserve' %}<small>{{ section.summary.coverage_months }} meses</small>{% endif %}
+                {% endif %}
+              </dd>
+            </div>
+            <div>
+              <dt>Valor atingido</dt>
+              <dd>R$ {{ category.current|floatformat:2 }}</dd>
+            </div>
+            <div>
+              <dt>Sugestão mensal</dt>
+              <dd>{% if category.suggestion is None %}Indisponível{% else %}R$ {{ category.suggestion|floatformat:2 }}{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Tempo estimado</dt>
+              <dd>{% if category.eta_months is None %}Indisponível{% elif category.eta_months == 0 %}Meta atingida{% else %}{{ category.eta_months }} mês(es){% endif %}</dd>
+            </div>
+          </dl>
+        </article>
+        {% endfor %}
+      </div>
+
+      <details class="investment-planning-details">
+        <summary>Ver detalhes do planejamento financeiro</summary>
+        <div class="investment-planning-details-content">
+      <div class="investment-support-grid">
+        <div class="investment-support-card">
+          <span>Renda mensal</span>
+          <strong class="money">{% if section.summary.income is None %}—{% else %}R$ {{ section.summary.income|floatformat:2 }}{% endif %}</strong>
+        </div>
+        <div class="investment-support-card">
+          <span>Despesas previsíveis</span>
+          <strong class="money">{% if section.summary.reserve_recurring_monthly is None %}—{% else %}R$ {{ section.summary.reserve_recurring_monthly|floatformat:2 }}{% endif %}</strong>
+        </div>
+        <div class="investment-support-card">
+          <span>Média das imprevisíveis</span>
+          <strong class="money">{% if section.summary.reserve_unexpected_monthly is None %}—{% else %}R$ {{ section.summary.reserve_unexpected_monthly|floatformat:2 }}{% endif %}</strong>
+          <small>{% if section.summary.reserve_unexpected_month_count %}{{ section.summary.reserve_unexpected_month_count }} mês(es) com registros{% else %}Sem histórico registrado{% endif %}</small>
+        </div>
+        <div class="investment-support-card">
+          <span>Base mensal da reserva</span>
+          <strong class="money">{% if section.summary.reserve_monthly_base is None %}—{% else %}R$ {{ section.summary.reserve_monthly_base|floatformat:2 }}{% endif %}</strong>
+        </div>
+        <div class="investment-support-card">
+          <span>Meta da reserva</span>
+          <strong class="money">{% if section.summary.reserve_target is None %}—{% else %}R$ {{ section.summary.reserve_target|floatformat:2 }}{% endif %}</strong>
+          <small>{{ section.summary.coverage_months }} meses de proteção</small>
+        </div>
+        <div class="investment-support-card">
+          <span>Disponível para investir/mês</span>
+          <strong class="money">{% if section.summary.investable_monthly is None %}—{% else %}R$ {{ section.summary.investable_monthly|floatformat:2 }}{% endif %}</strong>
+        </div>
+      </div>
+
+      <p class="investment-wireframe-note">Meta da Reserva = todas as despesas previsíveis + média mensal das imprevisíveis do histórico do perfil, multiplicadas por {{ section.summary.coverage_months }} meses de proteção. As sugestões mensais não movimentam contas automaticamente.</p>
+
+      {% include 'finance/investment_suggestions.html' %}
+        </div>
+      </details>
+    </section>
+    {% else %}
+    <p class="muted">As metas de {{ section.profile.name }} exigem acesso às despesas do perfil.</p>
+    {% endif %}
+  {% empty %}
+    <p class="muted">Nenhum perfil acessível.</p>
+  {% endfor %}
+</article>

@@ -1,0 +1,69 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-theme="{{ ui_theme|default:'light' }}" data-user-id="{{ request.user.pk|default:'' }}" data-theme-endpoint="{% url 'preferencia-tema' %}">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Configuração Inicial · ALECE</title>
+  <link rel="stylesheet" href="{% static 'finance/alece_tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece.css' %}">
+  <link rel="stylesheet" href="{% static 'core/setup.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_components.css' %}">
+  <script src="{% static 'finance/alece.js' %}" defer></script>
+  <link rel="icon" type="image/svg+xml" href="{% static 'finance/favicon.svg' %}">
+</head>
+<body class="setup-page">
+  <main class="setup-shell">
+    <section class="setup-card" aria-labelledby="setup-title">
+      <header class="setup-header">
+        <div class="setup-brandmark" aria-hidden="true"><img src="{% static 'finance/favicon.svg' %}" width="48" height="48" alt=""></div>
+        <h1 class="setup-title" id="setup-title">Configuração Inicial</h1>
+        <p class="setup-subtitle">Crie o primeiro Administrador do ALECE</p>
+      </header>
+
+      {% if messages %}
+      <ul class="setup-messages" aria-live="polite">
+        {% for message in messages %}<li class="setup-alert {{ message.tags }}">{{ message }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+
+      <form method="post" class="setup-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="setup-alert error" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="setup-field">
+          <label for="{{ form.username.id_for_label }}">Nome de usuário</label>
+          {{ form.username }}
+          {% if form.username.errors %}<p class="setup-error" role="alert">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="setup-field">
+          <label for="{{ form.email.id_for_label }}">E-mail (opcional)</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="setup-error" role="alert">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="setup-field">
+          <label for="{{ form.password1.id_for_label }}">Senha</label>
+          {{ form.password1 }}
+          <p class="setup-help">Mínimo 8 caracteres. Use uma senha forte.</p>
+          {% if form.password1.errors %}<p class="setup-error" role="alert">{{ form.password1.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="setup-field">
+          <label for="{{ form.password2.id_for_label }}">Confirmação de senha</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<p class="setup-error" role="alert">{{ form.password2.errors.0 }}</p>{% endif %}
+        </div>
+
+        <button type="submit" class="setup-submit">Criar Administrador</button>
+      </form>
+      <footer class="setup-footer">O núcleo financeiro <strong>Pessoal</strong> e o perfil <strong>Principal</strong> serão criados automaticamente.</footer>
+    </section>
+  </main>
+</body>
+</html>

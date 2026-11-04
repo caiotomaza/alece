@@ -1,0 +1,83 @@
+name: alece
+services:
+  secrets-init:
+    container_name: alece_secrets_init
+    image: python:3.12-alpine
+    restart: "no"
+    volumes:
+      - app_secrets:/run/alece-secrets
+      - ./docker/initialize_secrets.py:/init_secrets.py:ro
+    command: ["python", "/init_secrets.py"]
+    networks: [internal]
+
+  db:
+    container_name: alece_db
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_DB: ${ALECE_DB_NAME:-alece}
+      POSTGRES_USER: ${ALECE_DB_USER:-alece}
+      POSTGRES_PASSWORD_FILE: /run/alece-secrets/db_password
+    volumes:
+      - app_pgdata:/var/lib/postgresql/data
+      - app_secrets:/run/alece-secrets:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  web:
+    container_name: alece_web
+    # Recompile o codigo local mesmo que exista uma imagem antiga no cache.
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - path: ./.env.example
+        required: true
+      - path: ./.env
+        required: false
+    environment:
+      ALECE_SECRET_KEY_FILE: /run/alece-secrets/secret_key
+      ALECE_DB_PASSWORD_FILE: /run/alece-secrets/db_password
+      ALECE_DB_HOST: db
+      ALECE_AI_SECRET_DIR: /app/private/ai
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    ports:
+      - "${ALECE_BIND_IP:-127.0.0.1}:${ALECE_PORT:-8088}:8000"
+    volumes:
+      - app_media:/app/media
+      - app_ai_tokens:/app/private/ai
+      # Backups financeiros persistentes no HOME do usuário de serviço.
+      - app_financial_backups:/home/app/backups
+      - app_secrets:/run/alece-secrets:ro
+      # Logs por inicialização, persistidos no diretório do projeto no host.
+      - ./src/logs:/app/src/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/saude/pronto/', timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 75s
+    networks: [internal]
+
+networks:
+  internal:
+    driver: bridge
+volumes:
+  app_pgdata:
+  app_ai_tokens:
+  app_financial_backups:
+  app_media:
+  app_secrets:

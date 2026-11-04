@@ -1,0 +1,30 @@
+{% extends "finance/base.html" %}
+{% block title %}{{ title }} · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading"><h1>{{ title }}</h1></div>
+<div class="dialog-fallback" data-dialog-content>
+  <form method="post" class="object-form">
+    {% csrf_token %}
+    <div class="dialog-title"><div><h2 id="dialog-title">{{ title }}</h2><p>Preencha os dados e confirme o perfil financeiro deste registro.</p></div><a class="close-x" href="{{ cancel_url }}" data-dialog-cancel aria-label="Fechar formulário">×</a></div>
+    {% if profile %}<div class="field-group"><span class="dialog-field-label">Perfil financeiro</span><div class="dialog-profile-value">{{ profile.emoji }} {{ profile.name }}</div></div>{% endif %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% if field.is_hidden %}{{ field }}{{ field.errors }}{% else %}
+      <div class="field-group{% if field.field.widget.input_type == 'checkbox' %} field-checkbox{% endif %}">
+        {% if field.field.widget.input_type == 'checkbox' %}
+        <label class="checkbox-control" for="{{ field.id_for_label }}">{{ field }}<span>{{ field.label }}</span></label>
+        {% else %}{{ field.label_tag }} {{ field }}{% endif %}
+        {% if field.help_text %}<div class="helptext" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}
+        {{ field.errors }}
+      </div>
+      {% endif %}
+    {% endfor %}
+    <footer class="actions">
+      {% if delete_url %}<a class="button danger secondary" href="{{ delete_url }}">Excluir</a>{% endif %}
+      <a class="button secondary" href="{{ cancel_url }}" data-dialog-cancel>Cancelar</a>
+      <button class="button" type="submit">Salvar e fechar</button>
+    </footer>
+  </form>
+</div>
+<dialog class="unified-dialog" data-edit-dialog aria-labelledby="dialog-title"></dialog>
+{% endblock %}

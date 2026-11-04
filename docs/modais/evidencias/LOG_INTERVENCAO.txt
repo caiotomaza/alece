@@ -1,0 +1,35 @@
+2026-10-27T12:43:50+00:00
+ae8a4258ab56
+uid=0(root) gid=0(root) groups=0(root)
+Linux ae8a4258ab56 6.18.55 #1 SMP Wed Oct 14 19:45:18 UTC 2026 x86_64 GNU/Linux
+source: /mnt/data/ALECE_COMPLETO_DESIGN_SYSTEM_1.0_2026-10-27.zip
+c690892adc7ff70010651c46da7ad6c1157411a607e08e3ade1ed9d6d29cd046  /home/oai/backups/2026-10-27_12-43-50__alece-antes-formularios-modais.zip
+SOURCE INTEGRITY VERIFIED
+files=420
+=== REGRESSAO FRONTEND 2026-10-27T13:02:36+00:00 ===
+Ambiente isolado: ALECE_TEST_ISOLATED=1 ALECE_DB_NAME=test_alece_modals ALECE_DB_HOST=127.0.0.1
+..............................                                           [100%]
+=============================== warnings summary ===============================
+../../../../opt/pyvenv/lib/python3.13/site-packages/_pytest/config/__init__.py:1428
+  /opt/pyvenv/lib/python3.13/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: DJANGO_SETTINGS_MODULE
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+30 passed, 1 warning in 21.26s
+=== Sintaxe JavaScript ===
+node --check ambos: OK
+=== Python compile ===
+compileall: OK
+=== Django import (nao executar banco) ===
+django disponivel: False
+pytest_django disponivel: False
+=== FIM ===
+=== VALIDACAO INTEGRIDADE FONTE E AMBIENTE ===
+data=2026-10-27T13:04:31+00:00
+Source SHA:
+c690892adc7ff70010651c46da7ad6c1157411a607e08e3ade1ed9d6d29cd046  /mnt/data/ALECE_COMPLETO_DESIGN_SYSTEM_1.0_2026-10-27.zip
+Back-up local SHA:
+c690892adc7ff70010651c46da7ad6c1157411a607e08e3ade1ed9d6d29cd046  /home/oai/backups/2026-10-27_12-43-50__alece-antes-formularios-modais.zip
+Arquivos .env e .env.example conferidos sem imprimir seu conteudo
+Django/PostgreSQL integral: nao disponiveis

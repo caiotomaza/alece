@@ -1,0 +1,15 @@
+{
+  "inventory_declared": 479,
+  "junit_executed_cases": 21,
+  "junit_result_counts": {
+    "APROVADO": 21
+  },
+  "inventory_counts": {
+    "NAO_EXECUTADO": 464,
+    "APROVADO": 15
+  },
+  "xml_files": [
+    "docs/qualidade/evidencias/testes_locais_sem_banco.xml"
+  ],
+  "warning": "Teste declarado não é teste executado. Percentual de cobertura não foi calculado."
+}

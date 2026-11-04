@@ -1,0 +1,341 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% block title %}Relatórios · ALECE{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Relatórios Financeiros</h1>
+  </div>
+  <a href="{{ cancel_url }}" class="btn secondary">Voltar</a>
+</div>
+
+<!-- Seletor de perfil e período -->
+<form method="get" class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+    <div class="filter-field" style="flex: 1; min-width: 200px;">
+      <label for="id_profile">Perfil financeiro</label>
+      <select name="profile" id="id_profile" class="form-input" onchange="this.form.submit()">
+        {% for p in profiles %}
+        <option value="{{ p.pk }}" {% if dashboard and dashboard.profile == p.name %}selected{% endif %}>
+          {{ p.emoji }} {{ p.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_start">Início</label>
+      <input type="date" name="period_start" id="id_period_start" class="form-input" value="{{ period_start|date:'Y-m-d' }}">
+    </div>
+    <div class="filter-field" style="min-width: 180px;">
+      <label for="id_period_end">Fim</label>
+      <input type="date" name="period_end" id="id_period_end" class="form-input" value="{{ period_end|date:'Y-m-d' }}">
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn">Atualizar</button>
+    </div>
+  </div>
+</form>
+
+{% if dashboard %}
+<!-- Cards Resumo -->
+<div class="metrics" style="margin-bottom: 1.5rem;">
+  <article class="card metric">
+    <h3>Receitas (período)</h3>
+    <strong style="color: var(--positive);">R$ {{ dashboard.dre.income_received|floatformat:2 }}</strong>
+    {% if dashboard.dre.income_pending > 0 %}
+    <div class="subline muted">Pendentes: R$ {{ dashboard.dre.income_pending|floatformat:2 }}</div>
+    {% endif %}
+  </article>
+  <article class="card metric">
+    <h3>Despesas confirmadas</h3>
+    <strong style="color: var(--negative);">R$ {{ dashboard.dre.expenses_confirmed|floatformat:2 }}</strong>
+    {% if dashboard.dre.expenses_pending > 0 %}
+    <div class="subline muted">Pendentes: R$ {{ dashboard.dre.expenses_pending|floatformat:2 }}</div>
+    {% endif %}
+  </article>
+  <article class="card metric">
+    <h3>Resultado líquido</h3>
+    <strong style="color: {% if dashboard.dre.net_result >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+      R$ {{ dashboard.dre.net_result|floatformat:2 }}
+    </strong>
+  </article>
+  <article class="card metric">
+    <h3>Patrimônio atual</h3>
+    <strong>R$ {{ dashboard.equity.current_equity|floatformat:2 }}</strong>
+    <div class="subline {% if dashboard.equity.variation >= 0 %}positive{% else %}negative{% endif %} muted">
+      Variação: {% if dashboard.equity.variation >= 0 %}+{% endif %}R$ {{ dashboard.equity.variation|floatformat:2 }} ({{ dashboard.equity.variation_pct|floatformat:2 }}%)
+    </div>
+  </article>
+  <article class="card metric">
+    <h3>Investimentos</h3>
+    <strong>R$ {{ dashboard.investments.total_current|floatformat:2 }}</strong>
+    <div class="subline muted">Aplicado: R$ {{ dashboard.investments.total_applied|floatformat:2 }}</div>
+  </article>
+  <article class="card metric">
+    <h3>Reserva</h3>
+    <strong>R$ {{ dashboard.goals.reserve.current|floatformat:2 }}</strong>
+    <div class="subline muted">Meta: R$ {{ dashboard.goals.reserve.target|floatformat:2 }} ({{ dashboard.goals.reserve.progress_pct|floatformat:1 }}%)</div>
+  </article>
+</div>
+
+<!-- Avisos Globais -->
+{% if dashboard.dre.warnings or dashboard.equity.warnings or dashboard.goals.warnings %}
+<div class="card" style="border-color: var(--warning); background: var(--gold-soft); margin-bottom: 1.5rem;">
+  <strong style="color: var(--warning);">⚠ Alertas:</strong>
+  <ul style="margin: 0.5rem 0 0;">
+    {% for w in dashboard.dre.warnings %}<li>{{ w }}</li>{% endfor %}
+    {% for w in dashboard.equity.warnings %}<li>{{ w }}</li>{% endfor %}
+    {% for w in dashboard.goals.warnings %}<li>{{ w }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<!-- Ações rápidas + Export -->
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+  <a href="{% url 'finance:dre-report' profile.workspace_id profile.pk %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn">DRE Detalhada</a>
+  <a href="{% url 'finance:equity-report' profile.workspace_id profile.pk %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn secondary">Evolução Patrimonial</a>
+  <a href="{% url 'finance:investment-report' profile.workspace_id profile.pk %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn secondary">Investimentos</a>
+  <a href="{% url 'finance:goals-report' profile.workspace_id profile.pk %}" class="btn secondary">Metas e Reserva</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'dre' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar DRE (CSV)</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'equity' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar Patrimônio (CSV)</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'investments' %}?period_start={{ period_start|date:'Y-m-d' }}&period_end={{ period_end|date:'Y-m-d' }}&format=csv" class="btn secondary">Exportar Investimentos (CSV)</a>
+  <a href="{% url 'finance:export-report' profile.workspace_id profile.pk 'goals' %}?format=csv" class="btn secondary">Exportar Metas (CSV)</a>
+</div>
+
+<!-- Gráficos no Dashboard -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Gráficos</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 1.5rem;">
+    <!-- DRE: Barras empilhadas -->
+    <div class="card">
+      <h4 style="margin-top: 0;">DRE do período</h4>
+      <p class="muted">A apuração mensal não está disponível nesta visualização. Os valores reais agregados podem ser consultados na tabela DRE Resumida abaixo; nenhum mês é representado com valores fictícios.</p>
+      <a href="#alece-dre-resumo" class="btn secondary">Consultar DRE em tabela</a>
+    </div>
+    <!-- Patrimônio: Linha temporal -->
+    <div class="card">
+      <h4 style="margin-top: 0;">Evolução Patrimonial</h4>
+      <canvas id="equityChart" height="200" role="img" aria-label="Gráfico de evolução patrimonial. Valores completos na tabela seguinte."></canvas>
+      <details class="alece-chart-data"><summary>Consultar evolução patrimonial em tabela</summary><div class="table-wrap"><table class="source-table"><caption>Todos os pontos representados no gráfico de patrimônio</caption><thead><tr><th scope="col">Data</th><th scope="col">Saldo bancário</th><th scope="col">Investimentos</th><th scope="col">Patrimônio líquido</th></tr></thead><tbody>{% for point in dashboard.equity.points %}<tr><th scope="row">{{ point.date|date:'m/Y' }}</th><td>R$ {{ point.bank_balance|floatformat:2 }}</td><td>R$ {{ point.investment_value|floatformat:2 }}</td><td>R$ {{ point.net_equity|floatformat:2 }}</td></tr>{% empty %}<tr><td colspan="4">Sem registros patrimoniais neste período.</td></tr>{% endfor %}</tbody></table></div></details>
+    </div>
+    <!-- Investimentos: Pizza + Linha -->
+    <div class="card">
+      <h4 style="margin-top: 0;">Investimentos</h4>
+      <canvas id="investmentsChart" height="200" role="img" aria-label="Gráfico de distribuição dos investimentos. Valores completos na tabela seguinte."></canvas>
+      <details class="alece-chart-data"><summary>Consultar investimentos do gráfico em tabela</summary><div class="table-wrap"><table class="source-table"><caption>Posições representadas no gráfico de investimentos</caption><thead><tr><th scope="col">Investimento</th><th scope="col">Valor atual</th></tr></thead><tbody>{% for pos in dashboard.investments.positions %}<tr><th scope="row">{{ pos.name }}</th><td>R$ {{ pos.current_value|floatformat:2 }}</td></tr>{% empty %}<tr><td colspan="2">Sem posições neste período.</td></tr>{% endfor %}</tbody></table></div></details>
+    </div>
+  </div>
+</div>
+
+<!-- DRE Resumida -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 id="alece-dre-resumo" style="margin-top: 0;">DRE Resumida ({{ period_start|date:'d/m/Y' }} a {{ period_end|date:'d/m/Y' }})</h3>
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead>
+        <tr><th scope="col">Item</th><th scope="col" class="align-right">Valor</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Receitas recebidas</td><td class="align-right" style="color: var(--positive);">R$ {{ dashboard.dre.income_received|floatformat:2 }}</td></tr>
+        <tr><td>Despesas confirmadas</td><td class="align-right" style="color: var(--negative);">R$ {{ dashboard.dre.expenses_confirmed|floatformat:2 }}</td></tr>
+        <tr style="border-top: 2px solid var(--border); font-weight: bold;">
+          <td>Resultado líquido</td>
+          <td class="align-right" style="color: {% if dashboard.dre.net_result >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+            R$ {{ dashboard.dre.net_result|floatformat:2 }}
+          </td>
+        </tr>
+        <tr><td>Despesas pendentes</td><td class="align-right" style="color: var(--warning);">R$ {{ dashboard.dre.expenses_pending|floatformat:2 }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Evolução Patrimonial Resumida -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Evolução Patrimonial ({{ dashboard.equity.points|length }} pontos)</h3>
+  {% if dashboard.equity.points %}
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead>
+        <tr><th scope="col">Data</th><th scope="col" class="align-right">Bancos</th><th scope="col" class="align-right">Investimentos</th><th scope="col" class="align-right">Patrimônio</th><th scope="col">Saldo unk.</th></tr>
+      </thead>
+      <tbody>
+        {% for point in dashboard.equity.points|slice:":12" %}
+        <tr>
+          <td>{{ point.date|date:'m/Y' }}</td>
+          <td class="align-right">R$ {{ point.bank_balance|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ point.investment_value|floatformat:2 }}</td>
+          <td class="align-right"><strong>R$ {{ point.net_equity|floatformat:2 }}</strong></td>
+          <td {% if point.unknown_balance_count > 0 %}style="color: var(--warning);"{% endif %}>
+            {% if point.unknown_balance_count > 0 %}{{ point.unknown_balance_count }}{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% if dashboard.equity.points|length > 12 %}
+        <tr><td colspan="5" class="source-empty">... e mais {{ dashboard.equity.points|length|add:"-12" }} pontos</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Dados insuficientes para evolução patrimonial.</p>
+  {% endif %}
+</div>
+
+<!-- Investimentos Resumidos -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Posições de Investimento</h3>
+  {% if dashboard.investments.positions %}
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead>
+        <tr><th scope="col">Posição</th><th scope="col">Categoria</th><th scope="col" class="align-right">Aplicado</th><th scope="col" class="align-right">Atual</th><th scope="col" class="align-right">Ganho/Perda</th></tr>
+      </thead>
+      <tbody>
+        {% for pos in dashboard.investments.positions %}
+        <tr>
+          <td>{{ pos.name }} <span class="muted">{{ pos.institution }}</span></td>
+          <td>{{ pos.category }}</td>
+          <td class="align-right">R$ {{ pos.applied_amount|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ pos.current_value|floatformat:2 }}</td>
+          <td class="align-right" style="color: {% if pos.unrealized_gain >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+            R$ {{ pos.unrealized_gain|floatformat:2 }}
+          </td>
+        </tr>
+        {% endfor %}
+        <tr style="font-weight: bold; border-top: 2px solid var(--border);">
+          <td colspan="2">Total</td>
+          <td class="align-right">R$ {{ dashboard.investments.total_applied|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ dashboard.investments.total_current|floatformat:2 }}</td>
+          <td class="align-right" style="color: {% if dashboard.investments.total_unrealized_gain >= 0 %}var(--positive){% else %}var(--negative){% endif %};">
+            R$ {{ dashboard.investments.total_unrealized_gain|floatformat:2 }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nenhuma posição de investimento cadastrada.</p>
+  {% endif %}
+</div>
+
+<!-- Reserva e Metas -->
+<div class="card">
+  <h3 style="margin-top: 0;">Reserva e Metas</h3>
+  <div class="metrics" style="margin-bottom: 1rem;">
+    <article class="card metric">
+      <h3>Reserva Atual</h3>
+      <strong>R$ {{ dashboard.goals.reserve.current|floatformat:2 }}</strong>
+      <div class="subline muted">Meta: R$ {{ dashboard.goals.reserve.target|floatformat:2 }}</div>
+    </article>
+    <article class="card metric">
+      <h3>Progresso</h3>
+      <strong>{{ dashboard.goals.reserve.progress_pct|floatformat:1 }}%</strong>
+      <div class="subline muted">Faltam: R$ {{ dashboard.goals.reserve.gap|floatformat:2 }}</div>
+    </article>
+    <article class="card metric">
+      <h3>Sugestão/mês</h3>
+      <strong>R$ {{ dashboard.goals.reserve.monthly_suggestion|floatformat:2 }}</strong>
+      <div class="subline muted">{{ dashboard.goals.reserve.coverage_months }} meses de proteção</div>
+    </article>
+  </div>
+  
+  {% if dashboard.goals.goals %}
+  <h4>Metas de Investimento</h4>
+  <div class="table-wrap">
+    <table class="source-table">
+      <thead>
+        <tr><th scope="col">Meta</th><th scope="col">Categoria</th><th scope="col" class="align-right">Atual</th><th scope="col" class="align-right">Meta</th><th scope="col" class="align-right">Progresso</th></tr>
+      </thead>
+      <tbody>
+        {% for goal in dashboard.goals.goals %}
+        <tr>
+          <td>{{ goal.name }}</td>
+          <td>{{ goal.category }}</td>
+          <td class="align-right">R$ {{ goal.current|floatformat:2 }}</td>
+          <td class="align-right">R$ {{ goal.target|floatformat:2 }}</td>
+          <td class="align-right">{{ goal.progress_pct|floatformat:1 }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+
+{% else %}
+<div class="card contextual-empty">
+  <h2>Selecione um perfil e período</h2>
+  <p>Escolha um perfil financeiro e período acima para visualizar os relatórios consolidados.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.min.js' %}"></script>
+{{ chart_equity|json_script:"alece-chart-equity" }}
+{{ chart_investments|json_script:"alece-chart-investments" }}
+<script>
+(function() {
+  const periodStart = '{{ period_start|date:"Y-m-d" }}';
+  const periodEnd = '{{ period_end|date:"Y-m-d" }}';
+  const profileName = '{{ dashboard.profile|escapejs }}';
+  
+  // Função auxiliar para buscar dados do backend
+  async function fetchReportData(url) {
+    const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!response.ok) throw new Error('Erro ao carregar dados');
+    return response.json();
+  }
+
+  // O backend não fornece série mensal real. Não renderize valores zerados fictícios.
+
+  // Equity Evolution Chart - Linha temporal
+  if (document.getElementById('equityChart')) {
+    const equityPoints = JSON.parse(document.getElementById('alece-chart-equity').textContent);
+    if (equityPoints.length) {
+      new Chart(document.getElementById('equityChart'), {
+        type: 'line',
+        data: {
+          labels: equityPoints.map(p => p.date),
+          datasets: [
+            { label: 'Patrimônio Líquido', data: equityPoints.map(p => p.net_equity), borderColor: 'var(--primary)', fill: false },
+            { label: 'Bancos', data: equityPoints.map(p => p.bank_balance), borderColor: 'var(--positive)', fill: false },
+            { label: 'Investimentos', data: equityPoints.map(p => p.investment_value), borderColor: 'var(--primary)', fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: false } },
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  }
+
+  // Investments Chart - Pizza + Linha
+  if (document.getElementById('investmentsChart')) {
+    const investmentPositions = JSON.parse(document.getElementById('alece-chart-investments').textContent);
+    if (investmentPositions.length) {
+      new Chart(document.getElementById('investmentsChart'), {
+        type: 'doughnut',
+        data: {
+          labels: investmentPositions.map(p => p.name),
+          datasets: [{
+            data: investmentPositions.map(p => p.current_value),
+            backgroundColor: ['var(--primary)', 'var(--positive)', 'var(--gold)', 'var(--negative)', 'var(--warning)', 'var(--info)']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  }
+})();
+</script>
+{% endblock %}

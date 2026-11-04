@@ -1,0 +1,106 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block title %}Permissões · ALECE{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+  <div>
+    <p class="muted">{{ workspace.name }}</p>
+    <h1>Permissões: {{ target_user.username }}</h1>
+  </div>
+  <a href="{% url 'core:user-management' workspace_id=workspace.pk %}" class="button secondary" style="text-decoration:none">← Voltar</a>
+</div>
+
+{% for message in messages %}
+<div class="card notice" role="status">{{ message }}</div>
+{% endfor %}
+
+<p class="muted" style="margin-bottom:24px">
+  Configure as permissões por perfil financeiro e módulo.
+  <strong>Administradores</strong> do núcleo têm acesso total automático a todos os perfis.
+  <strong>Comum</strong> inicia sem permissões financeiras até concessão explícita.
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col" style="min-width:200px">Perfil Financeiro</th>
+          <th scope="col" style="width:100px"><label class="checkbox-label"><input type="checkbox" id="toggle-all-view" disabled> Visualizar</label></th>
+          <th scope="col" style="width:100px"><label class="checkbox-label"><input type="checkbox" id="toggle-all-edit" disabled> Editar</label></th>
+          <th scope="col">Visão geral</th>
+          <th scope="col">Contas</th>
+          <th scope="col">Despesas</th>
+          <th scope="col">Investimentos</th>
+          <th scope="col">Movimentações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in grant_data %}
+        {% with grant=item.grant profile=item.profile %}
+        <tr data-grant-profile>
+          <td>{{ profile.name }}{% if profile.is_archived %} <span class="muted" style="font-size:12px">(arquivado)</span>{% endif %}</td>
+          <td>
+            <label class="checkbox-label">
+              <input type="checkbox" name="grant_{{ profile.pk }}_can_view" data-grant-bulk="view" {% if item.all_view %}checked{% endif %} {% if profile.is_archived %}disabled{% endif %}>
+              <span>Visualizar</span>
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-label">
+              <input type="checkbox" name="grant_{{ profile.pk }}_can_edit" data-grant-bulk="edit" {% if item.all_edit %}checked{% endif %} {% if profile.is_archived %}disabled{% endif %}>
+              <span>Editar</span>
+            </label>
+          </td>
+          <td>
+            <select name="grant_{{ profile.pk }}_overview_level" data-grant-module="overview" {% if profile.is_archived %}disabled{% endif %}>
+              <option value="none" {% if not grant or grant.overview_level == "none" %}selected{% endif %}>Sem acesso</option>
+              <option value="view" {% if grant and grant.overview_level == "view" %}selected{% endif %}>Visualizar</option>
+              <option value="edit" {% if grant and grant.overview_level == "edit" %}selected{% endif %}>Editar</option>
+            </select>
+          </td>
+          <td>
+            <select name="grant_{{ profile.pk }}_accounts_level" data-grant-module="accounts" {% if profile.is_archived %}disabled{% endif %}>
+              <option value="none" {% if not grant or grant.accounts_level == "none" %}selected{% endif %}>Sem acesso</option>
+              <option value="view" {% if grant and grant.accounts_level == "view" %}selected{% endif %}>Visualizar</option>
+              <option value="edit" {% if grant and grant.accounts_level == "edit" %}selected{% endif %}>Editar</option>
+            </select>
+          </td>
+          <td>
+            <select name="grant_{{ profile.pk }}_expenses_level" data-grant-module="expenses" {% if profile.is_archived %}disabled{% endif %}>
+              <option value="none" {% if not grant or grant.expenses_level == "none" %}selected{% endif %}>Sem acesso</option>
+              <option value="view" {% if grant and grant.expenses_level == "view" %}selected{% endif %}>Visualizar</option>
+              <option value="edit" {% if grant and grant.expenses_level == "edit" %}selected{% endif %}>Editar</option>
+            </select>
+          </td>
+          <td>
+            <select name="grant_{{ profile.pk }}_investments_level" data-grant-module="investments" {% if profile.is_archived %}disabled{% endif %}>
+              <option value="none" {% if not grant or grant.investments_level == "none" %}selected{% endif %}>Sem acesso</option>
+              <option value="view" {% if grant and grant.investments_level == "view" %}selected{% endif %}>Visualizar</option>
+              <option value="edit" {% if grant and grant.investments_level == "edit" %}selected{% endif %}>Editar</option>
+            </select>
+          </td>
+          <td>
+            <select name="grant_{{ profile.pk }}_movements_level" data-grant-module="movements" {% if profile.is_archived %}disabled{% endif %}>
+              <option value="none" {% if not grant or grant.movements_level == "none" %}selected{% endif %}>Sem acesso</option>
+              <option value="view" {% if grant and grant.movements_level == "view" %}selected{% endif %}>Visualizar</option>
+              <option value="edit" {% if grant and grant.movements_level == "edit" %}selected{% endif %}>Editar</option>
+            </select>
+          </td>
+        </tr>
+        {% endwith %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="actions" style="margin-top:24px">
+    <button type="submit" class="button">Salvar Permissões</button>
+    <a href="{% url 'core:user-management' workspace_id=workspace.pk %}" class="button secondary" style="text-decoration:none">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

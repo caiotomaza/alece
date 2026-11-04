@@ -1,0 +1,65 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-theme="{{ ui_theme|default:'light' }}" data-user-id="{{ request.user.pk|default:'' }}" data-theme-endpoint="{% url 'preferencia-tema' %}">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Usar código de recuperação · ALECE</title>
+  <link rel="stylesheet" href="{% static 'finance/alece_tokens.css' %}">
+<link rel="stylesheet" href="{% static 'finance/alece_ui_consistency.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_components.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_auth.css' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'finance/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_accessibility.css' %}">
+  <script src="{% static 'finance/alece_accessibility.js' %}" defer></script>
+</head>
+<body class="auth-page">
+  <main class="content">
+    <div class="card">
+      <div class="auth-header">
+        <div class="auth-brandmark"><img src="{% static 'finance/favicon.svg' %}" width="48" height="48" alt=""></div>
+        <h1>Usar código de recuperação</h1>
+        <p class="muted">Insira seu usuário e o código para definir nova senha</p>
+      </div>
+
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_username">Nome de usuário</label>
+          <input type="text" name="username" id="id_username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="id_code">Código de recuperação</label>
+          <input type="text" name="code" id="id_code" class="auth-code-input" required autocomplete="one-time-code">
+        </div>
+        <div class="form-group">
+          <label for="id_new_password1">Nova senha</label>
+          <input type="password" name="new_password1" id="id_new_password1" required autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="id_new_password2">Confirmar nova senha</label>
+          <input type="password" name="new_password2" id="id_new_password2" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn auth-submit">Redefinir senha</button>
+      </form>
+
+      <div class="divider"></div>
+
+      <div class="auth-footer-links">
+        <a href="{% url 'recovery_request' %}" class="link">Gerar novo código</a>
+        <a href="{% url 'login' %}" class="link auth-link-muted">Voltar ao login</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

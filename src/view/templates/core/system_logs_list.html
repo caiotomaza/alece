@@ -1,0 +1,640 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} · ALECE{% endblock %}
+
+{% block extra_css %}
+<style>
+    .logs-page {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+        gap: 22px;
+    }
+    .logs-toolbar,
+    .logs-board {
+        min-width: 0;
+        padding: 22px;
+        border: 1px solid var(--border);
+        border-radius: var(--ds-radius-card);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+    }
+    .logs-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    .logs-panel-head-actions {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-left: auto;
+    }
+    .logs-panel-head-actions .btn {
+        min-height: 44px;
+        border-radius: var(--ds-radius-control);
+        padding: 10px 18px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+    .logs-panel-head-actions .btn.secondary {
+        background: var(--surface-alt);
+        border-color: var(--border);
+        color: var(--text);
+    }
+    .logs-panel-head h2 {
+        margin: 0;
+        font-size: clamp(20px, 2vw, 28px);
+        letter-spacing: -.7px;
+    }
+    .logs-panel-head p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+    .logs-panel-eyebrow {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--primary);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .logs-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 12px;
+        align-items: end;
+    }
+    .logs-filter-field {
+        display: grid;
+        gap: 6px;
+        min-width: 0;
+    }
+    .logs-filter-field--span-2 {
+        grid-column: span 2;
+    }
+    .logs-filter-field label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: -.1px;
+    }
+    .logs-filter-field input,
+    .logs-filter-field select {
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+        border-radius: var(--ds-radius-control);
+        background: var(--surface-alt);
+        color: var(--text);
+        padding: 0 14px;
+        font: inherit;
+        font-size: 14px;
+        box-shadow: none;
+    }
+    .logs-filter-field input::placeholder {
+        color: var(--muted);
+        opacity: 1;
+    }
+    .logs-filter-field input:focus-visible,
+    .logs-filter-field select:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+    }
+    .logs-filter-field select {
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 42px;
+        background-image: var(--ds-select-chevron);
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 18px;
+    }
+    .logs-table-shell {
+        min-width: 0;
+        max-width: 100%;
+        border: 1px solid var(--border);
+        border-radius: var(--ds-radius-card);
+        background: var(--ds-color-surface);
+        padding: 8px 10px 10px;
+        overflow-x: auto;
+    }
+    .logs-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 13px;
+    }
+    .logs-table th,
+    .logs-table td {
+        padding: 16px;
+        text-align: left;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border);
+    }
+    .logs-table th:first-child,
+    .logs-table td:first-child {
+        padding-left: 20px;
+    }
+    .logs-table th:last-child,
+    .logs-table td:last-child {
+        padding-right: 20px;
+    }
+    .logs-table thead th {
+        background: var(--ds-color-muted-surface);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: -.15px;
+        color: var(--muted);
+        text-transform: uppercase;
+    }
+    .logs-table thead th:first-child {
+        border-top-left-radius: 16px;
+    }
+    .logs-table thead th:last-child {
+        border-top-right-radius: 16px;
+    }
+    .logs-table tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 16px;
+    }
+    .logs-table tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 16px;
+    }
+    .logs-table tbody tr.data-row:hover td {
+        background: color-mix(in srgb, var(--surface-alt) 90%, transparent);
+    }
+    .log-date {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+        font-weight: 650;
+    }
+    .log-user,
+    .log-context {
+        line-height: 1.55;
+    }
+    .log-context {
+        color: var(--muted);
+    }
+    .log-context strong {
+        color: var(--text);
+        font-weight: 650;
+    }
+    .severity-badge,
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .25px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .severity-debug { background: var(--surface-alt); color: var(--muted); }
+    .severity-info { background: color-mix(in srgb, var(--positive) 18%, var(--surface)); color: var(--positive); }
+    .severity-warning { background: color-mix(in srgb, var(--warning) 18%, var(--surface)); color: var(--warning); }
+    .severity-error { background: color-mix(in srgb, var(--negative) 18%, var(--surface)); color: var(--negative); }
+    .severity-critical { background: color-mix(in srgb, var(--negative) 24%, var(--surface)); color: var(--negative); }
+    .result-success { background: color-mix(in srgb, var(--positive) 18%, var(--surface)); color: var(--positive); }
+    .result-failure { background: color-mix(in srgb, var(--negative) 18%, var(--surface)); color: var(--negative); }
+    .result-denied { background: color-mix(in srgb, var(--warning) 18%, var(--surface)); color: var(--warning); }
+    .result-partial { background: var(--surface-alt); color: var(--muted); }
+    .log-detail-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 700;
+    }
+    .log-detail-link:hover {
+        text-decoration: underline;
+    }
+    .details-toggle {
+        min-height: 36px;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface-alt);
+        color: var(--text);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .details-toggle:hover {
+        background: var(--chart-bg);
+    }
+    .details-row {display:none}
+    .logs-table tbody tr.data-row.is-expanded td {
+        background:var(--surface-alt);
+        border-bottom:0;
+    }
+    .logs-table tbody tr.data-row.is-expanded td:first-child {
+        border-left:2px solid var(--primary);
+    }
+    .logs-table tbody tr.details-row.is-open td {
+        padding:0 12px 14px;
+        border-left:2px solid var(--primary);
+        background:var(--surface-alt);
+    }
+    .logs-table .details-row .details-content {
+        margin:0;
+        border-radius:0 0 14px 14px;
+        background:var(--surface-alt);
+        border-top:1px solid var(--border);
+    }
+    .details-content[hidden]{display:none!important}
+    .logs-table .data-row{scroll-margin-top:22px}
+
+    .details-row.is-open {
+        display: table-row;
+    }
+    .details-row td {
+        padding-top: 0;
+        background: transparent;
+    }
+    .details-content {
+        display: grid;
+        gap: 10px;
+        margin: 8px 0 6px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface-alt);
+        color: var(--text);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 14px;
+    }
+    .detail-item {
+        min-width: 0;
+    }
+    .detail-item strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .45px;
+    }
+    .detail-item span,
+    .detail-item div {
+        color: var(--text);
+        word-break: break-word;
+    }
+    .details-pre {
+        margin: 0;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: color-mix(in srgb, var(--surface) 86%, var(--surface-alt));
+        font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        color: var(--text);
+        white-space: pre-wrap;
+        overflow-x: auto;
+    }
+    .logs-empty {
+        text-align: center;
+        color: var(--muted);
+        padding: 42px 20px;
+        font-size: 13px;
+    }
+    .logs-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+    .logs-pagination a,
+    .logs-pagination span {
+        min-height: 38px;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface);
+    }
+    .logs-pagination a:hover {
+        background: var(--surface-alt);
+    }
+    .logs-pagination .current {
+        background: var(--primary);
+        color: var(--on-primary);
+        border-color: var(--primary);
+        font-weight: 700;
+    }
+    .logs-pagination .pagination-info {
+        color: var(--muted);
+        background: transparent;
+        border: none;
+        padding-inline: 0;
+    }
+    @media (max-width: 1180px) {
+        .logs-filter-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+    @media (max-width: 760px) {
+        .logs-toolbar,
+        .logs-board {
+            padding: 18px;
+            border-radius: 20px;
+        }
+        .logs-filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .logs-filter-field--span-2 {
+            grid-column: span 2;
+        }
+        .logs-table-shell {
+            padding: 6px 8px 8px;
+        }
+        .logs-table th,
+        .logs-table td {
+            padding: 14px;
+        }
+        .logs-table th:first-child,
+        .logs-table td:first-child {
+            padding-left: 16px;
+        }
+        .logs-table th:last-child,
+        .logs-table td:last-child {
+            padding-right: 16px;
+        }
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+        .logs-panel-head-actions {
+            justify-content: flex-start;
+        }
+    }
+    @media (max-width: 560px) {
+        .logs-panel-head {
+            flex-direction: column;
+        }
+        .logs-filter-grid {
+            grid-template-columns: 1fr;
+        }
+        .logs-filter-field--span-2 {
+            grid-column: auto;
+        }
+        .logs-panel-head-actions {
+            width: 100%;
+            justify-content: stretch;
+        }
+        .logs-panel-head-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <p class="muted">{% if workspace %}{{ workspace.name }}{% else %}Sistema{% endif %}</p>
+        <h1>{{ title }}</h1>
+    </div>
+</div>
+
+<div class="logs-page">
+    <form method="get" class="logs-toolbar">
+        <div class="logs-panel-head">
+            <div>
+                <div class="logs-panel-eyebrow">03 · Auditoria</div>
+                <h2>Filtros de consulta</h2>
+                <p>Refine o histórico com os mesmos padrões visuais do restante da ferramenta, em claro e escuro.</p>
+            </div>
+            <div class="logs-panel-head-actions">
+                <button type="submit" class="btn">Filtrar</button>
+                <a href="{% url 'logs' %}" class="btn secondary">Limpar</a>
+            </div>
+        </div>
+        <div class="logs-filter-grid">
+            <div class="logs-filter-field">
+                <label for="id_severity">Severidade</label>
+                <select name="severity" id="id_severity">
+                    <option value="">Todas</option>
+                    {% for value, label in severity_choices %}
+                        <option value="{{ value }}" {% if filters.severity == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_module">Módulo</label>
+                <select name="module" id="id_module">
+                    <option value="">Todos</option>
+                    {% for value, label in module_choices %}
+                        <option value="{{ value }}" {% if filters.module == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_action">Ação</label>
+                <select name="action" id="id_action">
+                    <option value="">Todas</option>
+                    {% for value, label in action_choices %}
+                        <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_result">Resultado</label>
+                <select name="result" id="id_result">
+                    <option value="">Todos</option>
+                    {% for value, label in result_choices %}
+                        <option value="{{ value }}" {% if filters.result == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_user">Usuário</label>
+                <input type="text" name="user" id="id_user" value="{{ filters.user|default:'' }}" placeholder="Filtrar por usuário">
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_date_from">De</label>
+                <input type="date" name="date_from" id="id_date_from" value="{{ filters.date_from|default:'' }}">
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_date_to">Até</label>
+                <input type="date" name="date_to" id="id_date_to" value="{{ filters.date_to|default:'' }}">
+            </div>
+            <div class="logs-filter-field">
+                <label for="id_search">Busca</label>
+                <input type="text" name="search" id="id_search" value="{{ filters.search|default:'' }}" placeholder="Buscar em descrição, detalhes ou objeto">
+            </div>
+        </div>
+    </form>
+
+    <section class="logs-board">
+        <div class="logs-panel-head">
+            <div>
+                <div class="logs-panel-eyebrow">Histórico consolidado</div>
+                <h2>Logs do sistema</h2>
+                <p>Visualização padronizada com espaçamento interno, tipografia e tabela no mesmo estilo das demais áreas do ALECE.</p>
+            </div>
+        </div>
+
+        <div class="logs-table-shell">
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 150px;">Data/Hora</th>
+                        <th scope="col" style="width: 92px;">Severidade</th>
+                        <th scope="col" style="width: 120px;">Módulo</th>
+                        <th scope="col" style="width: 120px;">Ação</th>
+                        <th scope="col" style="width: 96px;">Resultado</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col" style="width: 120px;">Usuário</th>
+                        <th scope="col" style="width: 150px;">Núcleo/Perfil</th>
+                        <th scope="col" style="width: 110px;">Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                    <tr class="data-row{% if selected_log_id == log.pk %} is-expanded{% endif %}" id="log-{{ log.id }}">
+                        <td class="log-date">{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
+                        <td>
+                            <span class="severity-badge severity-{{ log.severity }}">
+                                {{ log.get_severity_display }}
+                            </span>
+                        </td>
+                        <td>{{ log.get_module_display }}</td>
+                        <td>{{ log.get_action_display }}</td>
+                        <td>
+                            <span class="result-badge result-{{ log.result }}">
+                                {{ log.get_result_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'logs' %}?abrir={{ log.id }}#log-{{ log.id }}" class="log-detail-link">
+                                {{ log.description|truncatechars:60 }}
+                            </a>
+                        </td>
+                        <td class="log-user">
+                            {% if log.user %}
+                                {{ log.user.username }}
+                            {% else %}
+                                <span class="muted">Sistema</span>
+                            {% endif %}
+                        </td>
+                        <td class="log-context">
+                            {% if log.workspace %}
+                                <strong>{{ log.workspace.name }}</strong>
+                                {% if log.profile %}<br>{{ log.profile.name }}{% endif %}
+                            {% else %}
+                                <span class="muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button type="button" class="details-toggle" aria-expanded="{% if selected_log_id == log.pk %}true{% else %}false{% endif %}" aria-controls="details-{{ log.id }}" onclick="toggleDetails(this, 'details-{{ log.id }}')">
+                                <span>{% if selected_log_id == log.pk %}Ocultar{% else %}Detalhes{% endif %}</span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="details-row{% if selected_log_id == log.pk %} is-open{% endif %}" id="row-details-{{ log.id }}">
+                        <td colspan="9">
+                            <div id="details-{{ log.id }}" class="details-content" {% if selected_log_id != log.pk %}hidden{% endif %}>
+                                <div class="details-grid">
+                                    <div class="detail-item"><strong>Severidade</strong><span>{{ log.get_severity_display }}</span></div>
+                                    <div class="detail-item"><strong>Resultado</strong><span>{{ log.get_result_display }}</span></div>
+                                    <div class="detail-item"><strong>Módulo</strong><span>{{ log.get_module_display }}</span></div>
+                                    <div class="detail-item"><strong>Ação</strong><span>{{ log.get_action_display }}</span></div>
+                                    <div class="detail-item"><strong>Usuário</strong><span>{% if log.user %}{{ log.user.username }}{% else %}Sistema{% endif %}</span></div>
+                                    {% if log.workspace %}
+                                        <div class="detail-item"><strong>Núcleo / Perfil</strong><span>{{ log.workspace.name }}{% if log.profile %} / {{ log.profile.name }}{% endif %}</span></div>
+                                    {% elif log.profile %}
+                                        <div class="detail-item"><strong>Perfil</strong><span>{{ log.profile.name }}</span></div>
+                                    {% endif %}
+                                    {% if log.request_id %}<div class="detail-item"><strong>Request ID</strong><span>{{ log.request_id }}</span></div>{% endif %}
+                                    {% if log.ip_address %}<div class="detail-item"><strong>IP</strong><span>{{ log.ip_address }}</span></div>{% endif %}
+                                    {% if log.user_agent %}<div class="detail-item" style="grid-column: 1 / -1;"><strong>User-Agent</strong><span>{{ log.user_agent }}</span></div>{% endif %}
+                                    {% if log.object_type %}<div class="detail-item" style="grid-column: 1 / -1;"><strong>Objeto</strong><span>{{ log.object_type }} #{{ log.object_id }} ({{ log.object_repr }})</span></div>{% endif %}
+                                    {% if log.is_financial_audit %}<div class="detail-item" style="grid-column: 1 / -1;"><strong>Auditoria financeira</strong><span>Sim{% if log.ledger_batch_id %} · Lote {{ log.ledger_batch_id }}{% endif %}</span></div>{% endif %}
+                                    <div class="detail-item" style="grid-column: 1 / -1;"><strong>Descrição</strong><div>{{ log.description }}</div></div>
+                                </div>
+                                {% if log.details %}
+                                    <div>
+                                        <strong style="display:block;margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.45px;">Detalhes JSON</strong>
+                                        <pre class="details-pre">{{ log.details|pprint }}</pre>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="logs-empty">Nenhum log encontrado com os filtros atuais.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="logs-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if filters %}{{ filters.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">&laquo; Anterior</a>
+            {% endif %}
+            <span class="pagination-info">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} ({{ page_obj.paginator.count }} logs)</span>
+            {% if page_obj.has_next %}
+                <a href="?{% if filters %}{{ filters.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<script>
+function toggleDetails(button, detailsId) {
+    const details = document.getElementById(detailsId);
+    const row = document.getElementById(`row-${detailsId}`);
+    const isOpen = !details.hasAttribute('hidden');
+    if (isOpen) {
+        details.setAttribute('hidden', 'hidden');
+        row.classList.remove('is-open');
+        button.closest('tr.data-row').classList.remove('is-expanded');
+        button.setAttribute('aria-expanded', 'false');
+        button.querySelector('span').textContent = 'Detalhes';
+    } else {
+        details.removeAttribute('hidden');
+        row.classList.add('is-open');
+        button.closest('tr.data-row').classList.add('is-expanded');
+        button.setAttribute('aria-expanded', 'true');
+        button.querySelector('span').textContent = 'Ocultar';
+    }
+}
+window.addEventListener('DOMContentLoaded', () => {
+    const selected = document.querySelector('.logs-table .data-row.is-expanded');
+    if (selected) selected.scrollIntoView({ block:'center', behavior:'instant' });
+});
+</script>
+{% endblock %}

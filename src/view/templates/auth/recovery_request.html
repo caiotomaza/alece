@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-theme="{{ ui_theme|default:'light' }}" data-user-id="{{ request.user.pk|default:'' }}" data-theme-endpoint="{% url 'preferencia-tema' %}">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Códigos de recuperação · ALECE</title>
+  <link rel="stylesheet" href="{% static 'finance/alece_tokens.css' %}">
+<link rel="stylesheet" href="{% static 'finance/alece_ui_consistency.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_components.css' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_auth.css' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'finance/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'finance/alece_accessibility.css' %}">
+  <script src="{% static 'finance/alece_accessibility.js' %}" defer></script>
+</head>
+<body class="auth-page">
+  <main class="content">
+    <div class="card">
+      <h1>Recuperação offline</h1>
+      <p>Use o código que você guardou anteriormente para redefinir sua senha.</p>
+      <a href="{% url 'recovery_use' %}" class="btn">Usar código guardado</a>
+      <p>Para gerar ou substituir um código, entre na sua conta e confirme sua senha atual.</p>
+      <a href="{% url 'recovery_generate' %}" class="link">Gerar código após login</a>
+      <p class="muted">Sem senha e sem código guardado, entre em contato com o administrador da sua instalação.</p>
+      <a href="{% url 'login' %}" class="link">Voltar ao login</a>
+
+    </div>
+  </main>
+</body>
+</html>

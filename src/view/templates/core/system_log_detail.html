@@ -1,0 +1,308 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block title %}Log #{{ log.id }} · ALECE{% endblock %}
+
+{% block extra_css %}
+<style>
+    .log-detail-header {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--ds-radius-card);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .log-header-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-start;
+    }
+    .log-main-info {
+        flex: 1;
+        min-width: 300px;
+    }
+    .log-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge-severity-debug { background: var(--surface-alt); color: var(--muted); }
+    .badge-severity-info { background: color-mix(in srgb, var(--positive) 12%, var(--surface)); color: var(--positive); }
+    .badge-severity-warning { background: color-mix(in srgb, var(--warning) 12%, var(--surface)); color: var(--warning); }
+    .badge-severity-error { background: color-mix(in srgb, var(--negative) 12%, var(--surface)); color: var(--negative); }
+    .badge-severity-critical { background: color-mix(in srgb, var(--negative) 20%, var(--surface)); color: var(--negative); font-weight: 700; }
+    .badge-result-success { background: color-mix(in srgb, var(--positive) 12%, var(--surface)); color: var(--positive); }
+    .badge-result-failure { background: color-mix(in srgb, var(--negative) 12%, var(--surface)); color: var(--negative); }
+    .badge-result-denied { background: color-mix(in srgb, var(--warning) 12%, var(--surface)); color: var(--warning); }
+    .badge-result-partial { background: var(--surface-alt); color: var(--muted); }
+    .badge-module { background: var(--surface-alt); color: var(--text); }
+    .badge-action { background: color-mix(in srgb, var(--primary) 12%, var(--surface)); color: var(--primary); }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+    .detail-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--ds-radius-control);
+        padding: 16px;
+    }
+    .detail-card h4 {
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    .detail-label {
+        color: var(--muted);
+        font-size: 13px;
+    }
+    .detail-value {
+        font-weight: 500;
+        text-align: right;
+        max-width: 60%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .detail-value code {
+        font-family: monospace;
+        font-size: 12px;
+        background: var(--surface-alt);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+    .details-section {
+        margin-top: 24px;
+    }
+    .details-section h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+    .details-content {
+        background: var(--surface-alt);
+        border-radius: 8px;
+        padding: 16px;
+        font-family: monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 24px;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'core:system-logs-list' %}" class="back-link">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 19 5"></polyline>
+    </svg>
+    Voltar aos Logs
+</a>
+
+<div class="log-detail-header">
+    <div class="log-header-row">
+        <div class="log-main-info">
+            <h1 style="margin: 0 0 8px 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -1px;">
+                Log #{{ log.id }}
+            </h1>
+            <p class="muted" style="margin: 0;">{{ log.timestamp|date:"d/m/Y H:i:s" }}</p>
+        </div>
+        <div class="log-badges">
+            <span class="badge badge-severity-{{ log.severity }}">{{ log.get_severity_display }}</span>
+            <span class="badge badge-module">{{ log.get_module_display }}</span>
+            <span class="badge badge-action">{{ log.get_action_display }}</span>
+            <span class="badge badge-result-{{ log.result }}">{{ log.get_result_display }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div class="detail-card">
+        <h4>Identificação</h4>
+        <div class="detail-row">
+            <span class="detail-label">ID do Log</span>
+            <span class="detail-value"><code>#{{ log.id }}</code></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Timestamp</span>
+            <span class="detail-value">{{ log.timestamp|date:"d/m/Y H:i:s" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Request ID</span>
+            <span class="detail-value"><code>{{ log.request_id|default:"—" }}</code></span>
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <h4>Classificação</h4>
+        <div class="detail-row">
+            <span class="detail-label">Severidade</span>
+            <span class="detail-value"><span class="badge badge-severity-{{ log.severity }}">{{ log.get_severity_display }}</span></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Módulo</span>
+            <span class="detail-value">{{ log.get_module_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Ação</span>
+            <span class="detail-value">{{ log.get_action_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Resultado</span>
+            <span class="detail-value">
+                <span class="badge badge-result-{{ log.result }}">{{ log.get_result_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <h4>Contexto</h4>
+        <div class="detail-row">
+            <span class="detail-label">Usuário</span>
+            <span class="detail-value">
+                {% if log.user %}
+                    {{ log.user.username }}
+                {% else %}
+                    <span class="muted">Sistema</span>
+                {% endif %}
+            </div>
+        </div>
+        {% if log.workspace %}
+        <div class="detail-row">
+            <span class="detail-label">Núcleo</span>
+            <span class="detail-value">{{ log.workspace.name }}{% if log.profile %} / {{ log.profile.name }}{% endif %}</span>
+        </div>
+        {% elif log.profile %}
+        <div class="detail-row">
+            <span class="detail-label">Perfil</span>
+            <span class="detail-value">{{ log.profile.name }}</span>
+        </div>
+        {% endif %}
+        {% if log.request_id %}
+        <div class="detail-row">
+            <span class="detail-label">Request ID</span>
+            <span class="detail-value"><code>{{ log.request_id }}</code></span>
+        </div>
+        {% endif %}
+        {% if log.ip_address %}
+        <div class="detail-row">
+            <span class="detail-label">IP</span>
+            <span class="detail-value"><code>{{ log.ip_address }}</code></span>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if log.object_type or log.object_id or log.object_repr %}
+    <div class="detail-card">
+        <h4>Objeto Afetado</h4>
+        {% if log.object_type %}
+        <div class="detail-row">
+            <span class="detail-label">Tipo</span>
+            <span class="detail-value">{{ log.object_type }}</span>
+        </div>
+        {% endif %}
+        {% if log.object_id %}
+        <div class="detail-row">
+            <span class="detail-label">ID</span>
+            <span class="detail-value"><code>{{ log.object_id }}</code></span>
+        </div>
+        {% endif %}
+        {% if log.object_repr %}
+        <div class="detail-row">
+            <span class="detail-label">Representação</span>
+            <span class="detail-value">{{ log.object_repr }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if log.is_financial_audit %}
+    <div class="detail-card">
+        <h4>Auditoria Financeira</h4>
+        <div class="detail-row">
+            <span class="detail-label">Auditoria Financeira</span>
+            <span class="detail-value">Sim</span>
+        </div>
+        {% if log.ledger_batch_id %}
+        <div class="detail-row">
+            <span class="detail-label">Lote Contábil</span>
+            <span class="detail-value"><code>{{ log.ledger_batch_id }}</code></span>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="details-section">
+    <h3>Descrição</h3>
+    <div class="details-content">{{ log.description }}</div>
+</div>
+
+{% if log.details %}
+<div class="details-section">
+    <h3>Detalhes (JSON)</h3>
+    <div class="details-content">{{ log.details|pprint }}</div>
+</div>
+{% endif %}
+
+{% if log.user_agent %}
+<div class="details-section">
+    <h3>User-Agent</h3>
+    <div class="details-content">{{ log.user_agent }}</div>
+</div>
+{% endif %}
+
+<script>
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+{% endblock %}

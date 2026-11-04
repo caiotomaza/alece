@@ -1,0 +1,290 @@
+/* ALECE Design System 1.0 — componentes compartilhados; carregado após o legado.
+ * Ajustes restritos à geometria, estados e semântica visual; não interfere em handlers,
+ * backend, dados, rotas, indicadores ou configuração dos gráficos. */
+
+/* Foco de teclado: nunca depender só de sombra/cor de hover. */
+:where(.content,.unified-dialog,.setup-page) :is(a,button,input,select,textarea,summary):focus-visible,
+:where(.content,.unified-dialog,.setup-page) .button:focus-visible,
+:where(.content,.unified-dialog,.setup-page) .btn:focus-visible {
+  outline: 3px solid var(--ds-color-focus);
+  outline-offset: 2px;
+}
+
+/* Ações: classes legadas .button, .btn e variantes semânticas novas. */
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button),
+:where(.content,.unified-dialog,.setup-page) .object-form button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-2);
+  min-height: var(--ds-size-control);
+  padding: 10px var(--ds-space-4);
+  border: var(--ds-border-width) solid var(--ds-color-brand);
+  border-radius: var(--ds-radius-control);
+  background: var(--ds-color-brand);
+  background-image: none;
+  color: var(--ds-color-on-brand);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-label);
+  line-height: 1.35;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color .16s ease,border-color .16s ease;
+}
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button):is(:hover,:focus-visible):not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--ds-color-brand-hover);
+  background-color: var(--ds-color-brand-hover);
+}
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).secondary,
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).ds-button--secondary,
+:where(.content,.unified-dialog,.setup-page) .btn-secondary {
+  background: var(--ds-color-surface);
+  border-color: var(--ds-color-border);
+  color: var(--ds-color-brand);
+}
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).neutral,
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).ds-button--neutral,
+:where(.content,.unified-dialog,.setup-page) .chart-category-form button[type="submit"] {
+  background: var(--ds-color-muted-surface);
+  border-color: var(--ds-color-border);
+  color: var(--ds-color-text);
+}
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).danger,
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).destructive,
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).ds-button--danger {
+  background: var(--ds-color-danger);
+  border-color: var(--ds-color-danger);
+  color: var(--ds-color-on-danger);
+}
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).danger:hover:not(:disabled),
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button).destructive:hover:not(:disabled) {
+  background: color-mix(in srgb,var(--ds-color-danger) 85%,var(--ds-color-surface));
+  border-color: var(--ds-color-danger);
+  color: var(--ds-color-on-danger);
+}
+:where(.content,.unified-dialog,.setup-page) :is(button,.button,.btn,.ds-button):disabled,
+:where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button)[aria-disabled="true"] {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+/* Campos e filtros: superfícies lisas, escala de altura comum e caret único. */
+:where(.content,.unified-dialog,.setup-page) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),textarea,select) {
+  box-sizing: border-box;
+  min-height: var(--ds-size-control);
+  max-width: 100%;
+  border: var(--ds-border-width) solid var(--ds-control-border);
+  border-radius: var(--ds-radius-control);
+  background-color: var(--ds-control-surface);
+  color: var(--ds-color-text);
+  box-shadow: var(--ds-control-shadow);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-label);
+  line-height: 1.4;
+  padding: 10px var(--ds-space-3);
+}
+/* Os filtros legados historicamente possuíam raios, gradientes e alturas divergentes. */
+:where(.content,.unified-dialog) :is(.month-ref-control,.chart-category-form,.settings-ai-form,.settings-form-card,.object-form) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea),
+#page-expenses .chart-section.page-section .chart-category-field select {
+  min-height: var(--ds-size-control);
+  border-radius: var(--ds-radius-control);
+  background-color: var(--ds-control-surface);
+  box-shadow: var(--ds-control-shadow);
+}
+:where(.content,.unified-dialog,.setup-page) select:not([multiple]),
+#page-expenses .chart-section.page-section .chart-category-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--ds-control-surface);
+  background-image: var(--ds-select-chevron);
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+:where(.content,.unified-dialog,.setup-page) select:is([multiple],[size]):not([size="1"]) {
+  appearance: auto;
+  -webkit-appearance: auto;
+  background-image: none;
+  padding-right: var(--ds-space-3);
+}
+html[data-theme="light"] :is(select,option,optgroup) {color-scheme:light;background-color:var(--ds-control-surface);color:var(--ds-color-text)}
+html[data-theme="dark"] :is(select,option,optgroup) {color-scheme:dark;background-color:var(--ds-control-surface);color:var(--ds-color-text)}
+:where(.content,.unified-dialog,.setup-page) :is(input,textarea,select):focus-visible {
+  border-color: var(--ds-color-focus);
+  box-shadow: var(--ds-ring);
+}
+:where(.content,.unified-dialog,.setup-page) :is(input,textarea,select):disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+/* Único checkbox ALECE: área nativa de foco e indicador com alto contraste. */
+:where(.content,.unified-dialog,.setup-page) input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  vertical-align: middle;
+  flex: none;
+  width: var(--ds-size-checkbox);
+  height: var(--ds-size-checkbox);
+  min-width: var(--ds-size-checkbox);
+  min-height: var(--ds-size-checkbox);
+  margin: 0;
+  border: 1.5px solid var(--ds-color-border);
+  border-radius: 6px;
+  background: var(--ds-control-surface);
+  background-image: none;
+  box-shadow: none;
+  cursor: pointer;
+}
+:where(.content,.unified-dialog,.setup-page) input[type="checkbox"]::after {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 6px;
+  border: solid var(--ds-color-on-brand);
+  border-width: 0 0 2px 2px;
+  background: transparent;
+  clip-path: none;
+  transform: translateY(-1px) rotate(-45deg);
+  opacity: 0;
+}
+:where(.content,.unified-dialog,.setup-page) input[type="checkbox"]:checked {
+  background: var(--ds-color-brand);
+  background-image: none;
+  border-color: var(--ds-color-brand);
+}
+:where(.content,.unified-dialog,.setup-page) input[type="checkbox"]:checked::after {opacity:1;}
+:where(.content,.unified-dialog,.setup-page) input[type="radio"] {
+  accent-color: var(--ds-color-brand);
+  width: var(--ds-size-checkbox);
+  height: var(--ds-size-checkbox);
+  min-width: var(--ds-size-checkbox);
+  min-height: var(--ds-size-checkbox);
+  margin: 0;
+  vertical-align: middle;
+}
+:where(.content,.unified-dialog,.setup-page) :is(.checkbox-label,.checkbox-control,.settings-consent) {gap:var(--ds-space-2);align-items:center}
+
+/* Containers e ritmo sem mexer nas tabelas financeiras ou no scroll horizontal. */
+:where(.content,.unified-dialog) .card {border-color:var(--ds-color-border);box-shadow:var(--ds-shadow-card)}
+:where(.content,.unified-dialog) .card > h2:first-child {margin-bottom:var(--ds-space-4)}
+:where(.content,.unified-dialog) :is(.table-wrap,.table-scroll,.settings-table-scroll):has(> table) {
+  max-width:100%;
+  padding: var(--ds-space-2);
+  overflow-x:auto;
+  background:var(--ds-color-surface);
+}
+:where(.content,.unified-dialog) :is(.table-wrap,.table-scroll,.settings-table-scroll) table :is(th,td) {
+  padding-left:var(--ds-space-4);
+  padding-right:var(--ds-space-4);
+}
+:where(.content,.unified-dialog) :is(.chart-card,.chart-section) canvas,
+:where(.content,.unified-dialog) :is(.chart-card,.chart-section) svg {max-width:100%}
+:where(.content,.unified-dialog) .unified-dialog,dialog.unified-dialog {border-radius:var(--ds-radius-dialog)}
+:where(.content,.unified-dialog,.setup-page) :is(.message,.notice):not(:empty) {
+  border-radius:var(--ds-radius-control);
+  padding:var(--ds-space-3) var(--ds-space-4);
+  line-height:1.5;
+}
+:where(.content,.unified-dialog,.setup-page) .message.success {
+  color:var(--ds-color-success);
+  border:1px solid color-mix(in srgb,var(--ds-color-success) 28%,var(--ds-color-border));
+  background:color-mix(in srgb,var(--ds-color-success) 9%,var(--ds-color-surface));
+}
+:where(.content,.unified-dialog,.setup-page) .message.error {
+  color:var(--ds-color-danger);
+  border:1px solid color-mix(in srgb,var(--ds-color-danger) 28%,var(--ds-color-border));
+  background:color-mix(in srgb,var(--ds-color-danger) 9%,var(--ds-color-surface));
+}
+:where(.content,.unified-dialog,.setup-page) .message.warning {
+  color:var(--ds-color-warning);
+  border:1px solid color-mix(in srgb,var(--ds-color-warning) 28%,var(--ds-color-border));
+  background:color-mix(in srgb,var(--ds-color-warning) 9%,var(--ds-color-surface));
+}
+@media (max-width:700px) {
+  :where(.content,.unified-dialog) :is(.table-wrap,.table-scroll,.settings-table-scroll):has(> table) {padding:var(--ds-space-2)}
+  :where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button) {min-height:var(--ds-size-control)}
+}
+@media (forced-colors:active) {
+  :where(.content,.unified-dialog,.setup-page) input[type="checkbox"] {appearance:auto;-webkit-appearance:auto;forced-color-adjust:auto}
+  :where(.content,.unified-dialog,.setup-page) input[type="checkbox"]::after {content:none}
+  :where(.content,.unified-dialog,.setup-page) select:not([multiple]) {appearance:auto;-webkit-appearance:auto;background-image:none}
+}
+@media (prefers-reduced-motion:reduce) {
+  :where(.content,.unified-dialog,.setup-page) :is(.button,.btn,.ds-button,input,select,textarea) {transition:none}
+}
+/* Compatibilidade com regras legadas de formulário mais específicas. */
+.content :is(.button,.btn,.ds-button),
+.unified-dialog :is(.button,.btn,.ds-button),
+.setup-page :is(.button,.btn,.ds-button) {
+  min-height:var(--ds-size-control);
+  border-radius:var(--ds-radius-control);
+  padding:10px var(--ds-space-4);
+}
+.content .object-form input[type="checkbox"],
+.unified-dialog .object-form input[type="checkbox"],
+.content .checkbox-label input[type="checkbox"] {
+  width:var(--ds-size-checkbox);
+  height:var(--ds-size-checkbox);
+  min-width:var(--ds-size-checkbox);
+  min-height:var(--ds-size-checkbox);
+  border-radius:6px;
+  background-image:none;
+}
+.content .object-form input[type="radio"],
+.unified-dialog .object-form input[type="radio"] {
+  appearance:auto;
+  -webkit-appearance:auto;
+  width:var(--ds-size-checkbox);
+  height:var(--ds-size-checkbox);
+  min-width:var(--ds-size-checkbox);
+  min-height:var(--ds-size-checkbox);
+  padding:0;
+  background:none;
+  box-shadow:none;
+  border:0;
+}
+.content .object-form select:not([multiple]),
+.content .chart-category-form select:not([multiple]),
+.unified-dialog .object-form select:not([multiple]),
+.unified-dialog .account-unified select:not([multiple]),
+.content .alece-ai-provider-form select:not([multiple]),
+#page-expenses .chart-section.page-section .chart-category-field select {
+  appearance:none;
+  -webkit-appearance:none;
+  background-color:var(--ds-control-surface);
+  background-image:var(--ds-select-chevron);
+  background-position:right 12px center;
+  background-repeat:no-repeat;
+  background-size:16px 16px;
+  padding-right:40px;
+}
+@media (forced-colors:active) {
+  .content .object-form input[type="checkbox"], .unified-dialog .object-form input[type="checkbox"] {appearance:auto;-webkit-appearance:auto}
+  .content .object-form select:not([multiple]),.unified-dialog .object-form select:not([multiple]) {appearance:auto;-webkit-appearance:auto;background-image:none}
+}
+/* Campos legados anulavam outline no :focus; assegurar foco de teclado visível. */
+.content .object-form :is(input,select,textarea):focus-visible,
+.unified-dialog .object-form :is(input,select,textarea):focus-visible,
+.content .chart-category-form select:focus-visible,
+.content .month-ref-control input:focus-visible {
+  outline:3px solid var(--ds-color-focus);
+  outline-offset:2px;
+  border-color:var(--ds-color-focus);
+}
+
+/* A mesma superfície e raio para painéis equivalentes em módulos distintos. */
+.content :is(.card,.chart-card,.settings-account-panel,.settings-admin-shortcuts-panel,
+  .settings-management-shell,.project-section-card,.logs-toolbar,.logs-board) {
+  border-color:var(--ds-color-border);
+  border-radius:var(--ds-radius-card);
+  box-shadow:var(--ds-shadow-card);
+}
+.content :is(.settings-action-card,.project-how-step,.project-logo-card) {
+  border-radius:var(--ds-radius-card);
+}

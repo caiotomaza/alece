@@ -1,0 +1,9 @@
+{% extends "finance/base.html" %}
+{% block title %}Início · ALECE{% endblock %}
+{% block content %}
+<h1>Meus núcleos</h1>
+<p>Escolha um núcleo para consultar seus perfis financeiros e contas.</p>
+{% for membership in memberships %}
+<section class="card"><h2><a href="{% url 'selecionar-nucleo' membership.workspace_id %}">{{ membership.workspace.name }}</a></h2><p>{{ membership.get_role_display }}</p></section>
+{% empty %}<p class="card">Você ainda não participa de um núcleo. Peça ao administrador para adicionar seu usuário a um núcleo.</p>{% endfor %}
+{% endblock %}

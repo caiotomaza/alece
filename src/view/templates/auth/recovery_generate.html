@@ -1,0 +1,17 @@
+{% extends "finance/base.html" %}
+{% block title %}Redefinir códigos · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible"><div class="intro"><h1>Recuperação de conta</h1></div>
+  <article class="card"><div class="dialog-fallback" data-dialog-content>
+    <form method="post" action="{% url 'recovery_generate' %}" class="object-form" autocomplete="off">
+      <div class="dialog-title"><div><h2 id="dialog-title">Redefinir códigos de recuperação</h2><p>Seis códigos de oito caracteres, cada um utilizável uma vez.</p></div><a href="{% url 'configuracoes' %}" class="close-x" data-dialog-cancel aria-label="Fechar">×</a></div>
+      <p>Substituir o conjunto revoga todos os códigos anteriores. Nenhum código será recuperável após fechar a tela.</p>
+      {% for message in messages %}<p class="message {{ message.tags }}" role="alert">{{ message }}</p>{% endfor %}
+      {% csrf_token %}
+      <div class="field-group"><label for="current_password">Confirme sua senha atual</label>
+      <input id="current_password" name="current_password" type="password" autocomplete="current-password" required></div>
+      <div class="actions"><a class="button secondary" href="{% url 'configuracoes' %}" data-dialog-cancel>Cancelar</a><button class="button" type="submit">Gerar novos códigos</button></div>
+    </form>
+  </div></article>
+</section>
+{% endblock %}

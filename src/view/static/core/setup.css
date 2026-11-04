@@ -1,0 +1,27 @@
+/* First-run form. Scoped to prevent overrides from financial dashboard styles. */
+.setup-page {min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--text)}
+.setup-shell {min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:32px 16px}
+.setup-card {width:min(100%,480px);min-width:0;padding:30px 30px 26px;background:var(--surface);border:1px solid var(--border);border-radius:var(--ds-radius-card);box-shadow:var(--ds-shadow-card)}
+.setup-header {text-align:center;margin-bottom:26px}
+.setup-brandmark {display:grid;place-items:center;margin:0 auto 18px;width:48px;height:48px;border-radius:15px;background:#146c43;color:#fff;font-size:28px;line-height:1;font-weight:800;letter-spacing:-1.5px}
+.setup-title {margin:0 0 8px;font-size:clamp(24px,5vw,29px);font-weight:750;letter-spacing:-1px;line-height:1.2}
+.setup-subtitle {font-size:13px;color:var(--muted);line-height:1.5;margin:0}
+.setup-form {display:grid;gap:17px}
+.setup-field {display:grid;grid-template-columns:minmax(0,1fr);gap:7px;min-width:0}
+.setup-field>label {display:block;font-size:12px;font-weight:690;line-height:1.35;color:var(--text)}
+.setup-field .setup-input,.setup-field input {appearance:none;display:block;width:100%;max-width:100%;min-width:0;min-height:46px;padding:12px 13px;border:1px solid var(--ds-control-border);border-radius:var(--ds-radius-control);background:var(--ds-control-surface);color:var(--text);font:inherit;font-size:13px;line-height:1.4;box-shadow:none;outline:none;transition:border-color .15s ease,box-shadow .15s ease}
+.setup-field .setup-input::placeholder,.setup-field input::placeholder {color:var(--muted);opacity:.85}
+.setup-field .setup-input:focus,.setup-field input:focus {border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 20%,transparent)}
+.setup-field .setup-input:focus-visible,.setup-field input:focus-visible {outline:2px solid var(--focus);outline-offset:2px}
+.setup-help {font-size:11px;line-height:1.45;color:var(--muted);margin:0}
+.setup-error {margin:0;color:var(--negative);font-size:12px;line-height:1.5}
+.setup-alert {border:1px solid var(--border);border-radius:10px;background:var(--surface-alt);padding:10px 12px;color:var(--text);font-size:12px}
+.setup-alert.error {color:var(--negative)}
+.setup-messages {margin:0 0 18px;padding:0;list-style:none;display:grid;gap:8px}
+.setup-submit {display:block;width:100%;min-height:46px;padding:12px 16px;margin-top:3px;border:1px solid var(--ds-color-brand);border-radius:var(--ds-radius-control);background:var(--ds-color-brand);color:var(--ds-color-on-brand);font:inherit;font-size:13px;font-weight:720;line-height:1.35;text-align:center;cursor:pointer;transition:background .15s ease}
+.setup-submit:hover {background:var(--ds-color-brand-hover);border-color:var(--ds-color-brand-hover)}
+.setup-submit:focus-visible {outline:3px solid var(--focus);outline-offset:3px}
+.setup-footer {margin-top:22px;padding-top:16px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:12px;line-height:1.55}
+.setup-footer strong {color:var(--text);font-weight:700}
+@media(max-width:520px){.setup-shell{padding:18px 13px}.setup-card{padding:24px 20px 22px;border-radius:17px}.setup-header{margin-bottom:23px}.setup-title{font-size:25px}}
+@media(prefers-reduced-motion:reduce){.setup-field input,.setup-submit{transition:none}}

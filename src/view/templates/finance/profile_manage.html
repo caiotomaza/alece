@@ -1,0 +1,133 @@
+{% extends "finance/base.html" %}
+{% block title %}Gerenciar perfil · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible account-manage-page">
+  <div class="intro"><h1>Gerenciar perfil</h1></div>
+  <article class="card account-manage-card">
+    <div class="dialog-fallback account-unified profile-manage-dialog" data-dialog-content>
+      <div class="dialog-title account-modal-heading">
+        <div>
+          <span class="account-overline">GESTÃO DE PERFIS</span>
+          <h2 id="dialog-title">{{ profile.name }}</h2>
+          <p>Dados do perfil, arquivamento e permissões em um só lugar.</p>
+        </div>
+        <a href="{{ cancel_url|default:'/configuracoes/' }}" class="close-x" data-dialog-cancel aria-label="Fechar">×</a>
+      </div>
+
+      <section class="settings-user-modal-section" aria-labelledby="profile-manage-data">
+        <h3 id="profile-manage-data">Informações do perfil</h3>
+        <form method="post" action="{% url 'finance:profile-manage' profile.pk %}" class="object-form account-edit-form">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="profile">
+          {% for error in form.non_field_errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+
+          <div class="account-form-grid profile-manage-grid">
+            <div class="field-group">
+              <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+              {{ form.name }}
+              {% for error in form.name.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="field-group profile-emoji-field">
+              <label for="{{ form.emoji.id_for_label }}">{{ form.emoji.label }}</label>
+              {{ form.emoji }}
+              {% for error in form.emoji.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+
+          <div class="field-group profile-income-field">
+            <label for="{{ form.monthly_income.id_for_label }}">{{ form.monthly_income.label }}</label>
+            {{ form.monthly_income }}
+            {% if form.monthly_income.help_text %}<p class="account-section-helper">{{ form.monthly_income.help_text }}</p>{% endif %}
+            {% for error in form.monthly_income.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+          </div>
+
+          {% if form.is_archived and form.is_archived.errors %}
+            {% for error in form.is_archived.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+          {% endif %}
+
+          <div class="actions"><button type="submit" class="button">Salvar perfil</button></div>
+        </form>
+      </section>
+
+      <section class="settings-user-modal-section" aria-labelledby="profile-manage-grants">
+        <h3 id="profile-manage-grants">Permissões de usuários</h3>
+        <p class="account-section-helper">Defina os módulos disponíveis por usuário dentro deste perfil financeiro.</p>
+        {% for entry in grant_forms %}
+          <details class="alece-user-disclosure profile-grant-disclosure" {% if entry.form.errors %}open{% endif %}>
+            <summary>
+              <span>
+                <strong>{{ entry.membership.user.username }}</strong>
+                <small>Editar acessos deste usuário no perfil</small>
+              </span>
+              <svg class="account-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <form method="post" action="{% url 'finance:profile-manage' profile.pk %}" class="object-form">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="grant">
+              <input type="hidden" name="membership_id" value="{{ entry.membership.pk }}">
+              {% for error in entry.form.non_field_errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+              <div class="field-group permission-levels profile-grant-levels">
+                {% for field in entry.form %}
+                  <label>
+                    {{ field.label }}
+                    {{ field }}
+                    {% for error in field.errors %}<p class="message error" role="alert">{{ error }}</p>{% endfor %}
+                  </label>
+                {% endfor %}
+              </div>
+              <div class="actions"><button type="submit" class="button">Salvar permissões</button></div>
+            </form>
+          </details>
+        {% empty %}
+          <p class="muted account-section-helper">Sem usuários comuns neste núcleo. Administradores têm acesso integral.</p>
+        {% endfor %}
+      </section>
+
+      <section class="settings-user-modal-section account-danger-zone" aria-labelledby="profile-manage-state">
+        <details class="alece-user-disclosure" {% if profile.is_archived %}open{% endif %}>
+          <summary>
+            <span>
+              <strong id="profile-manage-state">Estado do perfil</strong>
+              <small>Arquive ou reative sem apagar o histórico financeiro</small>
+            </span>
+            <svg class="account-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <p class="account-section-helper">Arquivar oculta o perfil das operações ativas sem apagar lançamentos, relatórios ou logs financeiros.</p>
+          {% if not profile.is_archived and not can_remove_profile %}
+          <p class="account-profile-last-warning" role="status">Este é o último perfil ativo. Crie ou reative outro perfil antes de arquivá-lo. Você ainda pode editar seus dados normalmente.</p>
+          {% endif %}
+          <form method="post" action="{% url 'finance:profile-manage' profile.pk %}" class="object-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle_archive">
+            <div class="actions">
+              <button class="button {% if not profile.is_archived %}danger secondary{% endif %}" type="submit" {% if not profile.is_archived and not can_remove_profile %}disabled aria-disabled="true" title="É obrigatório manter pelo menos um perfil ativo"{% endif %}>{% if profile.is_archived %}Reativar perfil{% else %}Arquivar perfil{% endif %}</button>
+            </div>
+          </form>
+        </details>
+      </section>
+
+      <section class="settings-user-modal-section account-danger-zone" aria-label="Excluir perfil">
+        <details class="alece-user-disclosure">
+          <summary>
+            <span><strong>Excluir perfil</strong><small>Operação definitiva sem apagar lançamentos ou auditoria</small></span>
+            <svg class="account-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <p class="account-section-helper">O perfil será retirado da navegação, todas as permissões serão revogadas e o histórico financeiro continuará vinculado ao seu identificador técnico. Não será possível reativá-lo por esta interface. Para suspender temporariamente, use Arquivar perfil.</p>
+          {% if not can_remove_profile %}
+          <p class="account-profile-last-warning" role="status">Não é permitido excluir o último perfil ativo. Primeiro crie ou reative outro perfil financeiro.</p>
+          {% endif %}
+          <form method="post" action="{% url 'finance:profile-manage' profile.pk %}" class="object-form" data-destructive-action="true" data-confirm-profile-deletion data-alece-confirm="O perfil será retirado da navegação, preservando o histórico, e não poderá ser reativado nesta interface." data-confirm-title="Excluir perfil financeiro" data-confirm-label="Excluir perfil">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete_profile">
+            <div class="field-group">
+              <label for="profile-delete-confirmation-{{ profile.pk }}">Digite <strong>CONFIRMAR</strong> para excluir este perfil</label>
+              <input id="profile-delete-confirmation-{{ profile.pk }}" type="text" name="confirm_deletion" required autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="9" pattern="CONFIRMAR" title="Digite CONFIRMAR em letras maiúsculas" placeholder="CONFIRMAR" {% if not can_remove_profile %}disabled{% endif %}>
+            </div>
+            <div class="actions"><button class="button danger" type="submit" {% if not can_remove_profile %}disabled aria-disabled="true" title="É obrigatório manter pelo menos um perfil ativo"{% endif %}>Excluir perfil definitivamente</button></div>
+          </form>
+        </details>
+      </section>
+    </div>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+/* ALECE — Acessibilidade incremental 1.0 (WCAG 2.2 AA como referência).
+ * Sem mudanças no tema ou no esquema financeiro; avalie sempre em browser real. */
+html {scroll-padding-block: 1rem}
+html :is(a, button, input, select, textarea, summary, [tabindex="0"]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+:is(.content, .main, .card, .page-section, .chart-card, .technical-section, .alece-chart-data) {min-width: 0}
+:is(.content,.main,.card,.page-section) {overflow-wrap: anywhere}
+:is(canvas, svg) {max-width: 100%}
+.alece-chart-data {margin-top: 1rem}
+.alece-chart-data > summary {cursor:pointer;min-height: 44px;display:list-item;padding: 10px 6px;color:var(--primary);font-weight:650}
+.alece-chart-data > .table-wrap {margin-top:8px;max-width:100%}
+.alece-chart-data table {max-width:none;min-width: min(100%,560px)}
+.alece-chart-data caption {padding:12px 14px;text-align:start;color:var(--text);background:var(--surface-alt)}
+/* Tabelas extensas continuam tabulares: a região é rolável, sem perder cabeçalhos. */
+:is(.table-wrap,.settings-table-scroll,.month-table-wrap,.table-scroll,.perm-table-wrapper)[data-alece-overflow="true"] {
+  overscroll-behavior-x:contain;scrollbar-gutter:stable;
+}
+:is(.table-wrap,.settings-table-scroll,.month-table-wrap,.table-scroll,.perm-table-wrapper)[data-alece-overflow="true"]:focus-visible {outline:3px solid var(--focus);outline-offset:2px}
+.alece-scroll-hint {font-size: .8125rem;line-height:1.5;color:var(--muted);margin:0 0 7px}
+:where(.content,.unified-dialog,.setup-page) :is(input,textarea,select)[aria-invalid="true"],
+.form-group :is(input,textarea,select)[aria-invalid="true"] {border-color:var(--negative)}
+/* Alvos de toque confortáveis: 44px meta de design, não exigência WCAG AA (24px com exceções). */
+:where(main,.sidebar,.mobile-nav,.mobile-utility-bar) :is(button,.btn,.button,.icon-button,summary) {min-height:44px}
+:where(.mobile-nav,.mobile-utility-bar) :is(a,button) {min-height:44px}
+:where(main) a:not(.btn):not(.button) {text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce) {
+  html:focus-within {scroll-behavior:auto}
+  *,*::before,*::after {animation-duration:.01ms;animation-iteration-count:1;transition-duration:.01ms;scroll-behavior:auto}
+}
+@media (forced-colors:active) {
+  html :is(a, button, input, select, textarea, summary, [tabindex="0"]):focus-visible {outline:3px solid Highlight}
+}
+@media (max-width:390px) {
+  .alece-chart-data {max-width:100%}
+  .alece-chart-data .table-wrap {width:100%;overflow-x:auto}
+}

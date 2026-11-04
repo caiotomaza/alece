@@ -1,0 +1,41 @@
+{% extends "finance/base.html" %}
+{% block title %}{{ title }} · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible alece-settings settings-management-page" id="page-settings">
+  <header class="intro settings-management-intro">
+    <div>
+      <nav class="settings-management-breadcrumb" aria-label="Localização"><a href="{% url 'configuracoes' %}">Configurações</a><span aria-hidden="true">/</span><span aria-current="page">{{ title }}</span></nav>
+      <h1>{{ title }}</h1>
+      <p>{% if panel == 'usuarios' %}Gerencie contas, papéis e permissões do espaço financeiro.{% elif panel == 'perfis' %}Organize os perfis financeiros, renda, situação e acessos.{% else %}Gerencie os provedores de IA, credenciais e a única integração ativa.{% endif %}</p>
+    </div>
+    <a class="btn secondary settings-management-return" href="{% url 'configuracoes' %}"><svg aria-hidden="true"><use href="#i-arrow"/></svg> Configurações</a>
+  </header>
+  <article class="page-section section-surface settings-management-shell">
+    <div class="settings-management-body">
+      {% if panel == "usuarios" %}
+        <div class="settings-management-toolbar"><h2>Usuários cadastrados</h2><a class="account-add-btn icon-button settings-modal-trigger" href="{% url 'core:user-management' workspace.pk %}" title="Criar usuário" aria-label="Criar usuário"><svg aria-hidden="true"><use href="#i-plus"/></svg></a></div>
+        <p class="settings-management-note">Contas, papéis e acesso ao espaço financeiro.</p>
+        <div class="settings-table-scroll"><table class="source-table settings-table" aria-label="Usuários do espaço"><thead><tr><th scope="col">Usuário</th><th scope="col">Papel</th><th scope="col">Status</th><th scope="col" class="settings-actions-col">Ações</th></tr></thead><tbody>
+        {% for membership in memberships %}<tr><td data-label="Usuário"><strong>{{ membership.user.username }}</strong><span class="settings-subline">{{ membership.user.email|default:"—" }}</span></td><td data-label="Papel">{{ membership.get_role_display }}</td><td data-label="Status"><span class="status-chip{% if membership.user.is_active %} confirmed{% endif %}">{% if membership.user.is_active %}Ativo{% else %}Inativo{% endif %}</span></td><td data-label="Ações"><div class="settings-row-actions">{% if membership.user.pk != request.user.pk %}<a class="alece-edit-action icon-button settings-modal-trigger" href="{% url 'core:user-edit' workspace.pk membership.user.pk %}" aria-label="Gerenciar {{ membership.user.username }}" title="Gerenciar conta"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>{% else %}<span class="muted" aria-label="Edite sua conta em Minha conta">Minha conta</span>{% endif %}</div></td></tr>{% empty %}<tr><td colspan="4">Nenhum usuário cadastrado.</td></tr>{% endfor %}
+        </tbody></table></div>
+      {% elif panel == "perfis" %}
+        <div class="settings-management-toolbar"><h2>Perfis financeiros cadastrados</h2><a class="account-add-btn icon-button settings-modal-trigger" href="{% url 'finance:profile-create' workspace.pk %}" title="Novo perfil" aria-label="Criar perfil"><svg aria-hidden="true"><use href="#i-plus"/></svg></a></div>
+        <p class="settings-management-note">Perfis financeiros, arquivamento e autorizações.</p>
+        <div class="settings-table-scroll"><table class="source-table settings-table" aria-label="Perfis financeiros"><thead><tr><th scope="col">Perfil</th><th scope="col">Status</th><th scope="col" class="settings-actions-col">Ações</th></tr></thead><tbody>
+        {% for profile in profiles %}<tr><td data-label="Perfil"><strong>{{ profile.emoji }} {{ profile.name }}</strong><span class="settings-subline">Criado em {{ profile.created_at|date:"d/m/Y" }}</span></td><td data-label="Status"><span class="status-chip{% if not profile.is_archived %} confirmed{% endif %}">{% if profile.is_archived %}Arquivado{% else %}Ativo{% endif %}</span></td><td data-label="Ações"><div class="settings-row-actions"><a class="alece-edit-action icon-button settings-modal-trigger" href="{% url 'finance:profile-manage' profile.pk %}" title="Gerenciar perfil" aria-label="Gerenciar {{ profile.name }}"><svg aria-hidden="true"><use href="#i-edit"/></svg></a></div></td></tr>{% empty %}<tr><td colspan="3">Nenhum perfil cadastrado.</td></tr>{% endfor %}
+        </tbody></table></div>
+      {% elif panel == "apis" %}
+        <div class="settings-management-toolbar"><h2>Integrações de IA</h2><a class="account-add-btn icon-button settings-modal-trigger" href="{% url 'configuracoes-api-nova' %}" aria-label="Nova API" title="Criar integração"><svg aria-hidden="true"><use href="#i-plus"/></svg></a></div>
+        <p class="settings-management-note">Somente uma integração pode estar habilitada por vez.</p>
+        <div class="settings-table-scroll"><table class="source-table settings-table" aria-label="Integrações de IA"><thead><tr><th scope="col">Integração / modelo</th><th scope="col">Estado</th><th scope="col" class="settings-actions-col">Ações</th></tr></thead><tbody>
+        {% for provider in providers %}<tr><td data-label="API"><strong>{{ provider.name }}</strong><span class="settings-subline">{{ provider.model_name }}</span></td><td data-label="Estado"><form method="post" action="{% url 'configuracoes-api-selecionar' provider.pk %}" class="alece-ai-select-form">{% csrf_token %}<input type="hidden" name="enabled" value="{% if provider.enabled %}0{% else %}1{% endif %}"><button class="alece-ai-switch-button" type="submit" role="switch" aria-checked="{% if provider.enabled %}true{% else %}false{% endif %}" aria-label="{% if provider.enabled %}Desativar{% else %}Ativar{% endif %} {{ provider.name }}"><span class="alece-ai-switch-track" aria-hidden="true"></span><span class="alece-ai-switch-caption">{% if provider.enabled %}Em uso{% else %}Disponível{% endif %}</span></button></form></td><td data-label="Ações"><div class="settings-row-actions"><a class="alece-edit-action icon-button settings-modal-trigger" href="{% url 'configuracoes-api-editar' provider.pk %}" aria-label="Editar {{ provider.name }}" title="Editar"><svg aria-hidden="true"><use href="#i-edit"/></svg></a><form method="post" action="{% url 'configuracoes-api-excluir' provider.pk %}" class="settings-delete-form" data-alece-confirm="Excluir esta integração de IA?" data-confirm-title="Excluir integração" data-confirm-label="Excluir">{% csrf_token %}<button class="icon-button settings-delete" type="submit" title="Excluir" aria-label="Excluir {{ provider.name }}"><svg aria-hidden="true"><use href="#i-close"/></svg></button></form></div></td></tr>{% empty %}<tr><td colspan="3">Nenhuma integração configurada.</td></tr>{% endfor %}
+        </tbody></table></div>
+        {% for provider in providers %}{% if provider.enabled %}
+        <form class="settings-ai-form" method="post" action="{% url 'configuracoes-api-analisar' provider.pk %}">{% csrf_token %}<div class="settings-ai-title"><svg aria-hidden="true"><use href="#i-invest"/></svg><strong>Analisar com {{ provider.name }}</strong></div><div class="settings-ai-fields"><label>Perfil financeiro<select name="profile" required>{% for profile in active_profiles %}<option value="{{ profile.pk }}">{{ profile.name }}</option>{% endfor %}</select></label><label>Área<select name="section" required>{% for section in provider.sections %}<option value="{{ section }}">{% if section == 'expenses' %}Despesas{% elif section == 'investments' %}Investimentos{% else %}Movimentações{% endif %}</option>{% endfor %}</select></label></div><label class="checkbox-control settings-consent"><input type="checkbox" name="consent" value="yes" required><span>Autorizo enviar a <strong>{{ provider.name }}</strong> ({{ provider.endpoint }}) até 40 registros confirmados do perfil e área selecionados, contendo data, descrição (até 160 caracteres), valor e categoria. O provedor externo poderá tratar esses dados segundo suas próprias condições.</span></label><button type="submit" class="btn" {% if not active_profiles %}disabled{% endif %}>Solicitar análise</button></form>
+        {% endif %}{% endfor %}
+        <p class="settings-note">Nenhum dado é enviado automaticamente. As chaves ficam em armazenamento privado do servidor.</p>
+      {% endif %}
+    </div>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,479 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>ALECE — Relatório de testes</title><style>body{font:15px/1.55 system-ui;max-width:1200px;margin:auto;padding:24px;color:#183328;background:#f5faf7} table{width:100%;border-collapse:collapse;background:white}td,th{padding:10px;text-align:left;border-bottom:1px solid #cbded2}th{background:#e6f1e9;position:sticky;top:0}td:nth-child(4){font-weight:700} .note{padding:12px;background:#e6f1e9;border-radius:12px}</style><h1>Relatório de testes ALECE</h1><p class="note">Só há aprovação com evidência JUnit. Ausência de execução é NAO_EXECUTADO, nunca aprovado.</p><p>Funções declaradas: 479 · casos JUnit executados: 21 · JUnit aprovados: 21 · JUnit falhos: 0 · JUnit ignorados: 0</p><table><thead><tr><th>Módulo</th><th>Risco</th><th>Caso</th><th>Status</th></tr></thead><tbody><tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationViewsTests::test_login_get</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationViewsTests::test_login_post_valid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationViewsTests::test_login_post_invalid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationViewsTests::test_logout</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationViewsTests::test_password_change</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_request_get</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_request_never_issues_code</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_request_nonexistent_user</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_use_valid_code</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_use_invalid_code</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_use_mismatched_passwords</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryCodeTests::test_recovery_generate_logged_in</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_user1_has_ws1_access</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_user2_has_ws1_access_not_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_user3_no_ws1_access</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_user1_can_view_both_profiles_ws1</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_user2_can_only_view_profile1</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_user3_can_access_own_ws_only</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_get_accessible_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_get_editable_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_require_profile_view_raises_on_no_access</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_require_profile_edit_raises_on_no_edit</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>PermissionTests::test_require_profile_ownership</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthorizationIntegrationTests::test_unauthenticated_redirects_to_login</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthorizationIntegrationTests::test_authenticated_user_sees_home</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthorizationIntegrationTests::test_user_without_profile_access_cannot_see_profile_data</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_external_redirects_rejected_internal_allowed</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_issuance_requires_login_and_current_password</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_rotated_code_and_replayed_code_rejected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_legacy_publicly_issued_codes_are_rejected_after_upgrade</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_password_validation_preserves_code_until_valid_submission</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_invalid_recovery_is_generic_and_inactive_user_cannot_recover</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_login_throttled_across_clients_and_reopens_after_window</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_admin_login_cannot_bypass_shared_limit_even_with_valid_password</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_recovery_and_generation_have_independent_bounded_attempts</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_peer_limit_prevents_username_rotation_and_ignores_forwarded_headers</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_post_endpoints_enforce_csrf_and_logout_rejects_get</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AuthenticationSecurityTests::test_recovery_invalidates_existing_sessions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryConcurrencyTests::test_only_one_concurrent_redemption_succeeds</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryConcurrencyTests::test_concurrent_attempts_cannot_overrun_account_limit</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapSetupTests::test_setup_requires_no_existing_users</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapSetupTests::test_setup_get_shows_username_password_fields</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapSetupTests::test_setup_post_creates_admin_and_default_workspace</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapSetupTests::test_setup_duplicate_username_fails</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapSetupTests::test_setup_mismatched_passwords_fails</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapSetupTests::test_setup_weak_password_fails</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserManagementTests::test_user_management_list</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserManagementTests::test_user_management_create_common</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserManagementTests::test_user_management_create_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserManagementTests::test_user_management_duplicate_username</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserManagementTests::test_user_management_mismatched_passwords</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserEditTests::test_user_edit_change_role</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserEditTests::test_user_edit_cannot_remove_last_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserEditTests::test_user_edit_cannot_deactivate_last_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserEditTests::test_user_edit_cannot_edit_self_role</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserPermissionTests::test_grant_management_list</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserPermissionTests::test_grant_management_update</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserPermissionTests::test_grant_archived_profile_disabled</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>SecurityTests::test_admin_cannot_access_other_workspace_users</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>SecurityTests::test_admin_cannot_edit_other_workspace_user</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapTokenTests::test_validate_token_valid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapTokenTests::test_validate_token_expired</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>BootstrapTokenTests::test_validate_token_used</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>InitializationRedirectTests::test_home_redirects_to_setup_when_not_initialized</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>InitializationRedirectTests::test_login_redirects_to_setup_when_not_initialized</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>InitializationRedirectTests::test_setup_accessible_when_not_initialized</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>InitializationRedirectTests::test_home_redirects_to_login_when_initialized</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserDeactivationTests::test_revoke_sessions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserDeactivationTests::test_cannot_revoke_own_sessions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserDeactivationTests::test_password_reset_by_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>UserDeactivationTests::test_cannot_reset_own_password_via_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>EmailLoginTests::test_username_and_optional_email_login</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>EmailLoginTests::test_incorrect_password_or_inactive</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>EmailLoginTests::test_legacy_ambiguous_email_fails_closed</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>EmailLoginTests::test_edit_email_optional_and_unique</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_first_access_requires_six_codes_and_download_copy</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_recovery_modal_is_consistent_and_does_not_reveal_old_codes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_interrupted_issuance_does_not_show_status_only_modal</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_user_profile_helper_uses_related_user_for_recovery_codes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_each_code_is_single_use_while_other_five_survive</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_password_change_is_valid_modal_with_three_fields</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_reset_requires_current_password_and_revokes_old_set</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_user_table_has_only_one_edit_control_and_admin_modal</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>RecoveryEnrollmentTests::test_last_admin_and_self_removal_protected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AccountLifecycleTests::test_modal_displays_code_count_not_secrets_and_has_separate_form_targets</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AccountLifecycleTests::test_deactivate_and_reactivate_common_account_with_single_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AccountLifecycleTests::test_delete_requires_exact_confirmation_and_preserves_history</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AccountLifecycleTests::test_cannot_delete_user_with_other_workspace_membership</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AccountLifecycleTests::test_common_user_cannot_delete_another_account</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Autenticação</td><td>Acesso não autorizado, sessão ou recuperação</td><td>AccountLifecycleTests::test_admin_cannot_delete_self</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Navegador</td><td>Jornada real não funcional</td><td>test_five_sections_are_real_pages_without_ids</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Navegador</td><td>Jornada real não funcional</td><td>test_profile_choice_survives_financial_navigation</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Navegador</td><td>Jornada real não funcional</td><td>test_common_account_cannot_open_admin_pages</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Navegador</td><td>Jornada real não funcional</td><td>test_admin_management_uses_full_pages_in_mobile_view</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdminManagementPagesTests::test_administrative_shortcuts_navigate_to_independent_pages</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdminManagementPagesTests::test_common_user_cannot_open_admin_management_pages</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdminManagementPagesTests::test_admin_page_does_not_automatically_create_or_modify_data</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_principal_single_profile_can_edit_name_emoji_and_income</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_single_active_cannot_delete_direct_service</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_single_active_cannot_archive_direct_service</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_single_active_cannot_delete_via_post</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_single_active_cannot_archive_via_post</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_interface_blocks_destructive_actions_but_keeps_profile_edit</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_second_archived_does_not_count_as_active</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_principal_can_archive_with_another_active</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_principal_can_delete_with_another_active</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_after_archiving_second_last_one_is_protected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_another_workspace_does_not_satisfy_minimum</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>MinimumActiveFinancialProfileTests::test_bad_name_cannot_delete_even_with_second_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PermissionBulkTests::test_all_edit_from_five_selected_levels</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PermissionBulkTests::test_mixed_grants_are_not_misrepresented_as_full_access</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PermissionBulkTests::test_server_ignores_forged_bulk_boxes_when_levels_denied</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PermissionBulkTests::test_rejects_invalid_levels_without_partial_updates</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PermissionBulkTests::test_common_cannot_modify_any_grants</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>GranularPermissionTests::test_default_none_admin_scope_and_module_independence</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>GranularPermissionTests::test_revocation_on_next_request_and_no_cross_workspace_grant</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>GranularPermissionTests::test_overview_does_not_expose_denied_account_or_expense_data</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>GranularPermissionTests::test_grant_ui_is_administrator_only_and_profile_scoped</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PrincipalProfileEditTests::test_modal_has_explicit_post_target</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PrincipalProfileEditTests::test_edit_principal_name_emoji_income</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PrincipalProfileEditTests::test_edit_legacy_url_does_not_archive_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>PrincipalProfileEditTests::test_archived_principal_can_change_metadata_without_reactivation</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>ProfileSoftDeletionTests::test_delete_revokes_grants_and_preserves_financial_references</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>ProfileSoftDeletionTests::test_invalid_confirmation_does_not_delete</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>ProfileSoftDeletionTests::test_non_admin_cannot_delete</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>ProfileSoftDeletionTests::test_post_deletes_and_redirects_to_settings</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>ProfileSoftDeletionTests::test_editing_archived_profile_does_not_unarchive_it</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>FinancialProfileLimitsTests::test_up_to_five_profiles_per_workspace_in_service</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdministrativeAccessMatrixTests::test_all_administrative_pages_render_for_workspace_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdministrativeAccessMatrixTests::test_all_administrative_pages_deny_common_account</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdministrativeAccessMatrixTests::test_common_account_can_access_personal_settings</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>AdministrativeAccessMatrixTests::test_foreign_workspace_cannot_be_selected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_common_only_sees_personal_settings</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_admin_sees_shortcuts_not_embedded_tables</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_common_cannot_open_api_management_or_send_analysis</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_admin_cannot_edit_provider_owned_by_another_workspace</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_personal_information_requires_current_password</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_recovery_lookup_redirects_after_acknowledgment_without_exposing_codes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_admin_cannot_analyze_foreign_financial_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_ai_analysis_requires_explicit_consent</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_provider_host_is_not_persistently_allowed_by_default</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsRolesTests::test_outbound_rejects_plain_http_and_local_addresses</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsScreenRenderingTests::test_settings_and_profile_management_render</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Configurações</td><td>Elevação de privilégios, gestão incorreta</td><td>SettingsScreenRenderingTests::test_logs_page_renders_for_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AccountReturnToOverviewTests::test_create_redirects_to_public_overview_not_legacy_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AccountReturnToOverviewTests::test_cancel_link_returns_to_public_overview</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AccountReturnToOverviewTests::test_account_creation_preserves_selected_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AccountReturnToOverviewTests::test_all_profiles_stays_all_after_create</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AccountReturnToOverviewTests::test_validation_error_does_not_create_account_or_redirect</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_all_displays_create_and_income_buttons_even_with_multiple_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_chooser_only_lists_editable_authorized_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_saving_when_all_does_not_select_written_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_saving_keeps_current_selected_profile_even_if_record_belongs_to_other</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_month_filter_does_not_write_profile_preference</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_edit_form_and_account_save_keep_sidebar_preference</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_with_one_available_profile_all_still_means_all</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AllProfilesActionsTests::test_import_in_all_requires_explicit_profile_not_first_in_list</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceCalculationsTest::test_reserve_nine_months</td><td>APROVADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceCalculationsTest::test_reserve_covered</td><td>APROVADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceCalculationsTest::test_reserve_below_target_has_priority</td><td>APROVADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceCalculationsTest::test_income_zero</td><td>APROVADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceCalculationsTest::test_split_cent_without_loss</td><td>APROVADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceCalculationsTest::test_invalid_months</td><td>APROVADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_month_filter_is_scoped_to_authorized_active_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_income_edit_zero_clear_and_no_cash_movement</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_profile_archive_and_reactivate</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_recurring_create_edit_archive_delete_and_due_date</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_unexpected_month_and_server_date</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_investment_categories_optional_target_and_reserve_policy</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceDashboardViewsTests::test_overview_does_not_add_balance_to_income_or_merge_private_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancialSummaryTests::test_reserve_and_monthly_budget_use_cents_without_double_counting_pending</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancialSummaryTests::test_completed_reserve_has_zero_suggestion_and_stays_visible</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AuthenticatedFinanceBrowserFlowTests::test_full_monthly_browser_flow_partial_split_and_reversal</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AuthenticatedFinanceBrowserFlowTests::test_cross_profile_account_and_csrf_rejected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AuthenticatedFinanceBrowserFlowTests::test_transfer_application_and_withdrawal_routes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AuthenticatedFinanceBrowserFlowTests::test_unknown_balance_distinguished_from_zero</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>AuthenticatedFinanceBrowserFlowTests::test_movement_detail_modal_and_reversal_integration</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_active_limit_counts_only_active_and_reactivation_checks_capacity</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_common_income_edit_does_not_allow_profile_administration</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_archive_blocks_financial_writes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_revocation_applies_to_next_service_call</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_rejects_profile_reassignment_and_foreign_objects</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_unexpected_uses_server_date_and_does_not_debit</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_linked_account_keeps_balance_and_history_but_can_archive</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_linked_unexpected_cannot_be_changed_or_deleted</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_reserve_policy_requires_admin_and_valid_range</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_due_day_is_enforced_by_service_and_database</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_reserve_manual_target_and_negative_positions_rejected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>RegistrationServicesTests::test_unlinked_records_can_be_deleted_without_cash_effect</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_login_to_profile_and_account_workflow</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_profile_limit_includes_hidden_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_can_create_fifth_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_anonymous_routes_require_login</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_common_without_grant_cannot_access_hidden_or_foreign_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_reader_can_view_but_cannot_create</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_common_editor_can_create_account</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_cross_workspace_grant_is_ignored</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_duplicate_names_are_form_errors_and_scoped</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_invalid_fields_do_not_write</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_zero_and_unknown_values_remain_distinct</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceWorkflowTests::test_csrf_and_method_restrictions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceScreenRenderingTests::test_dashboard_expenses_investments_movements_render</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinanceScreenRenderingTests::test_expense_and_investment_crud_forms_render</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerServiceTests::test_single_outflow_and_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerServiceTests::test_split_and_insufficient_balance_no_partial_debit</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerServiceTests::test_cross_profile_blocked</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_partial_monthly_payment_split_idempotency_and_frozen_competence</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_reverse_all_partials_restores_balances_and_keeps_history</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_transfer_and_reversal_do_not_become_income_or_expense</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_application_withdrawal_cost_basis_and_reversal</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_monthly_application_plan_stays_frozen_and_does_not_resuggest_paid_cash</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_unknown_or_unreconciled_account_cannot_move</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerWorkflowTests::test_no_common_access_and_cross_profile_isolation</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerPostgresConcurrencyTests::test_concurrent_partial_payments_do_not_overpay</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>LedgerPostgresConcurrencyTests::test_database_rejects_unbalanced_and_mutated_posted_history</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ProfileNavigationStateTests::test_keeps_principal_when_switching_pages_and_settings</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ProfileNavigationStateTests::test_clear_all_profiles_is_explicit_and_persistent</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ProfileNavigationStateTests::test_invalid_or_unavailable_profile_cannot_be_selected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ProfileNavigationStateTests::test_member_without_investments_access_does_not_fall_back_to_other_profiles</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ProfileNavigationStateTests::test_archived_selection_is_discarded</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ProfileNavigationStateTests::test_settings_selector_updates_preference</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>SelectionSessionTests::test_selection_is_remembered_for_user_workspace</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>SelectionSessionTests::test_all_clears_preference</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>SelectionSessionTests::test_corrupt_payload_does_not_select_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_payment_returns_to_public_expenses_and_does_not_change_selected_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_transfer_with_all_profiles_keeps_all_and_returns_to_movements</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_withdrawal_returns_to_public_investments</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_reversal_redirects_to_public_movements_and_is_idempotent</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_profile_forms_cancel_to_current_public_management_pages</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_user_without_grant_cannot_post_to_foreign_profile_and_no_batch_is_created</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>FinancePublicRedirectAndIntegrityTests::test_idempotent_replay_never_debits_twice</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>VisualReadModelTests::test_income_ring_uses_monthly_plan_and_preserves_unknown</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>VisualReadModelTests::test_income_ring_omits_zero_categories_and_preserves_nonzero_labels</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>VisualReadModelTests::test_income_ring_all_zero_categories_has_empty_legend_and_neutral_ring</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>VisualReadModelTests::test_history_excludes_unconfirmed_registration</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>VisualReadModelTests::test_missing_plan_has_unknown_monthly_suggestion</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ListingScopeTests::test_import_listing_and_filter_are_scoped_to_each_granted_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ListingScopeTests::test_report_listing_selection_and_detail_are_scoped</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ListingScopeTests::test_csv_export_is_csv_and_neutralizes_spreadsheet_formulas</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Finanças</td><td>Saldos incorretos, lançamentos duplicados</td><td>ListingScopeTests::test_movement_upload_uses_only_editable_selected_profile</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_simple_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_csv_semicolon</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_csv_tab</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_csv_credit_debit_columns</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_csv_iso88591</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_csv_with_fitid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_parse_csv_generates_fitid_when_missing</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_rejects_empty_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CSVParserTests::test_rejects_oversized_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>OFX1ParserTests::test_parse_ofx1_basic</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>OFX1ParserTests::test_parse_ofx1_without_fitid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>OFX2ParserTests::test_parse_ofx2_basic</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>OFX2ParserTests::test_rejects_xxe</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FormatDetectionTests::test_detect_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FormatDetectionTests::test_detect_ofx1</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FormatDetectionTests::test_detect_ofx2</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FormatDetectionTests::test_reject_unknown_format</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DuplicateDetectionTests::test_duplicate_by_fitid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DuplicateDetectionTests::test_duplicate_by_file_hash</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportStagingTests::test_stage_import_creates_batch_and_rows</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportStagingTests::test_stage_import_detects_duplicate_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReconciliationTests::test_suggest_partial_payment</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReconciliationTests::test_suggest_link_existing_full_payment</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReconciliationTests::test_suggest_new_unexpected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CommitImportTests::test_commit_create_new_unexpected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CommitImportTests::test_commit_partial_payment</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CommitImportTests::test_commit_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DryRunTests::test_dry_run_validates_without_saving</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportReportTests::test_generate_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SecurityTests::test_rejects_xxe_in_ofx2</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SecurityTests::test_rejects_oversized_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SecurityTests::test_sanitizes_description</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>IntegrationTests::test_full_import_workflow_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>IntegrationTests::test_concurrent_import_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportPermissionTests::test_common_cannot_import_without_grants</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportPermissionTests::test_common_with_grants_can_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportPermissionTests::test_revocation_blocks_next_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_csv_with_negative_values</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_csv_truncated_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_ofx_malformed</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_same_value_date_different_transactions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_create_exact_match_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_create_regex_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_reject_unsafe_regex</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_reject_nested_quantifiers</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_update_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_delete_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_rule_priority_ordering</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationRuleTests::test_profile_rules_override_workspace</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>RegexSafetyTests::test_validate_safe_regex</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>RegexSafetyTests::test_reject_long_pattern</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>RegexSafetyTests::test_reject_too_many_groups</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>RegexSafetyTests::test_compile_safe_regex</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>PDFParserTests::test_detect_pdf_format</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>PDFParserTests::test_reject_invalid_pdf</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>PDFParserTests::test_reject_encrypted_pdf</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationIntegrationTests::test_apply_rules_to_transactions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CategorizationIntegrationTests::test_stage_import_applies_rules</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReportsTests::test_dre_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReportsTests::test_equity_evolution_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReportsTests::test_investment_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReportsTests::test_goals_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ReportsTests::test_dashboard_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DuplicateDetectionTests::test_duplicate_by_fitid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DuplicateDetectionTests::test_same_value_date_not_duplicate</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SuggestLinkTests::test_suggest_link_recurring</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SuggestLinkTests::test_suggest_link_investment</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SuggestLinkTests::test_descriptions_match</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DryRunTests::test_dry_run_validates_without_saving</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CommitImportTests::test_commit_create_new_unexpected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CommitImportTests::test_commit_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportPermissionTests::test_common_cannot_import_without_grants</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>ImportPermissionTests::test_common_with_grants_can_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SecurityTests::test_reject_oversized_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>SecurityTests::test_sanitizes_description</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_csv_with_negative_values</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_ofx_malformed</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>EdgeCaseTests::test_same_value_date_different_transactions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>IntegrationTests::test_full_import_workflow_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>IntegrationTests::test_concurrent_import_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>PermissionTests::test_revocation_blocks_next_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>CommitImportConcurrencyTests::test_concurrent_commit_same_idempotency_key</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FinancialTransferTests::test_archive_export_contains_only_financial_entities_and_xlsx</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FinancialTransferTests::test_import_remaps_links_preserves_old_profiles_and_rebuilds_access</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FinancialTransferTests::test_invalid_manifest_checksum_has_no_effect</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FinancialTransferTests::test_import_is_atomic_if_a_row_breaks_validation</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>FinancialTransferTests::test_non_admin_cannot_use_backup_endpoints</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DecisionParserTests::test_valid_decision_with_split</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DecisionParserTests::test_invalid_row_and_account_ids_rejected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DecisionParserTests::test_non_finite_negative_and_non_numeric_values_rejected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>DecisionParserTests::test_malformed_adjusted_amount_and_period_are_rejected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>UploadInputStabilityTests::test_staging_in_archived_profile_is_forbidden_without_writes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Importações</td><td>Importação parcial ou indevida</td><td>UploadInputStabilityTests::test_invalid_account_id_does_not_create_batch_or_http_500</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetFieldTests::test_preset_ignores_submitted_endpoint_and_model</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetFieldTests::test_custom_requires_https_name_model_and_token</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiSingleActiveDBTests::test_database_rejects_two_active_in_one_workspace</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiSingleActiveDBTests::test_selecting_new_deactivates_previous</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiSingleActiveDBTests::test_activation_requires_token_and_permission</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiSingleActiveDBTests::test_prevent_activation_without_credentials</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiSingleActiveDBTests::test_common_user_cannot_change_selected_provider</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AIHTTPAccessTests::test_activation_endpoint_is_post_only</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AIHTTPAccessTests::test_common_user_cannot_activate_even_with_forged_post</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AIHTTPAccessTests::test_invalid_state_rejected_and_no_provider_enabled</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetTests::test_preset_requires_key</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetTests::test_no_endpoint_or_sections_from_client</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetTests::test_canonical_routes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetTests::test_legacy_resolves</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>AiPresetTests::test_kind_round_trip</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Integrações de IA</td><td>Credenciais e autorização</td><td>TokenFileTests::test_store_and_read_with_strict_mode</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Logs</td><td>Exposição indevida de auditoria</td><td>LogIntegrationTests::test_canonical_url_and_legacy_redirect</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Logs</td><td>Exposição indevida de auditoria</td><td>LogIntegrationTests::test_log_selected_in_same_table</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Logs</td><td>Exposição indevida de auditoria</td><td>LogIntegrationTests::test_authorization_of_export_and_selected_log</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Logs</td><td>Exposição indevida de auditoria</td><td>ErrorPageTests::test_handlers_render_public_safe_page</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ProfileConcurrencyTests::test_five_profile_limit_serializes_on_postgresql</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>PermissionAuditTests::test_admin_policy_revocation_and_edit_implies_view</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>PermissionAuditTests::test_operator_cannot_bypass_financial_services_in_admin</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ContainerNamingTests::test_fixed_container_names_match_existing_services</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ContainerNamingTests::test_persisted_volumes_and_dependencies_preserved</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>HealthViewsTests::test_liveness</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>HealthViewsTests::test_readiness</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>HealthViewsTests::test_landing_starts_first_run_when_no_users_exist</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>HealthViewsTests::test_initialized_landing_requires_login</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>HealthViewsTests::test_landing_shows_workspaces_when_logged_in</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ExecutionLogTests::test_enabled_captures_all_output_and_propagates_exit_status</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ExecutionLogTests::test_disabled_keeps_console_but_creates_no_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ExecutionLogTests::test_rapid_restart_never_overwrites_previous_run</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ExecutionLogTests::test_visao_geral_has_unconditional_response_at_function_end</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>FinancePreflightTests::test_read_only_report_and_strict_reconciliation_gate</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>test_reporter_marks_missing_junit_as_not_executed</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>test_reporter_reflects_failure_from_junit</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryArchitectureTests::test_public_removed_and_media_volume_preserved</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryArchitectureTests::test_main_route_registry_has_stable_paths</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryArchitectureTests::test_startup_has_read_only_verification</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryArchitectureTests::test_no_legacy_sprint_test_files</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryArchitectureTests::test_local_environment_logging_on</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryStructureTests::test_compose_project_named_alece</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryStructureTests::test_volumes_do_not_reuse_old_alece_dbdata</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryStructureTests::test_requirements_moved_and_referenced</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryStructureTests::test_reference_directory_removed_but_prototype_preserved</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryStructureTests::test_setup_template_contains_user_passwords_and_optional_email</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RepositoryStructureTests::test_setup_inputs_full_width_and_themed</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>WebRoutesTests::test_all_public_pages_have_stable_ptbr_routes</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>FirstRunBoundaryTests::test_public_binding_blocks_setup_even_with_forged_private_headers</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>FirstRunBoundaryTests::test_two_setup_requests_create_exactly_one_administrator</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>SystemLogBoundaryTests::test_administrator_scope_and_common_denial</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>SystemLogBoundaryTests::test_logs_are_immutable_and_error_payload_is_sanitized</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>ImportIsolationTests::test_same_statement_in_two_profiles_has_distinct_row_keys</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RegistrationAuditTests::test_registration_and_log_commit_together</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>RegistrationAuditTests::test_backup_snapshot_preserves_unknown_balance</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>StartupValidationTests::test_checks_executed_in_defined_order</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>StartupValidationTests::test_failure_halts_validation</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>StartupValidationTests::test_url_reverse_resolve_for_all_public_pages</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>StartupValidationTests::test_required_templates_resolve</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>StartupValidationTests::test_required_static_assets_exist</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>test_rejects_unsafe_environment</td><td>APROVADO</td></tr>
+<tr><td>Operações</td><td>Falha de observabilidade/segurança</td><td>test_accepts_explicit_isolation</td><td>APROVADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_create_exact_match_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_create_regex_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_reject_unsafe_regex</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_reject_nested_quantifiers</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_update_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_delete_rule</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_rule_priority_ordering</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleTests::test_profile_rules_override_workspace</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>RegexSafetyTests::test_validate_safe_regex</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>RegexSafetyTests::test_reject_long_pattern</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>RegexSafetyTests::test_reject_too_many_groups</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>RegexSafetyTests::test_reject_nested_quantifiers</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>RegexSafetyTests::test_compile_safe_regex</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>PDFParserTests::test_detect_pdf_format</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>PDFParserTests::test_reject_invalid_pdf</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>PDFParserTests::test_reject_encrypted_pdf</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationIntegrationTests::test_apply_rules_to_transactions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationIntegrationTests::test_stage_import_applies_rules</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportsTests::test_dre_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportsTests::test_equity_evolution_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportsTests::test_investment_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportsTests::test_goals_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportsTests::test_dashboard_report</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>DuplicateDetectionTests::test_duplicate_by_fitid</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>DuplicateDetectionTests::test_same_value_date_not_duplicate</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>SuggestLinkTests::test_suggest_link_recurring</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>SuggestLinkTests::test_suggest_link_investment</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>SuggestLinkTests::test_descriptions_match</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>DryRunTests::test_dry_run_validates_without_saving</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CommitImportTests::test_commit_create_new_unexpected</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CommitImportTests::test_commit_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ImportPermissionTests::test_common_cannot_import_without_grants</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ImportPermissionTests::test_common_with_grants_can_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ImportPermissionTests::test_revocation_blocks_next_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>SecurityTests::test_reject_oversized_file</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>SecurityTests::test_sanitizes_description</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>EdgeCaseTests::test_csv_with_negative_values</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>EdgeCaseTests::test_ofx_malformed</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>EdgeCaseTests::test_same_value_date_different_transactions</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>IntegrationTests::test_full_import_workflow_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>IntegrationTests::test_concurrent_import_idempotency</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>PermissionTests::test_common_cannot_import_without_grants</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>PermissionTests::test_common_with_grants_can_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>PermissionTests::test_revocation_blocks_next_import</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportExportTests::test_export_dre_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportExportTests::test_export_equity_csv</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportExportTests::test_export_investment_json</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportExportTests::test_export_goals_json</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>ReportExportTests::test_export_report_audit_trail</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleVersionTests::test_create_version_on_create</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleVersionTests::test_create_version_on_update</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>CategorizationRuleVersionTests::test_rollback_restores_previous</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Relatórios</td><td>Vazamento ou perda de integridade</td><td>TechnicalReportsRenderingTests::test_admin_can_open_reports_dashboard</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationAndAboutTests::test_five_navigation_tabs</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationAndAboutTests::test_about_page_no_modal</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationAndAboutTests::test_about_page_content</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>PrivacyModeTests::test_hide_values_toggle</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>UIStructureTests::test_five_navigation_tabs</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>UIStructureTests::test_about_page_internal_no_modal</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>UIStructureTests::test_hide_values_mode</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>BackupRestoreTests::test_backup_restore_and_ledger_reconciliation</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>HealthzEndpointTests::test_healthz_returns_ok</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>HealthzEndpointTests::test_healthz_no_auth_required</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>CleanupExpiredFilesTests::test_cleanup_expired_files_command</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationStructureTests::test_canonical_urls_are_registered_without_ids</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationStructureTests::test_navigation_only_links_to_short_urls</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationStructureTests::test_security_links_only_in_settings</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>NavigationStructureTests::test_theme_is_user_owned_and_database_authoritative</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>CleanNavigationTests::test_all_five_canonical_routes_work_without_ids</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>CleanNavigationTests::test_home_redirects_to_canonical_overview</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>CleanNavigationTests::test_workspace_selection_rejects_foreign_id</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>CleanNavigationTests::test_multi_workspace_uses_explicit_selection_not_guessed_id</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>CleanNavigationTests::test_sidebar_external_about_and_account_actions_in_settings</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>ThemePreferenceTests::test_preference_persists_in_db_and_renders_in_a_new_client</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>ThemePreferenceTests::test_user_preference_does_not_affect_another_account</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>ThemePreferenceTests::test_rejects_invalid_theme_and_non_post_requests</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>ThemePreferenceTests::test_anonymous_theme_update_redirects_to_login</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>VisualConsistencyTests::test_same_svg_favicon_across_application</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>VisualConsistencyTests::test_settings_roles_and_shortcut_windows</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>VisualConsistencyTests::test_settings_templates_balanced</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>VisualConsistencyTests::test_modal_actions_preserve_django_forms</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>VisualConsistencyTests::test_checkbox_and_responsive_css</td><td>NAO_EXECUTADO</td></tr>
+<tr><td>Interface</td><td>Regressão de navegação e visualização</td><td>VisualConsistencyTests::test_browser_tab_omits_workspace_profile_name</td><td>NAO_EXECUTADO</td></tr></tbody></table></html>

@@ -1,0 +1,72 @@
+{% extends "finance/base.html" %}
+{% block title %}Relatórios técnicos · ALECE{% endblock %}
+{% block extra_css %}
+<style>
+.technical-reports{display:grid;gap:22px;max-width:1400px;margin:auto}
+.technical-reports .technical-section{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px;min-width:0}
+.technical-head{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+.technical-head h1{margin:0;font-size:clamp(25px,3vw,34px)}
+.technical-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.technical-overline{text-transform:uppercase;color:var(--primary);font-size:11px;font-weight:800;letter-spacing:1.4px;margin-bottom:6px}
+.technical-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.technical-card{background:var(--surface-alt);border:1px solid var(--border);border-radius:14px;padding:17px;display:grid;gap:8px}
+.technical-card span{color:var(--muted);font-size:12px}
+.technical-card strong{font-size:clamp(20px,2vw,27px);font-variant-numeric:tabular-nums}
+.technical-section h2{margin:0 0 6px}
+.technical-note{color:var(--muted);font-size:12px;line-height:1.6}
+.technical-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.technical-actions .technical-section{margin:0}
+.technical-actions .button,.technical-actions .btn{display:inline-flex;justify-content:center;align-items:center;min-height:44px;border-radius:13px;padding:11px 17px;text-decoration:none;font:inherit;font-size:13px;font-weight:700}
+.technical-actions label{display:grid;gap:6px;margin-top:14px;font-size:12px;font-weight:700}
+.technical-actions input[type=file]{min-height:48px;border-radius:13px;border:1px solid var(--border);color:var(--text);background:var(--surface-alt);padding:10px;width:100%;max-width:100%;font:inherit}
+.technical-actions input[type=file]::file-selector-button{margin-right:14px;border:1px solid var(--border);border-radius:9px;padding:8px 12px;background:var(--surface);color:var(--text);font:inherit}
+.technical-actions .technical-check{display:flex;align-items:flex-start;gap:10px;line-height:1.55;font-weight:500}
+.technical-actions input[type=checkbox]{margin-top:2px}
+.technical-actions .technical-verify{max-width:180px;background:var(--surface-alt);color:var(--text);border:1px solid var(--border);padding:11px;border-radius:12px;font:inherit}
+.technical-profile-list{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0;list-style:none}
+.technical-profile-list li{border:1px solid var(--border);background:var(--surface-alt);border-radius:11px;padding:8px 12px;font-size:12px}
+.technical-explain{padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-alt);color:var(--muted);font-size:12px;line-height:1.65;margin:14px 0}
+.technical-actions form{display:grid;gap:10px}
+.technical-actions .btn{cursor:pointer}
+@media(max-width:880px){.technical-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.technical-actions{grid-template-columns:1fr}}
+@media(max-width:520px){.technical-reports .technical-section{padding:18px;border-radius:18px}.technical-grid{grid-template-columns:1fr}.technical-head .btn{width:100%}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="technical-reports" aria-labelledby="technical-report-title">
+  <header class="technical-head"><div><div class="technical-overline">Informações e panoramas</div><h1 id="technical-report-title">Relatórios técnicos</h1><p>Visão consolidada dos perfis e dados financeiros deste espaço.</p></div><a class="btn secondary" href="{% url 'finance:reports-dashboard' workspace.pk %}">Consultar gráficos e DRE</a></header>
+  <section class="technical-section" aria-label="Panorama financeiro">
+    <div class="technical-overline">Panorama do espaço financeiro</div><h2>Indicadores gerais</h2><p class="technical-note">Valores provenientes dos registros atuais. Saldos desconhecidos não são tratados como zero.</p>
+    <div class="technical-grid">
+      <div class="technical-card"><span>Perfis financeiros</span><strong>{{ overview.profiles_count }}</strong><small class="technical-note">{{ overview.active_count }} ativo(s)</small></div>
+      <div class="technical-card"><span>Contas cadastradas</span><strong>{{ overview.accounts_count }}</strong><small class="technical-note">{{ overview.unknown_accounts }} com saldo desconhecido</small></div>
+      <div class="technical-card"><span>Movimentações registradas</span><strong>{{ overview.movements_count }}</strong><small class="technical-note">Inclui estornos auditáveis</small></div>
+      <div class="technical-card"><span>Saldos informados</span><strong>R$ {{ overview.account_balance|floatformat:2 }}</strong><small class="technical-note">Total conhecido, pode estar incompleto</small></div>
+      <div class="technical-card"><span>Posições de investimentos</span><strong>R$ {{ overview.investments_value|floatformat:2 }}</strong><small class="technical-note">Valor atual informado</small></div>
+      <div class="technical-card"><span>Importações bancárias</span><strong>{{ overview.import_batches_count }}</strong><small class="technical-note">Lotes existentes, inclusive em revisão</small></div>
+    </div>
+  </section>
+  <section class="technical-section" aria-label="Perfis disponíveis"><h2>Perfis incluídos</h2><p class="technical-note">A exportação contém perfis ativos, arquivados e históricos excluídos logicamente para preservar referências.</p>
+    <ul class="technical-profile-list">{% for profile in overview.profile_rows %}<li>{{ profile.name }}{% if profile.deleted %} · histórico excluído{% elif profile.archived %} · arquivado{% endif %}</li>{% empty %}<li>Nenhum perfil financeiro cadastrado.</li>{% endfor %}</ul>
+  </section>
+  <div class="technical-actions">
+    <section class="technical-section" aria-labelledby="export-finance-title"><div class="technical-overline">01 · Saída segura</div><h2 id="export-finance-title">Exportar banco financeiro</h2>
+      <p class="technical-note">Baixe um único arquivo ZIP com JSON estruturado, manifesto SHA-256 e XLSX legível, separado em {{ overview.entity_types }} tipos de registros financeiros.</p>
+      <div class="technical-explain">Não contém usuários, e-mails, senhas, permissões, tokens, sessões, logs, relatórios de auditoria ou histórico de alterações de regras.</div>
+      <a class="btn" href="{% url 'relatorios-exportar' %}">Exportar dados financeiros</a>
+    </section>
+    <section class="technical-section" aria-labelledby="import-finance-title"><div class="technical-overline">02 · Restauração controlada</div><h2 id="import-finance-title">Importar banco financeiro</h2>
+      <p class="technical-note">Aceita o ZIP exportado pelo ALECE (até {{ import_max_mib }} MiB). É uma importação aditiva: não substitui nem apaga registros existentes.</p>
+      <div class="technical-explain">Os perfis importados recebem novos identificadores. Nomes repetidos recebem sufixo e perfis acima de cinco ativos entram arquivados. <strong>As permissões antigas nunca são importadas.</strong> Os usuários atuais deste espaço receberão permissão inicial de edição nos perfis importados; revise depois em Configurações.</div>
+      <form method="post" enctype="multipart/form-data" action="{% url 'relatorios-importar' %}">
+        {% csrf_token %}
+        <label for="finance-archive">Arquivo financeiro ALECE (.zip)<input id="finance-archive" type="file" name="archive" accept=".zip,application/zip" required></label>
+        <label class="technical-check"><input type="checkbox" name="grant_all" value="yes" required><span>Estou ciente de que todos os usuários atuais deste espaço receberão acesso de edição aos perfis importados, sem reaproveitar permissões antigas.</span></label>
+        <label for="finance-confirm">Digite IMPORTAR para confirmar<input class="technical-verify" id="finance-confirm" type="text" name="confirm" placeholder="IMPORTAR" pattern="IMPORTAR" required autocomplete="off"></label>
+        <button class="btn" type="submit">Importar dados financeiros</button>
+      </form>
+    </section>
+  </div>
+  <p class="technical-note">Segurança: o servidor gera backup financeiro do destino antes da importação, com SHA-256 validado, e mantém a cópia em volume persistente. A importação é transacional. Guarde exportações e backups protegidos: eles contêm informações financeiras sensíveis.</p>
+</section>
+{% endblock %}

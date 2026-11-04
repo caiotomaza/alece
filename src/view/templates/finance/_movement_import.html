@@ -1,0 +1,23 @@
+{% if has_import_access %}
+  <div class="movement-intro-note"><span aria-hidden="true">ⓘ</span> Extratos passam por prévia e conciliação antes da confirmação.</div>
+  <article class="card import-panel movement-import-panel">
+    <div class="import-panel-head"><div><h2>Importar extrato ou fatura</h2><p class="muted">Importe CSV ou OFX do banco ou revise uma fatura PDF. Os lançamentos ficam em prévia até sua confirmação.</p></div><a class="demo-pill" href="{% url 'finance:import-list' workspace.pk %}">Prévias e histórico</a></div>
+    {% if import_profiles %}
+      <form method="post" enctype="multipart/form-data" {% if import_profile %}action="{% url 'finance:import-upload' import_profile.pk %}"{% endif %} class="movement-import-form movement-import-auto-form" data-import-auto-form>
+        {% if not import_profile %}<div class="field-group import-profile-choice"><label for="import-profile-choice">Perfil financeiro para importar</label><select id="import-profile-choice" data-import-profile-choice required><option value="">Selecione um perfil</option>{% for choice in import_profiles %}<option value="{{ choice.pk }}" data-upload-url="{% url 'finance:import-upload' choice.pk %}">{{ choice.name }}</option>{% endfor %}</select><small>Escolha o destino antes de selecionar um extrato.</small></div>{% endif %}
+        {% csrf_token %}
+        <input type="hidden" name="return_to" value="movements">
+        <input id="id_statement_file" class="import-drop-input" type="file" name="file" accept=".csv,.ofx,.pdf" required aria-describedby="import-drop-hint import-upload-feedback" data-import-file>
+        <label for="id_statement_file" class="import-drop-zone" data-import-drop-zone>
+          <span class="import-drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
+          <span class="import-drop-title">Arraste seu arquivo aqui ou <strong>clique para selecionar</strong></span>
+          <span class="import-drop-hint" id="import-drop-hint">CSV, OFX ou PDF · máximo 5 MiB · um arquivo por vez</span>
+          <span class="import-drop-profile">Perfil: <strong data-import-profile-label>{% if import_profile %}{{ import_profile.name }}{% else %}Selecione acima{% endif %}</strong></span>
+        </label>
+        <p class="import-upload-feedback" id="import-upload-feedback" data-import-feedback role="status" aria-live="polite">A análise da prévia começa automaticamente após selecionar um arquivo.</p>
+        <noscript>{% if import_profile %}<button class="btn" type="submit">Enviar arquivo para prévia</button>{% else %}<p>Para importar sem JavaScript, abra o formulário do perfil desejado:</p>{% for choice in import_profiles %}<p><a href="{% url 'finance:import-upload' choice.pk %}">{{ choice.name }}</a></p>{% endfor %}{% endif %}</noscript>
+      </form>
+    {% else %}<p class="muted">É necessário acesso de edição a contas e movimentações para importar.</p>{% endif %}
+    <p class="source-note">O envio cria somente uma prévia. A confirmação é uma etapa separada e auditável.</p>
+  </article>
+{% endif %}

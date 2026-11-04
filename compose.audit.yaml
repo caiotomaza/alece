@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Stack independente, sem portas públicas, env_file, containers nomeados ou volumes de produção.
+# Execute exclusivamente para testes com dados sintéticos.
+name: alece-stability-audit
+services:
+  db:
+    image: postgres:16-bookworm
+    restart: "no"
+    environment:
+      POSTGRES_DB: alece_audit
+      POSTGRES_USER: alece_audit
+      POSTGRES_PASSWORD: "exclusivo-para-testes-sinteticos-nao-usar-em-producao"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alece_audit -d alece_audit"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    networks: [audit-internal]
+
+  tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.audit
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ALECE_SECRET_KEY: "exclusivo-para-testes-sinteticos-nao-usar-em-producao-alece"
+      ALECE_DB_HOST: db
+      ALECE_DB_NAME: alece_audit
+      ALECE_DB_USER: alece_audit
+      ALECE_DB_PASSWORD: "exclusivo-para-testes-sinteticos-nao-usar-em-producao"
+      ALECE_REQUIRE_RECOVERY_SETUP: "false"
+      ALECE_DEBUG: "false"
+      ALECE_LOG_VALIDACAO: "false"
+      ALECE_TEST_ISOLATED: "1"
+      DJANGO_SETTINGS_MODULE: config.test_settings
+    command: ["python", "scripts/quality/run_suite.py"]
+    networks: [audit-internal]
+
+networks:
+  audit-internal:
+    internal: true

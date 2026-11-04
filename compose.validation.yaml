@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Instância independente para homologação, exclusivamente com dados sintéticos.
+# NÃO combine este arquivo com compose.yaml: aquele define container_name fixos.
+name: alece-validation
+services:
+  secrets-init:
+    image: python:3.12-alpine
+    restart: "no"
+    volumes:
+      - app_secrets:/run/alece-secrets
+      - ./docker/initialize_secrets.py:/init_secrets.py:ro
+    command: ["python", "/init_secrets.py"]
+    networks: [validation]
+
+  db:
+    image: postgres:16-bookworm
+    restart: "no"
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_DB: alece_audit
+      POSTGRES_USER: alece_audit
+      POSTGRES_PASSWORD_FILE: /run/alece-secrets/db_password
+    volumes:
+      - app_pgdata:/var/lib/postgresql/data
+      - app_secrets:/run/alece-secrets:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [validation]
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: "no"
+    # Ignora deliberadamente .env local: ele pode conter parâmetros produtivos.
+    env_file:
+      - path: ./.env.example
+        required: true
+    environment:
+      ALECE_VALIDATION_ONLY: "1"
+      ALECE_TEST_ISOLATED: "1"
+      ALECE_SECRET_KEY_FILE: /run/alece-secrets/secret_key
+      ALECE_DB_PASSWORD_FILE: /run/alece-secrets/db_password
+      ALECE_DB_NAME: alece_audit
+      ALECE_DB_USER: alece_audit
+      ALECE_DB_HOST: db
+      ALECE_DB_PORT: "5432"
+      ALECE_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      ALECE_DEBUG: "false"
+      ALECE_LOG_VALIDACAO: "false"
+      ALECE_AI_SECRET_DIR: /app/private/ai
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    volumes:
+      - app_media:/app/media
+      - app_ai_tokens:/app/private/ai
+      - app_financial_backups:/home/app/backups
+      - app_secrets:/run/alece-secrets:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/saude/pronto/', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 75s
+    networks: [validation]
+
+networks:
+  validation:
+    internal: true
+volumes:
+  app_pgdata:
+  app_ai_tokens:
+  app_financial_backups:
+  app_media:
+  app_secrets:

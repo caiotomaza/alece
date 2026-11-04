@@ -1,0 +1,86 @@
+{% load static %}
+<!-- Modal de edição de linha de importação -->
+<div class="dialog-fallback" data-dialog-content>
+  <dialog class="unified-dialog" data-edit-dialog id="import-row-edit-dialog">
+    <form method="post" action="{% url 'finance:import-row-edit' profile.pk batch.pk row.pk %}" class="dialog-in">
+      {% csrf_token %}
+      <div class="dialog-title">
+        <h2>Editar linha #{{ row.row_number }}</h2>
+        <button class="close-x" aria-label="Fechar">&times;</button>
+      </div>
+      
+      <div class="dialog-form">
+        <div class="form-field">
+          <label>Data</label>
+          <input type="date" name="occurred_on" value="{{ row.occurred_on|date:'Y-m-d' }}" class="form-input" required>
+        </div>
+        
+        <div class="form-field">
+          <label>Descrição <span class="required">*</span></label>
+          <input type="text" name="description" value="{{ row.description }}" maxlength="255" class="form-input" required>
+        </div>
+        
+        <div class="form-field">
+          <label>Memo</label>
+          <textarea name="memo" class="form-input" rows="2">{{ row.memo }}</textarea>
+        </div>
+        
+        <div class="form-inline">
+          <div class="form-field">
+            <label>Valor (R$) <span class="required">*</span></label>
+            <input type="number" step="0.01" min="0.01" name="amount" value="{{ row.amount|floatformat:2 }}" class="form-input" required>
+          </div>
+          <div class="form-field">
+            <label>Tipo</label>
+            <select name="kind" class="form-input">
+              <option value="recurring" {% if row.suggested_kind == 'recurring' %}selected{% endif %}>Pagamento previsível</option>
+              <option value="unexpected" {% if row.suggested_kind == 'unexpected' %}selected{% endif %}>Despesa imprevisível</option>
+              <option value="application" {% if row.suggested_kind == 'application' %}selected{% endif %}>Aplicação</option>
+              <option value="withdrawal" {% if row.suggested_kind == 'withdrawal' %}selected{% endif %}>Resgate</option>
+              <option value="transfer" {% if row.suggested_kind == 'transfer' %}selected{% endif %}>Transferência</option>
+              <option value="income" {% if row.suggested_kind == 'income' %}selected{% endif %}>Recebimento</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label>Competência (AAAA-MM)</label>
+          <input type="month" name="competence_month" value="{{ row.occurred_on|date:'Y-m' }}" class="form-input">
+        </div>
+        
+        <div class="form-field">
+          <label>Conta(s) de destino</label>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for acc in accounts %}
+            <label style="display: flex; align-items: center; gap: 0.5rem; background: var(--surface); padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border);">
+              <input type="checkbox" name="split_{{ acc.pk }}" value="{{ acc.pk }}">
+              <span>{{ acc.name }} <span class="muted">(saldo: R$ {{ acc.balance|floatformat:2 }})</span></span>
+              <input type="number" step="0.01" min="0" name="split_amt_{{ acc.pk }}" value="0" class="form-input" style="width: 100px;" disabled>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="dialog-error" id="edit-error"></div>
+        
+        <div class="dialog-row">
+          <button type="button" class="text-button" onclick="closeDialog()">Cancelar</button>
+          <button type="submit" class="btn" id="quick-add">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+</div>
+
+<script>
+function closeDialog() {
+  const dialog = document.getElementById('import-row-edit-dialog');
+  if (dialog) dialog.close();
+}
+
+// Auto-abrir se veio com hash na URL
+if (window.location.hash === '#edit') {
+  const dialog = document.getElementById('import-row-edit-dialog');
+  if (dialog) dialog.showModal();
+}
+</script>

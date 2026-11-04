@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ALECE | Prévia técnica de componentes (dados fictícios)</title>
+<link rel="stylesheet" href="../../src/view/static/finance/alece_tokens.css">
+<link rel="stylesheet" href="../../src/view/static/finance/alece.css">
+<link rel="stylesheet" href="../../src/view/static/finance/alece_ui_consistency.css">
+<link rel="stylesheet" href="../../src/view/static/finance/alece_components.css">
+<!-- O catálogo visual é isolado; não representa uma tela autenticada nem dados reais. -->
+<style>
+.component-preview{max-width:960px;margin:0 auto}.preview-stack{display:grid;gap:18px}.preview-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.preview-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.preview-fields label{display:grid;gap:6px;font-weight:650;font-size:13px}.preview-section-title{margin:0 0 14px}.component-preview .preview-table-container{overflow-x:auto}.component-preview table{width:100%}.preview-chips{display:flex;gap:14px;flex-wrap:wrap}.preview-subtitle{font-size:12px;color:var(--muted)}
+@media(max-width:600px){.preview-fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="content component-preview" id="main-content"><section class="page is-visible preview-stack">
+<div class="intro"><div><h1>Componentes ALECE</h1><p>Exemplo isolado — dados fictícios, sem acesso à aplicação</p></div></div>
+<article class="card"><h2 class="preview-section-title">Ações e estados</h2>
+ <div class="preview-actions"><button class="button" type="button">Salvar</button><button class="button secondary" type="button">Cancelar</button><button class="button danger" type="button">Excluir</button><button class="btn" type="button" disabled>Indisponível</button></div></article>
+<article class="card"><h2 class="preview-section-title">Filtros e campos</h2>
+ <form class="object-form" onsubmit="return false"><div class="preview-fields"><label>Descrição<input type="text" placeholder="Nome da transação"></label><label>Categoria<select><option>Todos</option><option>Alimentação</option></select></label><label>Valor<input type="number" value="125.5"></label><label>Período<input type="month" value="2026-10"></label><label>Observações<textarea rows="2" placeholder="Opcional"></textarea></label><label>Selecione uma conta<select disabled><option>Desabilitado</option></select></label></div>
+ <div class="preview-chips"><label class="checkbox-label"><input type="checkbox" checked> Incluir lançamentos</label><label class="checkbox-label"><input type="checkbox"> Concluídos</label><label class="checkbox-label"><input type="radio" name="period" checked> Mensal</label><label class="checkbox-label"><input type="radio" name="period"> Anual</label></div></form>
+ <form class="chart-category-form" onsubmit="return false"><label>Filtrar categoria<select><option>Todas as categorias</option></select></label><button type="submit" class="btn">Filtrar</button></form></article>
+<article class="card"><h2 class="preview-section-title">Tabela e mensagens</h2><div class="table-wrap preview-table-container"><table class="source-table"><thead><tr><th>Categoria</th><th>Tipo</th><th>Valor</th></tr></thead><tbody><tr><td>Moradia</td><td>Despesa</td><td>R$ 350,00</td></tr><tr><td>Transporte</td><td>Despesa</td><td>R$ 120,00</td></tr></tbody></table></div><p class="message success">Operação concluída (exemplo).</p><p class="message error">Verifique os campos informados (exemplo).</p></article>
+</section></main>
+</body></html>

@@ -1,0 +1,333 @@
+# DOCUMENTAÇÃO HISTÓRICA — REVISAR ANTES DE USAR
+
+Este arquivo precede a reorganização. Comandos e fluxos de first-run podem estar obsoletos; use os arquivos na raiz para operação.
+
+# RUNBOOK — Operação e recuperação do ALECE
+
+> **Revisão de 23/10/2026:** o primeiro cadastro só é oferecido quando `ALECE_BIND_IP` publica a aplicação em loopback (`127.0.0.1` ou `::1`). Um túnel SSH até o loopback do host é compatível. Publicação em `0.0.0.0`/LAN desabilita `/setup/` enquanto não houver usuário; configure o primeiro Administrador antes de ampliar a rede. A decisão não usa IP aparente do cliente, NAT Docker ou `X-Forwarded-For`. Consulte a auditoria em `docs/reviews/ALECE_AUDITORIA_GERAL_CODEX.md`.
+
+> **Alvo:** laboratório e homologação self-hosted. **Não utilizar para finanças reais antes de concluir as etapas de segurança e integridade em `docs/ROADMAP.md`.**
+
+> **Validação visual local:** a referência congelada é servida apenas em `127.0.0.1` durante a comparação. `scripts/visual_compare.py` e `scripts/visual_modal_compare.py` exigem um banco `alece_audit` isolado, usuário e perfis sintéticos de `scripts/seed_visual_audit.py`, Edge/Playwright e a aplicação em `127.0.0.1:8003`. As capturas lado a lado ficam fora do repositório em `HOME/backups`, pois o protótipo contém valores de exemplo. Consulte a matriz em `docs/reviews/ALECE_VALIDACAO_VISUAL_V1.32.1.md`; a execução da matriz ainda não significa paridade aprovada.
+
+## 1. Identificação do ambiente (obrigatória)
+
+Antes de implantar, confirme: distribuição/versão, arquitetura CPU, espaço livre, volumes, estado do Docker e Compose, método de acesso administrativo, rota de recuperação e portas. No ZimaOS verifique permissões do terminal/App Store e caminhos persistentes pelo painel. **Não** presuma shell root ou endereço fixo.
+
+Para hosts Linux/Bash comprovadamente compatíveis, comandos somente leitura úteis: `uname -m`, `docker version`, `docker compose version`, `docker info`, `df -h`. Registre a saída no log da intervenção. Não publique segredos retornados por `docker inspect` ou `docker compose config`.
+
+## 2. Preparação de segredos e rede
+
+```bash
+bash scripts/bootstrap.sh
+```
+
+- `.env` não deve entrar no Git.
+- Por padrão, `ALECE_BIND_IP=127.0.0.1` e `ALECE_ALLOWED_HOSTS=localhost,127.0.0.1`.
+- Para acesso LAN no ZimaOS, ajuste **somente** o bind e `ALLOWED_HOSTS` depois de verificar a rede real. Exemplo ilustrativo, **não é um endereço detectado**: `ALECE_BIND_IP=0.0.0.0`, `ALECE_ALLOWED_HOSTS=192.168.1.10,localhost,127.0.0.1`.
+- Não exponha o banco PostgreSQL (Compose não publica a porta 5432).
+- HTTPS não é requisito para validar o processo no loopback; se houver acesso por redes não confiáveis, use TLS e cookies seguros antes de habilitar usuários reais.
+
+### 2.1 HTTP Direct para NAS/VPS + Proxy Reverso Opcional
+
+O ALECE roda nativamente em HTTP (sem HTTPS, certificados ou proxy obrigatório). Para uso atrás de proxy reverso (nginx, Traefik, Caddy, etc.), configure via variáveis de ambiente:
+
+| Variável | Django Setting | Padrão | Descrição |
+|----------|----------------|--------|-----------|
+| `ALECE_USE_X_FORWARDED_HOST` | `USE_X_FORWARDED_HOST` | `False` | Confia no header `X-Forwarded-Host` para `request.get_host()` |
+| `ALECE_USE_X_FORWARDED_PORT` | `USE_X_FORWARDED_PORT` | `False` | Confia no header `X-Forwarded-Port` para `request.get_port()` |
+| `ALECE_SECURE_PROXY_SSL` | `SECURE_PROXY_SSL_HEADER` | `None` | Define `SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https")` |
+
+**Segurança crítica**: Headers `X-Forwarded-*` enviados **diretamente por clientes** NÃO são confiáveis quando proxy NÃO está habilitado (padrão). O Django ignora esses headers a menos que as flags acima sejam `True`.
+
+**Como impedir acesso direto ao backend quando proxy habilitado:**
+1. Configure firewall/iptables para bloquear acesso direto à porta do backend (ex: 8000), permitindo apenas do IP do proxy.
+2. No proxy, configure `proxy_set_header X-Forwarded-Host $host; proxy_set_header X-Forwarded-Port $server_port; proxy_set_header X-Forwarded-Proto $scheme;`.
+3. No ALECE, defina `ALECE_USE_X_FORWARDED_HOST=true ALECE_USE_X_FORWARDED_PORT=true ALECE_SECURE_PROXY_SSL=true`.
+4. Em `ALECE_ALLOWED_HOSTS`, inclua o hostname público do proxy (ex: `alece.minhaempresa.com`).
+5. Em `ALECE_CSRF_TRUSTED_ORIGINS`, inclua a origem pública (ex: `https://alece.minhaempresa.com`).
+
+**Validação**: Com proxy **desabilitado** (padrão), requisições com `X-Forwarded-Host: evil.com` são ignoradas. Com proxy **habilitado**, o header é processado corretamente.
+
+## 3. Primeira instalação e atualização
+
+```bash
+bash scripts/deploy.sh
+```
+
+O script executa o procedimento:
+1. pré-verificações sem alteração;
+2. cria log em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log`;
+3. valida Compose sem revelar credenciais;
+4. inicia o banco, gera backup pre-migration e valida o SHA-256;
+5. constrói a imagem, valida Django e executa migrações;
+6. sobe a aplicação e verifica saúde sem declarar sucesso prematuramente.
+
+Na **primeira instalação** sem tabela de aplicação, o dump representa o estado anterior (potencialmente vazio). **Não** usar `docker compose down -v`, pois remove dados persistentes.
+
+### 3.1 Primeira configuração (First-Run Setup / Bootstrap)
+
+Após o deploy inicial, o ALECE requer a criação do primeiro Administrador via tela de bootstrap em `/setup/`:
+
+1. **Acessar `/setup/`** no navegador (ex: `http://127.0.0.1:8000/setup/`). O sistema verifica que nenhum usuário existe e apresenta o formulário simplificado.
+
+2. **Preencher apenas três campos obrigatórios**:
+   - **Nome de usuário**: nome do primeiro Administrador.
+   - **Senha** e **Confirmação de senha**: senha forte (mín. 8 caracteres).
+
+3. **Clicar em "Criar Administrador"**: o sistema cria atomicamente, na mesma transação PostgreSQL:
+   - Usuário Administrador (não staff/superuser Django)
+   - `UserProfile` associado
+   - Workspace (núcleo financeiro) padrão denominado **"Pessoal"**
+   - `WorkspaceMembership` com role `admin`
+   - Primeiro `FinancialProfile` denominado **"Principal"** (renda mensal `NULL` até ser configurada posteriormente)
+   - `ProfileGrant` total (`can_view=true, can_edit=true`, todos módulos no nível `edit`)
+   - **Redireciona para `/login/` (SEM auto-login)**
+
+> **Importante**: `/setup/` exige publicação da aplicação em loopback e banco ainda sem usuários. A origem IP percebida pela aplicação não é prova de acesso local. Não há credenciais padrão nem token de bootstrap. Após a criação do primeiro usuário, `/setup/` redireciona para `/login/`.
+
+### 3.2 Gestão de Usuários (Administradores)
+
+Acessível em **Configurações → Gestão de Usuários** (apenas Administradores do workspace):
+
+- **Criar usuário**: botão `+` na seção "Novo Usuário" → username, senha, papel (`admin`/`common`), ativo/inativo.
+- **Editar usuário**: ícone lápis na linha → alterar papel (`admin`/`common`) e status ativo/inativo.
+- **Redefinir senha**: botão "Redefinir Senha" na linha → nova senha + confirmação (admin não pode redefinir a própria senha — use "Alterar senha" no perfil).
+- **Revogar sessões**: botão "Revogar Sessões" na linha → invalida todas as sessões do usuário (exceto a do admin logado).
+- **Permissões por perfil**: link "Permissões" na linha → grade 5 módulos × 3 níveis (`none`/`view`/`edit`): Visão geral, Contas, Despesas, Investimentos, Movimentações. Perfis arquivados ficam desabilitados.
+
+**Proteções de segurança**:
+- Admin não pode alterar próprio papel/ativação.
+- **Último admin ativo protegido**: não pode desativar nem mudar papel do último admin ativo do workspace.
+- Admin não pode revogar próprias sessões.
+- Admin não pode redefinir própria senha via gestão (use "Alterar senha").
+- Revogação de grant vale na próxima requisição (cache/sessão invalidado).
+
+### 3.3 Senha e sessões
+
+O próprio usuário altera a senha em `/password/change/`, informando a senha atual. Administradores revogam sessões de outros usuários na gestão de usuários. Procedimentos emergenciais fora da interface exigem plano específico, backup e auditoria da intervenção.
+
+### 3.4 Logs do Sistema (Configurações → Logs do Sistema)
+
+Acessível em **Configurações → Logs do Sistema** (apenas Administradores do workspace):
+
+- **Visualização**: Lista paginada (50/page) com filtros por severidade (debug/info/warning/error/critical), módulo (auth, users, permissions, profiles, accounts, expenses, investments, movements, payments, transfers, investments_ops, reversals, imports, reconciliation, settings, bootstrap, system, admin), ação (login, logout, create, update, delete, view, permission_grant, payment, transfer, application, redemption, reversal, import, reconcile, setup, token_generated, token_used, error), resultado (success/failure/denied/partial), usuário, intervalo de datas, busca textual.
+- **Detalhe**: Clique na linha → visualização de identificadores e metadados sanitizados, com vínculo a lote contábil quando houver.
+- **Permissões**:
+  - **Administrador**: vê todos os eventos do próprio workspace.
+  - **Usuário Comum**: não acessa a tela integral de logs.
+- **Auditoria financeira**: Eventos com `is_financial_audit=true` são vinculados ao ledger via `ledger_batch_id` (pagamentos, transferências, aplicações, resgates, estornos, importações, conciliações). Não expõe saldos, valores sensíveis, senhas, tokens ou cookies.
+- **Imutabilidade**: Logs são **somente leitura**; o PostgreSQL também bloqueia UPDATE e DELETE pela trigger instalada na migração `core.0005`.
+- **URL direta**: `/core/system-logs/` (lista), `/core/system-logs/<id>/` (detalhe).
+
+## 4. Monitoramento e diagnósticos
+
+- `GET /health/live/`: processo web vivo (não comprova o banco).
+- `GET /health/ready/`: executa `SELECT 1` no PostgreSQL, retorna HTTP 200/503.
+- `docker compose ps`: estado e health dos serviços.
+- `docker compose logs --tail=100 web`: logs; **antes de compartilhar, revise segredos/dados pessoais**.
+- `docker compose exec web python manage.py check --deploy`: checklist de segurança (alguns avisos dependem do cenário HTTP LAN/TLS configurado).
+
+Somente leitura: gerar um log é suficiente; backup é exigido **antes de alterar**.
+
+## 5. Backup de dados
+
+```bash
+bash scripts/backup.sh
+```
+
+Produz em `$HOME/backups/`:
+
+```text
+YYYY-MM-DD_HH-MM-SS__alece-postgresql.dump
+YYYY-MM-DD_HH-MM-SS__alece-postgresql.dump.sha256
+```
+
+O arquivo é `pg_dump -Fc` (somente DB); **não contém automaticamente os arquivos de mídia, `.env`, certificados ou configurações do host**. Faça cópias independentes desses itens conforme sua implantação, com SHA-256, e documente-as. Não descarte backups sem política explícita.
+
+Valide o backup **após produzir e novamente antes de restaurar**. O script confirma hash e conteúdo básico via `pg_restore --list`, quando disponível no contêiner PostgreSQL.
+
+## 6. Rollback / restore após falha
+
+**Não existe rollback automático destrutivo.** O operador deve avaliar migrações já aplicadas, dependências de versão, integridade e a janela de dados que será perdida.
+
+**⚠️ PROIBIDO:** `docker compose down -v` — remove volumes PostgreSQL e de mídia IRREVERSIVELMENTE.
+
+**PROCEDIMENTO DE ROLLBACK SEGURO (Preserva volumes):**
+1. Preserve o último log e estado de `docker compose ps`.
+2. Identifique o último backup **anterior** à atualização; valide `<backup>.sha256` no diretório em que foi criado.
+3. Preserve também eventual atividade posterior ao backup antes de restaurar (não sobrescreva dados novos sem autorização).
+4. Pare **apenas a aplicação web** afetada: `docker compose stop web`.
+5. Restaure a imagem/código compatível com o esquema do backup.
+6. **Somente com autorização explícita e janela de manutenção**, restaure o DB com `pg_restore` em banco de teste primeiro. A opção `--clean --if-exists` destrói objetos existentes e não deve ser executada como ação automática.
+7. Teste `/health/ready/`, fluxos reais e permissões antes de liberar o serviço.
+
+Para testar a integridade **sem modificar o banco**: `docker compose exec -T db pg_restore --list` recebe o dump pela entrada padrão. Para restauração real, use operador e procedimento específico, **NUNCA `docker compose down -v` como rollback**.
+
+**EXEMPLO DE RESTAURAÇÃO SEGURA (Testado em PostgreSQL Isolado):**
+```bash
+# 1. Criar instância isolada de teste para validar restore (NÃO afeta produção)
+docker run -d --name alece-restore-test \
+  -e POSTGRES_DB=alece_restore_test \
+  -e POSTGRES_USER=alece_restore \
+  -e POSTGRES_PASSWORD=alece_restore \
+  postgres:16-bookworm
+
+# 2. Aguardar PostgreSQL ficar pronto
+sleep 5
+
+# 3. Restaurar dump na instância isolada
+docker exec -i alece-restore-test psql -U alece_restore -d alece_restore_test < HOME/backups/YYYY-MM-DD_HH-MM-SS__alece-postgresql.dump
+
+# 4. Validar integridade do restore
+docker exec alece-restore-test psql -U alece_restore -d alece_restore_test -c "
+  SELECT count(*) as users FROM auth_user;
+  SELECT count(*) as workspaces FROM finance_workspace;
+  SELECT count(*) as profiles FROM finance_financialprofile;
+  SELECT count(*) as batches FROM finance_transactionbatch;
+  SELECT count(*) as logs FROM core_systemlog;
+"
+
+# 5. Calcular SHA-256 do dump restaurado para comparar com backup original
+docker exec alece-restore-test pg_dump -U alece_restore -d alece_restore_test | sha256sum
+# Deve corresponder ao SHA-256 do arquivo .sha256 original
+
+# 6. Limpar instância de teste
+docker stop alece-restore-test && docker rm alece-restore-test
+
+# 7. SOMENTE após validação bem-sucedida, restaurar em produção:
+#    docker compose stop web
+#    docker compose exec -T db psql -U alece -d alece < HOME/backups/YYYY-MM-DD_HH-MM-SS__alece-postgresql.dump
+#    docker compose up -d web
+#    docker compose exec web python manage.py check
+```
+
+## 7. Recuperação de usuário e acesso administrativo
+
+O login por usuário/senha está disponível. A geração de um novo código de recuperação offline exige sessão autenticada e senha atual; o código aparece uma vez e deve ser guardado pelo proprietário fora do sistema. O endpoint público `/recovery/` não emite códigos. Códigos emitidos antes da migração `core.0002` são recusados por versão e precisam ser regenerados pelo titular. O resgate tem uso único e limites de tentativas no PostgreSQL. Não há recuperação por e-mail.
+
+Antes de aplicar `finance.0002`, `finance.0003` e `finance.0004` em qualquer banco persistente, execute backup validado com SHA-256 e rode o comando de validação prévia:
+`docker compose exec web python manage.py preflight_finance --strict`.
+Esse comando confere contas com saldo inicial não conciliado e posições inválidas de Reserva. O preflight deve retornar `"safe_to_apply_reserve_constraint": true` e zero pendências antes de avançar.
+
+### Imutabilidade do Ledger e Partidas Dobradas
+As movimentações financeiras gravadas (`TransactionBatch`, `LedgerLeg` e `JournalEntry`) são protegidas por triggers no PostgreSQL (`finance_guard_posted_history` e `finance_assert_journal_balance`).
+- Lançamentos contábeis postados não aceitam UPDATE nem DELETE no banco. Tentativas de alteração direta disparam exceção `Posted financial history is immutable`.
+- Para anular uma movimentação, use sempre o fluxo oficial de **Estorno** (`reverse_batch`), que gera uma contrapartida contábil simétrica preservando toda a trilha de auditoria.
+
+## 8. Incidentes financeiros
+
+- Saldo negativo após pagamento: tratar como defeito de integridade, interromper atualizações do módulo, preservar backups e logs, comparar débitos e lançamentos.
+- Violação de gatilho de imutabilidade: investigar scripts ou comandos diretos que tentem alterar `TransactionBatch` ou `LedgerLeg`; utilizar exclusivamente o serviço transacional `reverse_batch`.
+- Importação duplicada: não excluir histórico por conveniência; investigar chaves idempotentes, origem do arquivo e reprocessamento.
+- Dado de perfil exposto: isolar acesso, preservar evidências com cuidado e revisar grants modulares por perfil (`ProfileGrant`).
+- Migração falhada: **não** insistir executando migrations aleatórias; restaurar ambiente de homologação e analisar `showmigrations`.
+- Bug após release: retornar à imagem anterior e avaliar se o banco demanda restauração. Recuo apenas do código não desfaz mudanças irreversíveis de schema.
+
+## 9. Operações de Importação Bancária (Sprint 04)
+
+### 9.1 Fluxo de Importação
+1. **Upload** via interface web (`/finance/workspaces/<id>/imports/new/`) — aceita CSV e OFX.
+2. **Staging** — arquivo validado, parseado, hash SHA-256 computado, transações normalizadas e gravadas em `ImportBatch` + `ImportRow`.
+3. **Detecção de duplicidades** — por FITID (OFX), hash de arquivo (reimportação), comparação contextual (data ±1 dia, valor exato, descrição similar).
+4. **Reconciliação assistida** — sugestões automáticas: vincular a despesa existente, pagamento parcial, nova despesa imprevisível, aplicação/resgate em investimento, transferência, recebimento.
+5. **Prévia editável** — usuário revisa cada linha, ajusta valor/descrição/tipo/conta/competência, define splits multi-conta.
+6. **Commit atômico** — confirmação humana obrigatória, idempotência por chave, criação/vinculação de `TransactionBatch` com ledger balanceado.
+
+### 9.2 Formatos Suportados
+- **CSV**: UTF-8, ISO-8859-1, Windows-1252; delimitadores `;`, `,`, tab, `|`; cabeçalho opcional; colunas crédito/débito separadas ou valor único com sinal.
+- **OFX 1.x**: Formato SGML (ex: bancos brasileiros legados).
+- **OFX 2.x**: Formato XML com proteção contra XXE e expansão de entidades.
+
+### 9.3 Segurança
+- Processamento 100% local (self-hosted), zero transmissão externa.
+- Limites: 5 MiB por arquivo, 5.000 transações.
+- Sanitização de textos (remoção de caracteres de controle, XSS, formula injection).
+- Hash SHA-256 do arquivo original para auditoria e deduplicação.
+- Validação de codificação, estrutura, limites antes de processar.
+
+### 9.4 Permissões
+- Requer `accounts:edit` e `movements:edit` no perfil alvo.
+- Administrador do workspace tem acesso irrestrito.
+- Usuário comum depende de `ProfileGrant` explícito.
+- Revogação de grant vale na próxima requisição (invalida cache/sessão).
+
+### 9.5 Monitoramento de Importações
+- Lista em `/finance/workspaces/<id>/imports/` mostra status: `staged`, `validated`, `reviewed`, `committed`, `failed`.
+- Relatório pós-commit (`/imports/<id>/report/`) detalha: confirmadas, vinculadas, ignoradas, duplicatas, erros, trilha de auditoria (hash, idempotency key, autor, timestamp).
+- Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` registram upload, parse, commit.
+
+## 10. Operações de Categorização De-Para e Relatórios (Sprint 05)
+
+### 10.1 Regras de Categorização De-Para
+1. **Listagem** — `/finance/workspaces/<id>/categorization/` com filtro por perfil (núcleo + perfis).
+2. **Criação** — `/categorization/new/` — define nome, tipo (exato/regex), padrão, campo alvo, ação sugerida, prioridade, escopo (núcleo/perfil).
+3. **Teste de Regra** — AJAX em `/categorization/test/` valida regex (segurança ReDoS) e simula correspondência.
+3. **Edição/Exclusão** — Ações por linha na listagem, apenas admin do workspace.
+4. **Escopo e Prioridade** — Regras de perfil têm precedência sobre núcleo; prioridade numérica (menor = maior prioridade).
+
+### 10.2 Importação PDF (Além de CSV/OFX)
+1. **Upload** — Mesma interface, aceita `.pdf` (assinatura `%PDF-` validada).
+2. **Validação** — Rejeita criptografia sem senha, >50 páginas, >500KB texto, PDFs corrompidos.
+3. **Extração** — `pdfplumber` para texto/tabelas nativas; OCR opcional via `pymupdf` isolado.
+4. **Pipeline** — Mesmo fluxo CSV/OFX: staging → deduplicação → categorização (regras De-Para) → prévia → commit.
+
+### 10.3 Relatórios Financeiros
+- **Dashboard** — `/finance/workspaces/<id>/reports/` consolidado (DRE, patrimônio, investimentos, metas).
+- **DRE** — `/finance/profiles/<id>/reports/dre/` — Receitas vs Despesas confirmadas/pendentes, por tipo/categoria.
+- **Patrimônio** — `/finance/profiles/<id>/reports/equity/` — Série temporal (diário/semanal/mensal), saldos conhecidos/desconhecidos.
+- **Investimentos** — `/finance/profiles/<id>/reports/investments/` — Posições, aplicações/resgates, ganho/perda, por categoria.
+- **Metas/Reserva** — `/finance/profiles/<id>/reports/goals/` — Progresso Reserva, metas de investimento, sugestão mensal.
+
+### 10.4 Segurança Específica Sprint 05
+- **ReDoS Protection**: Regex validada (timeout 100ms, máx 10 grupos, padrões perigosos rejeitados).
+- **PDF Security**: Assinatura `%PDF-`, rejeita criptografia, limites páginas/tamanho/tempo, sanitização.
+- **Regex Safety**: Limite 500 chars, grupos máx 10, padrões perigosos (nested quantifiers, lookaheads) rejeitados.
+- **Permissões**: `accounts:edit` + `movements:edit` para importação; `overview`+`expenses`+`investments` para relatórios; admin workspace full access.
+
+### 10.5 Monitoramento Sprint 05
+- Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` para criação/edição regras, importação PDF, geração relatórios.
+- Relatórios de importação incluem trilha de auditoria completa (hash, parser, autor, timestamp, idempotency key).
+
+## 11. Operações Sprint 06 — Versionamento, OCR, Exportação, Gráficos
+
+### 11.1 Versionamento e Rollback de Regras De-Para
+1. **Histórico** — `/finance/workspaces/<id>/categorization/` → botão "Histórico" por regra → lista versões com autor, data, motivo, diff.
+2. **Rollback** — Botão "Restaurar" em cada versão → confirmação → restaura snapshot imutável (padrão, prioridade, ativação). Loga versão de rollback para auditoria.
+2. **UI** — Tabela com colunas: Versão, Data, Autor, Motivo, Padrão, Tipo, Campo, Prioridade, Ativa, Ação (Restaurar).
+
+### 11.2 OCR Isolado para PDF
+1. **Upload** — Mesma interface, aceita `.pdf` (assinatura `%PDF-` validada).
+2. **Validação** — Rejeita criptografia sem senha, >50 páginas, >500KB texto, PDFs corrompidos.
+3. **Extração** — `pdfplumber` para texto/tabelas nativas; OCR opcional via `pymupdf` isolado.
+4. **Pipeline** — Mesmo fluxo CSV/OFX: staging → deduplicação → categorização (regras De-Para) → prévia → commit.
+
+### 11.3 Exportação de Relatórios
+- **Formatos**: CSV (UTF-8-SIG, delimitador `;`) e JSON (DecimalEncoder).
+- **Endpoints**: `/finance/profiles/<id>/reports/dre/export/`, `/equity/export/`, `/investments/export/`, `/goals/export/`.
+- **Parâmetros**: `format=csv|json`, `period_start`, `period_end`, `interval` (para equity).
+- **Sanitização CSV**: Prefixa `'` em células iniciadas com `=`, `+`, `-`, `@`, `\t`, `\r`.
+- **Auditoria**: Modelo `ReportExport` registra hash SHA-256, autor, timestamp, status, filtros.
+- **Permissões**: `overview`+`expenses`+`investments` (view) no perfil alvo.
+
+### 11.4 Gráficos no Dashboard
+- **Biblioteca**: Chart.js via vendor local em `static/` (sem CDN), compatível temas Claro/Escuro.
+- **DRE**: Barras empilhadas (Receitas vs Despesas por mês).
+- **Patrimônio**: Linha temporal (Patrimônio líquido, Bancos, Investimentos) com marcação de saldos desconhecidos.
+- **Investimentos**: Pizza (por categoria) + Linha (Aplicações/Resgates líquidos no período).
+- **Tokens**: Usa variáveis CSS `--positive`, `--negative`, `--primary`, `--gold` para consistência visual.
+
+### 11.5 Segurança Sprint 06
+- **ReDoS Hardening**: `validate_regex_safety()` no `CategorizationRule.clean()` impede bypass via mudança `exact`→`regex`. Log warning em `apply_categorization_rules()` quando regra falha.
+- **PDF Security**: Validação tamanho/assinatura **antes** de `fitz.open()` (prevenção OOM). `_parse_free_text` com timeout portável (sem `SIGALRM`).
+- **DRE Integridade**: Aplicações ficam fora do DRE (não entram em despesas).
+- **Idempotência por Linha**: `ImportRow.idempotency_key` (unique) validado no `commit_import` antes de criar batch.
+- **Teste Concorrência**: `CommitImportConcurrencyTests` com `ThreadPoolExecutor` + `Barrier` validando que 2 threads com mesma chave = 1 sucesso, 1 conflito, 1 batch no ledger.
+
+### 11.6 Monitoramento Sprint 06
+- Logs em `HOME/logs/YYYY-MM-DD_HH-MM-SS.log` para criação/edição/rollback regras, importação PDF/OCR, geração/export relatórios.
+- Relatórios de exportação incluem trilha de auditoria (hash SHA-256, autor, timestamp, formato, filtros).
+
+## 12. Encerramento de intervenção
+
+Anote versão da imagem, commit, resultado de CI, backup/hash, testes de leitura e escrita, horários, erros e caminho do rollback. Mantenha arquivos de log e backup; jamais delete automaticamente.

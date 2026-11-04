@@ -1,0 +1,434 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* ALECE Visão geral — composição baseada no wireframe, tokens e temas existentes.
+ * Restringir regras a .overview-home evita mudar despesas, investimentos e outras telas. */
+.overview-home {
+  display: grid;
+  gap: var(--ds-space-4, 16px);
+  min-width: 0;
+  /* Wireframe: cards directly on the page, without a backing panel. */
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.overview-home .card {
+  min-width: 0;
+  margin: 0;
+  border-radius: var(--ds-radius-card, 17px);
+  box-shadow: var(--ds-shadow-card, var(--shadow));
+  background: var(--surface);
+}
+.overview-kpis, .overview-main-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ds-space-4, 16px);
+  min-width: 0;
+}
+.overview-home .overview-kpi {
+  padding: 17px 21px;
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-4, 16px);
+}
+.overview-kpi-copy {min-width: 0}
+.overview-home .overview-kpi h2 {
+  font-size: clamp(19px, 2.15vw, 25px);
+  letter-spacing: -.55px;
+  line-height: 1.2;
+  margin: 0 0 5px;
+}
+.overview-kpi-copy p,.overview-kpi-copy small {
+  display: block;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.overview-kpi-copy small {margin-top: 5px}
+.overview-kpi-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+  text-align: right;
+}
+.overview-kpi-value strong {
+  color: var(--text);
+  font-size: clamp(17px, 2vw, 24px);
+  font-weight: 740;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.overview-home .overview-kpi-action {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  background: var(--surface-alt);
+}
+.overview-home .overview-planning,
+.overview-home #overview-month-card {
+  display: flex;
+  flex-direction: column;
+  /* Keep both panels level even with hundreds of monthly items. */
+  height: 490px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 22px;
+}
+.overview-panel-header,.overview-home #overview-month-card .panel-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+.overview-home .overview-panel-header h2,
+.overview-home #overview-month-card .panel-title h2 {
+  font-size: 18px;
+  line-height: 1.25;
+  margin: 0;
+  font-weight: 710;
+}
+.overview-panel-header p,
+.overview-home #overview-month-card .panel-subtitle {
+  font-size: 12px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.overview-home .overview-panel-header .icon-button,
+.overview-home #overview-month-card .icon-button {flex: none}
+.overview-plan-scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.overview-plan-scroll:focus-visible,
+.overview-home .month-table-wrap:focus-visible {outline: 3px solid var(--focus);outline-offset: 3px}
+.overview-plan-table {width: 100%; border-collapse: collapse; text-align: left; font-size: 12px}
+.overview-plan-table thead th {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  border-bottom: 1px solid var(--border);
+  padding: 9px 6px 10px;
+  white-space: nowrap;
+}
+.overview-plan-table tbody th,
+.overview-plan-table tbody td {border-bottom: 1px solid var(--border); padding: 11px 6px; vertical-align: middle}
+.overview-plan-table tbody tr:last-child th,
+.overview-plan-table tbody tr:last-child td {border-bottom: 0}
+.overview-plan-table tbody th {font-weight: 600; line-height: 1.45; min-width: 140px}
+.overview-plan-table td {font-variant-numeric: tabular-nums; white-space: nowrap}
+.overview-plan-category {display: inline-flex; align-items: flex-start; gap: 9px}
+.overview-plan-category .summary-swatch {flex: 0 0 10px; margin-top: 4px; width: 10px; height: 10px; border-radius: 4px}
+.overview-plan-list {display: none}
+.overview-plan-footer {
+  display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px;
+  flex: 0 0 auto; margin-top: auto; padding-top: 12px;
+}
+.overview-plan-status {
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface-alt); padding: 8px 11px;
+  font-size: 11px; color: var(--text);
+}
+.overview-plan-status strong {font-weight: 690}
+.overview-plan-status.is-warning {color: var(--negative)}
+.overview-panel-footnote {margin: 11px 0 0; font-size: 11px; color: var(--muted); line-height: 1.5}
+.overview-panel-empty {
+  display: grid; align-content: center; justify-items: start; gap: 12px;
+  flex: 1; color: var(--muted); font-size: 13px; line-height: 1.6;
+}
+.overview-panel-empty p {margin: 0}
+.overview-home #overview-month-card .month-table-wrap {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+/* Use the full width when available; only the table region scrolls otherwise. */
+.overview-home #overview-month-card .month-table {min-width: 0; width: 100%; table-layout: fixed}
+.overview-home #overview-month-card .month-table :is(th,td):nth-child(1) {width: 23%}
+.overview-home #overview-month-card .month-table :is(th,td):nth-child(2) {width: 18%}
+.overview-home #overview-month-card .month-table :is(th,td):nth-child(3) {width: 19%}
+.overview-home #overview-month-card .month-table :is(th,td):nth-child(4) {width: 23%}
+.overview-home #overview-month-card .month-table :is(th,td):nth-child(5) {width: 17%}
+.overview-home #overview-month-card .month-table th {overflow-wrap: anywhere}
+.overview-home #overview-month-card .month-table th,
+.overview-home #overview-month-card .month-table td {padding: 10px 7px}
+.overview-home #overview-month-card .month-table thead th {font-size: 11px; position: sticky; top: 0; z-index: 1}
+.overview-home #overview-month-card .month-table td:first-child,
+.overview-home #overview-month-card .month-table td:nth-child(2) {overflow-wrap: anywhere}
+.overview-home #overview-month-card .month-table td:nth-child(3) {white-space: nowrap}
+.overview-month-scroll-tip {display: none; color: var(--muted); font-size: 11px; margin: 9px 0 0}
+@media(max-width: 1000px) {
+  .overview-main-grid {grid-template-columns: minmax(0, 1fr)}
+  .overview-home .overview-planning,
+  .overview-home #overview-month-card {padding: 17px}
+  .overview-kpi-value strong {font-size: 18px}
+}
+@media(max-width: 760px) {
+  .overview-main-grid {grid-template-columns: minmax(0,1fr)}
+  .overview-home .overview-planning {height: auto; min-height: 0; overflow: visible}
+  .overview-home #overview-month-card {height: 410px; min-height: 0}
+  .overview-plan-scroll {flex: none; overflow-x: auto; overflow-y: visible}
+  .overview-home #overview-month-card .month-table-wrap {max-width: 100%}
+  .overview-home #overview-month-card .month-table {min-width: 460px; table-layout: auto}
+  .overview-home #overview-month-card {height: 400px; min-height: 0}
+}
+@media(max-width: 540px) {
+  .overview-home {padding: 0; gap: 10px}
+  .overview-kpis {grid-template-columns: minmax(0,1fr); gap: 10px}
+  .overview-home .overview-kpi {padding: 16px; min-height: 100px}
+  .overview-kpi-value strong {font-size: clamp(17px, 5vw, 23px)}
+  .overview-home .overview-planning,
+  .overview-home #overview-month-card {padding: 15px}
+  .overview-plan-scroll {display: none}
+  .overview-plan-list {display: grid; list-style: none; gap: 0; padding: 0; margin: 0}
+  .overview-plan-list li {display: grid; gap: 6px; padding: 12px 0; border-bottom: 1px solid var(--border)}
+  .overview-plan-list li:last-child {border-bottom: 0}
+  .overview-plan-list-name {display: flex; align-items: flex-start; gap: 9px; font-size: 12px; font-weight: 650; overflow-wrap: anywhere; line-height: 1.4}
+  .overview-plan-list-name .summary-swatch {width: 9px; height: 9px; flex: none; margin-top: 4px; border-radius: 3px}
+  .overview-plan-list-figures {display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-left: 18px; font-size: 11px; color: var(--muted)}
+  .overview-plan-list-figures strong {font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text)}
+  .overview-month-scroll-tip {display: block}
+  .overview-plan-status {font-size: 10.5px}
+}
+
+
+/* Renda mensal: mesmo contrato visual dos dialogos e controles do ALECE 1.0.
+ * Nenhuma altura minima artificial; rolagem interna apenas se muitos perfis. */
+.alece-income-dialog {
+  box-sizing: border-box;
+  width: min(530px, calc(100vw - 28px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  margin: auto;
+  color: var(--ds-color-text);
+  background: var(--ds-color-surface);
+  border: var(--ds-border-width) solid var(--ds-color-border);
+  border-radius: var(--ds-radius-dialog);
+  box-shadow: 0 24px 70px rgb(0 0 0 / .26);
+  overflow: hidden;
+}
+.alece-income-dialog[open] { display: block; }
+.alece-income-dialog::backdrop { background: rgb(6 18 12 / .60); }
+.alece-income-form {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  max-height: calc(100dvh - 34px);
+  margin: 0;
+  padding: 0;
+}
+.alece-income-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-4);
+  padding: var(--ds-space-6) var(--ds-space-6) var(--ds-space-4);
+  flex: none;
+}
+.alece-income-heading { min-width: 0; }
+.alece-income-eyebrow {
+  display: block;
+  margin-bottom: var(--ds-space-2);
+  color: var(--ds-color-brand);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.alece-income-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 740;
+  letter-spacing: -.35px;
+  line-height: 1.3;
+  color: var(--ds-color-text);
+}
+.alece-income-title:focus { outline: none; }
+.alece-income-close.icon-button {
+  width: var(--ds-size-icon);
+  min-width: var(--ds-size-icon);
+  height: var(--ds-size-icon);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-control);
+  background: var(--ds-color-muted-surface);
+  color: var(--ds-color-text);
+  font-size: 22px;
+  line-height: 1;
+}
+.alece-income-close[hidden] { display: none; }
+.alece-income-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--ds-space-1) var(--ds-space-6) var(--ds-space-5);
+  scrollbar-width: thin;
+  scrollbar-color: var(--ds-color-border) transparent;
+}
+.alece-income-rows { display: grid; gap: 0; }
+.alece-income-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 205px);
+  align-items: center;
+  gap: var(--ds-space-4);
+  min-width: 0;
+  padding: var(--ds-space-3) 0;
+  border-bottom: 1px solid var(--ds-color-border);
+}
+.alece-income-row:last-child { border-bottom: 0; }
+.alece-income-row label {
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-label);
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  color: var(--ds-color-text);
+}
+.alece-income-control {
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+/* Campo monetario alinhado ao Design System: R$ como prefixo visual, sem caixa dupla. */
+.alece-income-money {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ds-space-2);
+  width: 100%;
+  color: var(--ds-color-text);
+}
+.alece-income-currency {
+  flex: none;
+  color: var(--ds-color-muted);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-label);
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+}
+.alece-income-money input {
+  box-sizing: border-box;
+  width: min(100%, 176px);
+  min-width: 0;
+  min-height: var(--ds-size-control);
+  padding: 8px var(--ds-space-3);
+  border: var(--ds-border-width) solid var(--ds-control-border);
+  border-radius: var(--ds-radius-control);
+  outline: none;
+  box-shadow: none;
+  background: var(--ds-control-surface);
+  background-image: none;
+  color: var(--ds-color-text);
+  font: 600 14px/1.4 var(--ds-font-family);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.alece-income-money input:focus-visible {
+  border-color: var(--ds-color-focus);
+  outline: 2px solid var(--ds-color-focus);
+  outline-offset: 2px;
+}
+.alece-income-money input[aria-invalid="true"] {
+  border-color: var(--ds-color-danger);
+  outline-color: var(--ds-color-danger);
+}
+.alece-income-field-error {
+  display: block;
+  margin-top: var(--ds-space-2);
+  color: var(--ds-color-danger);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.alece-income-field-error:empty { display: none; }
+.alece-income-notice {
+  margin: 0 0 var(--ds-space-3);
+  padding: var(--ds-space-3);
+  border: 1px solid var(--ds-color-danger);
+  border-radius: var(--ds-radius-control);
+  color: var(--ds-color-danger);
+  font-size: 13px;
+}
+.alece-income-notice[hidden] { display: none; }
+.alece-income-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ds-space-3);
+  flex: none;
+  margin: 0 var(--ds-space-6);
+  padding: var(--ds-space-4) 0 var(--ds-space-6);
+  border-top: 1px solid var(--ds-color-border);
+}
+.alece-income-actions .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 115px;
+  min-height: var(--ds-size-control);
+  padding: 10px var(--ds-space-4);
+  border: 1px solid var(--ds-color-brand);
+  border-radius: var(--ds-radius-control);
+  background: var(--ds-color-brand);
+  color: var(--ds-color-on-brand);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-label);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.alece-income-actions .button.secondary {
+  background: var(--ds-color-muted-surface);
+  border-color: var(--ds-color-border);
+  color: var(--ds-color-text);
+}
+.alece-income-actions .button:focus-visible,
+.alece-income-close:focus-visible {
+  outline: 2px solid var(--ds-color-focus);
+  outline-offset: 2px;
+}
+.alece-income-actions .button:disabled { opacity: .6; cursor: wait; }
+.alece-income-fallback {
+  box-sizing: border-box;
+  width: min(530px, 100%);
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-dialog);
+  background: var(--ds-color-surface);
+}
+html.alece-income-modal-open, body.alece-income-modal-open { overflow: hidden; }
+@media (max-width: 560px) {
+  .alece-income-dialog { width: calc(100vw - 22px); max-height: calc(100dvh - 22px); }
+  .alece-income-form { max-height: calc(100dvh - 24px); }
+  .alece-income-header { padding: var(--ds-space-5) var(--ds-space-4) var(--ds-space-3); }
+  .alece-income-title { font-size: 18px; }
+  .alece-income-body { padding: 0 var(--ds-space-4) var(--ds-space-4); }
+  .alece-income-row { grid-template-columns: minmax(0, 1fr) minmax(136px, 47%); gap: var(--ds-space-2); }
+  .alece-income-actions { margin: 0 var(--ds-space-4); padding: var(--ds-space-4) 0 var(--ds-space-5); }
+  .alece-income-actions .button { flex: 1 1 0; min-width: 0; }
+}
+@media (max-width: 350px) {
+  .alece-income-row { grid-template-columns: 1fr; gap: var(--ds-space-2); }
+}
+@media (forced-colors: active) {
+  .alece-income-money input { border: 1px solid ButtonText; }
+  .alece-income-money input:focus-visible { outline: 2px solid Highlight; }
+}

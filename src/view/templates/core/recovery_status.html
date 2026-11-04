@@ -1,0 +1,33 @@
+{% extends "finance/base.html" %}
+{% block title %}Códigos de recuperação · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible recovery-page settings-form-view" id="page-settings">
+  <div class="section-heading"><h1>Códigos de recuperação</h1></div>
+  <div class="dialog-fallback recovery-modal-body" data-dialog-content>
+    <div class="dialog-title recovery-modal-header">
+      <div>
+        <h2 id="dialog-title">Seus novos códigos de recuperação</h2>
+        <p>Seis códigos de oito caracteres, cada um de uso único.</p>
+      </div>
+      <a href="{% url 'configuracoes' %}" class="close-x" data-dialog-cancel aria-label="Fechar"><svg aria-hidden="true"><use href="#i-close"/></svg></a>
+    </div>
+    {% for message in messages %}<p class="message {{ message.tags }}" role="alert">{{ message }}</p>{% endfor %}
+    <p class="recovery-modal-intro">Copie e baixe os códigos antes de concluir. Eles não poderão ser consultados novamente depois desta emissão.</p>
+    <div class="recovery-codes" aria-label="Seus seis códigos de recuperação">
+      {% for code in codes %}<code class="recovery-code" data-recovery-code>{{ code }}</code>{% endfor %}
+    </div>
+    <div class="recovery-tools" role="group" aria-label="Salvar códigos de recuperação">
+      <button type="button" class="button secondary" data-recovery-copy>Copiar códigos</button>
+      <button type="button" class="button secondary" data-recovery-download>Baixar .txt</button>
+    </div>
+    <p class="recovery-modal-hint" data-recovery-state aria-live="polite">Para concluir, copie e solicite o download do arquivo .txt.</p>
+    <form method="post" action="{% url 'configuracoes-codigos' %}" class="recovery-confirm-form" data-recovery-confirm-form>
+      {% csrf_token %}
+      <input type="hidden" name="nonce" value="{{ nonce }}">
+      <input type="hidden" name="copied" value="0"><input type="hidden" name="downloaded" value="0">
+      <div class="recovery-modal-footer"><button class="button" type="submit" data-recovery-confirm disabled>Concluir configuração</button></div>
+    </form>
+  </div>
+  <dialog class="unified-dialog" data-edit-dialog aria-labelledby="dialog-title"></dialog>
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- PREVIEW ISOLADA: dados sintéticos; não representa sessão Django real. -->
+<html lang="pt-BR" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prévia isolada · Renda ALECE</title>
+<link rel="stylesheet" href="../../../src/view/static/finance/alece_tokens.css">
+<link rel="stylesheet" href="../../../src/view/static/finance/alece.css">
+<link rel="stylesheet" href="../../../src/view/static/finance/alece_components.css">
+<link rel="stylesheet" href="../../../src/view/static/finance/alece_modals.css">
+<link rel="stylesheet" href="../../../src/view/static/finance/alece_overview.css">
+<style>.preview{max-width:1300px;margin:0 auto;display:flex;min-height:100vh}.preview aside{width:235px;background:var(--surface);border-right:1px solid var(--border);padding:32px 20px}.preview main{flex:1;min-width:0;padding:34px}.preview h1{font-size:30px}.preview aside p{margin:18px 0;padding:12px;color:var(--muted)}@media(max-width:700px){.preview aside{display:none}.preview main{padding:16px}}</style>
+<script src="../../../src/view/static/finance/alece_modals.js" defer></script>
+<script src="../../../src/view/static/finance/alece_overview_income.js" defer></script>
+</head><body><div class="preview"><aside><h3>ALECE</h3><p>Visão geral</p><p>Despesas</p><p>Investimentos</p><p>Movimentações</p></aside><main><div class="intro"><div><h1>Visão geral</h1><p>Seu dinheiro, com mais clareza e controle.</p></div></div>
+<div class="overview-home"><div class="overview-kpis"><article class="card overview-kpi"><div class="overview-kpi-copy"><h2>Renda</h2><p>Mensal informada</p></div><div class="overview-kpi-value"><strong>R$ 2.300,00</strong><a class="overview-kpi-action icon-button" href="/financas/nucleos/1/rendas/" data-income-dialog-trigger aria-haspopup="dialog" aria-controls="overview-income-dialog" aria-label="Editar renda mensal">✎</a></div></article><article class="card overview-kpi"><div class="overview-kpi-copy"><h2>Saldo</h2><p>Contas com valor conhecido</p></div><strong>R$ 980,00</strong></article></div>
+<div class="overview-main-grid"><article class="card overview-planning"><h2>Planejamento mensal</h2><p>O sistema não tem informações suficientes para gerar os dados.</p></article><article class="card" id="overview-month-card"><h2>Este mês</h2></article></div></div>
+<dialog id="overview-income-dialog" class="alece-income-dialog" aria-labelledby="income-modal-title"><form method="post" action="/financas/nucleos/1/rendas/" class="alece-income-form" data-income-bulk-form novalidate>
+<input type="hidden" name="csrfmiddlewaretoken" value="TEST_TOKEN_NAO_REAL"><input type="hidden" name="profile_ids" value="1,2">
+<header class="alece-income-header"><div class="alece-income-heading"><span class="alece-income-eyebrow">VISÃO GERAL</span><h2 class="alece-income-title" id="income-modal-title" tabindex="-1">Renda dos perfis financeiros</h2></div><button type="button" class="icon-button alece-income-close" data-income-close aria-label="Fechar edição de rendas" hidden>&times;</button></header>
+<div class="alece-income-body"><p class="alece-income-notice" role="alert" data-income-message hidden></p><div class="alece-income-rows">
+<div class="alece-income-row"><label for="id_income_1-monthly_income">Pessoal</label><div class="alece-income-control"><div class="alece-income-money"><span class="alece-income-currency" aria-hidden="true">R$</span><input type="text" inputmode="decimal" name="income_1-monthly_income" value="2300.00" id="id_income_1-monthly_income"></div><span class="alece-income-field-error" id="income_1-monthly_income_error" data-income-error-for="income_1-monthly_income" role="alert"></span></div></div>
+<div class="alece-income-row"><label for="id_income_2-monthly_income">Família</label><div class="alece-income-control"><div class="alece-income-money"><span class="alece-income-currency" aria-hidden="true">R$</span><input type="text" inputmode="decimal" name="income_2-monthly_income" id="id_income_2-monthly_income"></div><span class="alece-income-field-error" id="income_2-monthly_income_error" data-income-error-for="income_2-monthly_income" role="alert"></span></div></div>
+</div></div>
+<footer class="alece-income-actions"><a href="/visao-geral/" class="button secondary" data-income-cancel>Cancelar</a><button type="submit" class="button" data-income-save>Salvar</button></footer>
+</form></dialog>
+</main></div></body></html>

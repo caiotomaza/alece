@@ -1,0 +1,49 @@
+{% extends "finance/base.html" %}
+{% block title %}{{ title }} · ALECE{% endblock %}
+{% block content %}
+<section class="page is-visible settings-form-view">
+  <div class="section-heading"><h1>{{ title }}</h1></div>
+  <div class="dialog-fallback" data-dialog-content>
+    <form method="post" class="object-form{% if is_ai_form %} alece-ai-provider-form{% endif %}"{% if is_ai_form %} data-ai-form{% endif %} autocomplete="off">
+      {% csrf_token %}
+      <div class="dialog-title"><div><h2 id="dialog-title">{{ title }}</h2><p>Altere somente as informações necessárias.</p></div><a href="{% url 'configuracoes' %}" class="close-x" data-dialog-cancel aria-label="Fechar"><svg aria-hidden="true"><use href="#i-close"/></svg></a></div>
+      {{ form.non_field_errors }}
+      {% if is_ai_form %}
+        <div class="field-group">{{ form.provider_type.label_tag }}{{ form.provider_type }}{{ form.provider_type.errors }}</div>
+        <div class="alece-ai-preset-summary" data-ai-preset-summary>
+          <p><strong>Provedor:</strong> <span data-ai-preset-name></span></p>
+          <p><strong>Endpoint HTTPS:</strong> <span data-ai-preset-endpoint></span></p>
+          <p><strong>Modelo predefinido:</strong> <span data-ai-preset-model></span></p>
+        </div>
+        {% for field in form.visible_fields %}{% if field.name == 'provider_name' or field.name == 'endpoint' or field.name == 'model_name' %}
+          <div class="field-group ai-custom-field" data-ai-custom-group>
+            {{ field.label_tag }}{{ field }}{% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+            {% if field.errors %}<div class="settings-field-error" role="alert">{{ field.errors }}</div>{% endif %}
+          </div>
+        {% endif %}{% endfor %}
+        <div class="field-group">{{ form.api_token.label_tag }}{{ form.api_token }}
+          {% if form.api_token.help_text %}<div class="helptext">{{ form.api_token.help_text }}</div>{% endif %}
+          {{ form.api_token.errors }}
+        </div>
+        <label class="alece-ai-switch-line" for="{{ form.enabled.id_for_label }}">
+          <span><strong>Integração em uso</strong><small>Ativar esta API desativa automaticamente a anterior.</small></span>
+          {{ form.enabled }}<span class="alece-ai-switch-track" aria-hidden="true"></span>
+        </label>
+        {{ form.enabled.errors }}
+        {{ ai_preset_map|json_script:'ai-provider-presets' }}
+      {% else %}
+        {% for field in form.visible_fields %}
+        <div class="field-group{% if field.field.widget.input_type == 'checkbox' %} field-checkbox{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}<label class="checkbox-control" for="{{ field.id_for_label }}">{{ field }}<span>{{ field.label }}</span></label>
+          {% else %}{{ field.label_tag }} {{ field }}{% endif %}
+          {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+          {% if field.errors %}<div class="settings-field-error" role="alert">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      {% endif %}
+      <footer class="actions"><a class="button secondary" href="{% url 'configuracoes' %}" data-dialog-cancel>Cancelar</a><button class="button" type="submit">{{ submit_label }}</button></footer>
+    </form>
+  </div>
+  <dialog class="unified-dialog" data-edit-dialog aria-labelledby="dialog-title"></dialog>
+</section>
+{% endblock %}

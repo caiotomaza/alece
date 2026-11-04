@@ -1,0 +1,153 @@
+/home/oai/backups/2026-10-27_13-07-45__alece_pre_wcag.zip: OK
+EXTRACTED: 432
+timestamp=2026-10-27_13-07-45
+log=/home/oai/logs/2026-10-27_13-07-45.log
+backup=/home/oai/backups/2026-10-27_13-07-45__alece_pre_wcag.zip
+src/web.py
+src/requirements/development.txt
+src/requirements/production.txt
+src/requirements/development.in
+src/requirements/production.lock
+src/requirements/production.in
+src/requirements/development.lock
+src/requirements/browser.in
+src/model/__init__.py
+src/model/finance/domain/planning.py
+src/model/finance/domain/__init__.py
+src/model/finance/domain/calculations.py
+src/model/finance/__init__.py
+src/controller/config/__init__.py
+src/controller/config/settings.py
+src/controller/config/test_settings.py
+src/controller/config/wsgi.py
+src/controller/config/asgi.py
+src/controller/config/urls.py
+src/controller/__init__.py
+src/controller/apps/__init__.py
+src/controller/apps/finance/route_converters.py
+src/controller/apps/finance/reports_views.py
+src/controller/apps/finance/financial_transfer_views.py
+src/controller/apps/finance/import_views.py
+src/controller/apps/finance/public_routes.py
+src/controller/apps/finance/profile_selection.py
+src/controller/apps/finance/transaction_forms.py
+src/controller/apps/finance/legacy_urls.py
+src/controller/apps/finance/grant_views.py
+src/controller/apps/finance/__init__.py
+src/controller/apps/finance/models.py
+src/controller/apps/finance/transaction_views.py
+src/controller/apps/finance/query_forms.py
+src/controller/apps/finance/categorization_views.py
+src/controller/apps/finance/admin.py
+src/controller/apps/finance/views.py
+src/controller/apps/finance/forms.py
+src/controller/apps/finance/urls.py
+src/controller/apps/finance/apps.py
+src/controller/apps/core/context_processors.py
+src/controller/apps/core/bootstrap.py
+src/controller/apps/core/login_forms.py
+src/controller/apps/core/login_identifiers.py
+src/controller/apps/core/session_security.py
+src/controller/apps/core/auth_forms.py
+src/controller/apps/core/ai_credentials.py
+src/controller/apps/core/settings_views.py
+src/controller/apps/core/auth_services.py
+src/controller/apps/core/error_views.py
+src/controller/apps/core/auth_views.py
+src/controller/apps/core/legacy_urls.py
+src/controller/apps/core/__init__.py
+src/controller/apps/core/ai_catalog.py
+src/controller/apps/core/models.py
+src/controller/apps/core/settings_forms.py
+src/controller/apps/core/ai_service.py
+src/controller/apps/core/middleware.py
+src/controller/apps/core/preferences.py
+src/controller/apps/core/permissions.py
+src/controller/apps/core/views.py
+src/controller/apps/core/user_views.py
+src/controller/apps/core/forms.py
+src/controller/apps/core/urls.py
+src/controller/apps/core/apps.py
+src/__init__.py
+src/view/__init__.py
+src/view/templates/finance/import_upload.html
+src/view/templates/finance/import_row_edit.html
+src/view/templates/finance/confirm_delete.html
+src/view/templates/finance/_history_chart.html
+src/view/templates/finance/profile_detail.html
+src/view/templates/finance/import_list.html
+src/view/templates/finance/grant_list.html
+src/view/templates/finance/categorization_form.html
+src/view/templates/finance/profile_list.html
+src/view/templates/finance/reports_goals.html
+src/view/templates/finance/transaction_form.html
+src/view/templates/finance/reports_investments.html
+src/view/templates/finance/_icons.html
+src/view/templates/finance/workspace_page.html
+src/view/templates/finance/investment_suggestions.html
+src/view/templates/finance/reports_dre.html
+src/view/templates/finance/financial_transfer.html
+src/view/templates/finance/base.html
+src/view/templates/finance/reports_dashboard.html
+src/view/templates/finance/_goal_panel.html
+src/view/templates/finance/_movement_import.html
+src/view/templates/finance/object_form.html
+src/view/templates/finance/import_report.html
+src/view/templates/finance/import_row_detail.html
+src/view/templates/finance/import_preview.html
+src/view/templates/finance/account_form.html
+src/view/templates/finance/profile_form.html
+src/view/templates/finance/choose_profile.html
+src/view/templates/finance/import_row_row.html
+src/view/templates/finance/reports_equity.html
+src/view/templates/finance/profile_manage.html
+src/view/templates/finance/categorization_test_result.html
+src/view/templates/finance/categorization_list.html
+CHANGED src/view/templates/finance/base.html
+CHANGED src/view/templates/auth/login.html
+CHANGED src/view/templates/auth/recovery_request.html
+CHANGED src/view/templates/auth/recovery_use.html
+SCOPED src/view/templates/core/grant_management.html
+SCOPED src/view/templates/core/settings_admin_panel.html
+SCOPED src/view/templates/core/system_logs_list.html
+SCOPED src/view/templates/core/user_management.html
+SCOPED src/view/templates/finance/categorization_history.html
+SCOPED src/view/templates/finance/categorization_list.html
+SCOPED src/view/templates/finance/import_list.html
+SCOPED src/view/templates/finance/import_preview.html
+SCOPED src/view/templates/finance/import_report.html
+SCOPED src/view/templates/finance/reports_dashboard.html
+SCOPED src/view/templates/finance/reports_dre.html
+SCOPED src/view/templates/finance/reports_equity.html
+SCOPED src/view/templates/finance/reports_goals.html
+SCOPED src/view/templates/finance/reports_investments.html
+SCOPED src/view/templates/finance/workspace_page.html
+CHANGED src/view/templates/finance/_history_chart.html
+CHANGED src/view/templates/finance/reports_dashboard.html
+FINALIZED
+--- JS syntax
+--- Python syntax
+--- npm axe availability
+npm error code EAI_AGAIN
+npm error syscall getaddrinfo
+npm error errno EAI_AGAIN
+npm error request to https://registry.npmjs.org/axe-core failed, reason: getaddrinfo EAI_AGAIN registry.npmjs.org
+npm error A complete log of this run can be found in: /home/oai/.npm/_logs/2026-10-27T13_13_17_576Z-debug-0.log
+CAPTURES: 20
+WIDTH FAILURES: []
+AFTER_320: [{'mode': 'depois', 'theme': 'light', 'width': 320, 'viewport': 320, 'documentWidth': 320, 'tableWidth': 235, 'tableContentWidth': 576, 'inputBorder': 'rgb(111, 130, 116)', 'inputHeight': 44, 'inputInvalid': 'true', 'tableTabindex': '0'}, {'mode': 'depois', 'theme': 'dark', 'width': 320, 'viewport': 320, 'documentWidth': 320, 'tableWidth': 235, 'tableContentWidth': 576, 'inputBorder': 'rgb(137, 169, 150)', 'inputHeight': 44, 'inputInvalid': 'true', 'tableTabindex': '0'}]
+MATRIX: 55 CRITERIA, NON_APPLICABLE: 6
+
+Final JS/Python syntax OK
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+15 passed, 1 warning in 14.68s
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+30 passed, 1 warning in 24.77s
+Auditoria estrutural: escopo dos cabeçalhos, indicadores de foco e mensagens de erro.
+Playwright prévia isolada: 320, 390, 768, 1280, 1920 × light/dark; 20 PNGs antes/depois.
+Axe-core NÃO EXECUTADO: DNS indisponível no container (EAI_AGAIN).
+Integração Django/PostgreSQL NÃO EXECUTADA: pacotes e serviço ausentes.
+Redução de risco: nenhum segredo reproduzido no relatório ou evidências.
+Rollback: restaurar ZIP original preservado com checksum; sem migrations.

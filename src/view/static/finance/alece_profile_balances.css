@@ -1,0 +1,77 @@
+/* Perfil financeiro — apresentação de contas e saldos; integra o Design System ALECE. */
+.profile-balances-page{width:100%;max-width:1200px;min-width:0;margin-inline:auto;color:var(--ds-color-text)}
+.profile-balances-page svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.balances-breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:var(--ds-space-2);min-width:0;margin-bottom:var(--ds-space-6);font-size:var(--ds-font-label);color:var(--ds-color-muted)}
+.balances-breadcrumb a{color:var(--ds-color-brand);text-decoration:none}
+.balances-breadcrumb a:hover{text-decoration:underline}
+.balances-breadcrumb [aria-current]{overflow-wrap:anywhere}
+.balances-page-header{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--ds-space-5);margin-bottom:var(--ds-space-8)}
+.balances-page-heading{min-width:0}
+.balances-eyebrow{display:block;margin-bottom:var(--ds-space-2);font-size:var(--ds-font-caption);font-weight:700;letter-spacing:.045em;text-transform:uppercase;color:var(--ds-color-brand)}
+.balances-page-heading h1{margin:0;font-size:clamp(1.7rem,2.8vw,2.15rem);line-height:1.2;overflow-wrap:anywhere}
+.balances-page-heading p,.balances-section-header p,.balances-metadata-heading p{margin:var(--ds-space-2) 0 0;font-size:var(--ds-font-label);line-height:1.55;color:var(--ds-color-muted)}
+.profile-balances-page .balances-profile-action{flex:none;white-space:nowrap}
+.profile-balances-page .balances-profile-action svg,.profile-balances-page .balances-new-account svg{width:17px;height:17px}
+.balances-section{min-width:0}
+.balances-section-header{display:flex;justify-content:space-between;align-items:center;gap:var(--ds-space-4);margin-bottom:var(--ds-space-4)}
+.balances-section-header h2,.balances-metadata-heading h2{margin:0;font-size:1.2rem;line-height:1.35}
+.balances-section-header>div{min-width:0}
+.profile-balances-page .balances-new-account{gap:var(--ds-space-2);white-space:nowrap;flex:none}
+.balances-table-panel{overflow:hidden;background:var(--ds-color-surface);border:1px solid var(--ds-color-border);border-radius:var(--ds-radius-card);box-shadow:var(--ds-shadow-card)}
+.balances-table-scroll{width:100%;overflow-x:auto}
+.balances-table{width:100%;border-collapse:collapse;font-size:var(--ds-font-label);table-layout:fixed}
+.balances-table th{padding:var(--ds-space-4) var(--ds-space-5);background:var(--ds-color-muted-surface);font-weight:700;font-size:var(--ds-font-caption);color:var(--ds-color-muted);text-align:left}
+.balances-table th:first-child{width:35%}
+.balances-table th:nth-child(2){width:28%}
+.balances-table th.balances-action-heading{width:80px}
+.balances-table td{padding:var(--ds-space-4) var(--ds-space-5);border-top:1px solid var(--ds-color-border);vertical-align:middle;overflow-wrap:anywhere}
+.balances-table tbody tr:first-child td{border-top:0}
+.balances-table .balances-amount-heading,.balances-table .balances-amount-cell{text-align:right}
+.balances-table .balances-action-heading,.balances-table .balances-account-actions{text-align:center}
+.balances-account-identity{display:flex;align-items:center;gap:var(--ds-space-3);min-width:0}
+.balances-account-icon,.balances-empty-icon{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:var(--ds-radius-control);background:var(--ds-color-muted-surface);color:var(--ds-color-brand)}
+.balances-account-detail{display:grid;gap:3px;min-width:0}
+.balances-account-detail strong{font-size:var(--ds-font-body);font-weight:700;overflow-wrap:anywhere}
+.balances-account-detail>span{font-size:var(--ds-font-caption);color:var(--ds-color-muted)}
+.balances-profile-name{color:var(--ds-color-muted);overflow-wrap:anywhere}
+.balances-amount{font-size:clamp(.92rem,1.3vw,1.03rem);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.balances-unknown{color:var(--ds-color-muted);font-weight:600}
+.profile-balances-page .balances-account-actions .icon-button{width:var(--ds-size-icon);height:var(--ds-size-icon);display:inline-grid;place-items:center;border-radius:var(--ds-radius-control);background:var(--ds-color-muted-surface);color:var(--ds-color-brand)}
+.profile-balances-page .balances-account-actions .icon-button:hover{background:var(--ds-color-border)}
+.balances-footnote{margin:var(--ds-space-3) 0 0;font-size:var(--ds-font-caption);line-height:1.55;color:var(--ds-color-muted)}
+.balances-empty{display:flex;align-items:center;gap:var(--ds-space-4);padding:var(--ds-space-6);background:var(--ds-color-surface);border:1px solid var(--ds-color-border);border-radius:var(--ds-radius-card)}
+.balances-empty>div{min-width:0}
+.balances-empty h3{margin:0;font-size:var(--ds-font-body);line-height:1.4}
+.balances-empty p{margin:var(--ds-space-1) 0 0;font-size:var(--ds-font-label);line-height:1.5;color:var(--ds-color-muted)}
+.balances-notice{margin:0 0 var(--ds-space-5);padding:var(--ds-space-3) var(--ds-space-4);background:var(--ds-color-muted-surface);border-radius:var(--ds-radius-control);color:var(--ds-color-muted);font-size:var(--ds-font-label)}
+.balances-metadata{margin-top:var(--ds-space-8);padding-top:var(--ds-space-6);border-top:1px solid var(--ds-color-border)}
+.balances-metadata-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:var(--ds-space-4);margin-top:var(--ds-space-4)}
+.balances-metadata-item{display:flex;flex-direction:column;align-items:flex-start;gap:var(--ds-space-2);padding:var(--ds-space-5);background:var(--ds-color-surface);border:1px solid var(--ds-color-border);border-radius:var(--ds-radius-card);min-width:0}
+.balances-metadata-item>span{font-size:var(--ds-font-caption);color:var(--ds-color-muted)}
+.balances-metadata-item strong{font-size:var(--ds-font-body);font-weight:700;overflow-wrap:anywhere}
+.balances-metadata-item a{font-size:var(--ds-font-label);font-weight:700;color:var(--ds-color-brand);text-decoration:none}
+.balances-metadata-item a:hover{text-decoration:underline}
+@media(max-width:700px){
+  .balances-breadcrumb{margin-bottom:var(--ds-space-5)}
+  .balances-page-header{align-items:flex-start;gap:var(--ds-space-4);margin-bottom:var(--ds-space-6)}
+  .balances-section-header{align-items:flex-start}
+  .balances-table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .balances-table,.balances-table tbody,.balances-table tr{display:block;width:100%}
+  .balances-table tr{padding:var(--ds-space-3) var(--ds-space-4)}
+  .balances-table tr+tr{border-top:1px solid var(--ds-color-border)}
+  .balances-table td{display:flex;align-items:center;justify-content:space-between;gap:var(--ds-space-3);padding:var(--ds-space-2) 0;border:0;text-align:right!important;min-width:0}
+  .balances-table td::before{content:attr(data-label);font-size:var(--ds-font-caption);color:var(--ds-color-muted);font-weight:600;flex:none;text-align:left}
+  .balances-table td:first-child::before,.balances-table td.balances-account-actions::before{display:none}
+  .balances-table td:first-child{justify-content:flex-start;padding-bottom:var(--ds-space-3);text-align:left!important}
+  .balances-table td.balances-account-actions{justify-content:flex-end;padding-top:0}
+  .balances-account-identity{flex:1}
+  .balances-profile-name{max-width:65%;text-align:right}
+}
+@media(max-width:480px){
+  .balances-page-header,.balances-section-header{flex-direction:column;align-items:stretch}
+  .profile-balances-page .balances-profile-action{align-self:flex-start}
+  .profile-balances-page .balances-new-account{align-self:flex-start}
+  .balances-empty{align-items:flex-start;padding:var(--ds-space-4)}
+  .balances-metadata-item{padding:var(--ds-space-4)}
+}
+@media(prefers-reduced-motion:reduce){.profile-balances-page *{scroll-behavior:auto}}
